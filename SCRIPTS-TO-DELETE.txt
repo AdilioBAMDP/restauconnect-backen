@@ -1,0 +1,29 @@
+# Scripts temporaires de développement à supprimer avant production
+
+# Scripts de correction de données
+fix-test-data-accounts.js
+fix-orphan-orders.js
+fix-fournisseur-account.js
+fix-all-coherence.js
+
+# Scripts de vérification
+check-registrations.js
+check-all-test-data.js
+check-accounts.js
+check-conv-finale.js
+check-transporteur-convs.js
+analyze-data-coherence.js
+
+# Scripts de test
+test-passwords.js
+test-marketplace.js
+test-api-complete.js
+recreate-fournisseur-account.js
+
+# Note: Les scripts utiles à garder
+# ✅ GARDER: production-backup-and-cleanup.js
+# ✅ GARDER: create-admin.ts (utile en production)
+# ✅ GARDER: check-final-deliveries.ts (diagnostic)
+# ✅ GARDER: check-existing-deliveries.ts (diagnostic)
+# ✅ GARDER: test-pricing-api.ts (tests d'intégration)
+# ✅ GARDER: test-all-routes.ts (tests d'intégration)
