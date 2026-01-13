@@ -115,7 +115,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isProduction ? 100 : 10000, // Production: 100 req/15min, Dev: 10000
+  max: isProduction ? 5000 : 10000, // Production: 5000 req/15min (333/min), Dev: 10000
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
