@@ -49,10 +49,10 @@ router.post('/create-payment-intent', authenticateToken, async (req: Request, re
       return res.status(404).json({ error: 'Utilisateur non trouvé' });
     }
 
-    // V�rifier le fournisseur
+    // Vérifier le fournisseur
     const supplierDoc = await User.findById(orderData.supplierId).exec();
-    if (!supplierDoc || supplierDoc.role !== 'supplier') {
-      return res.status(404).json({ error: 'Fournisseur non trouv�' });
+    if (!supplierDoc || (supplierDoc.role !== 'fournisseur' && supplierDoc.role !== 'supplier')) {
+      return res.status(404).json({ error: 'Fournisseur non trouvé' });
     }
 
     // Vérifier la disponibilité des produits et le stock
