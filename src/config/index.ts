@@ -64,7 +64,7 @@ export const config = {
   },
   
   cors: {
-    origin: process.env.CORS_ORIGIN?.split(',') || [
+    origin: (process.env.CORS_ORIGINS || process.env.CORS_ORIGIN)?.split(',').map(o => o.trim()) || [
       'http://localhost:3000', 
       `${process.env.WEB_URL || "http://localhost:5173"}`, 
       `${process.env.WEB_URL || "http://localhost:5174"}`, 
