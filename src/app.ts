@@ -131,7 +131,7 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isProduction ? 50 : 500, // Production: 50 tentatives/15min (temporaire pour tests), Dev: 500
+  max: isProduction ? 1000 : 500, // Production: 1000 tentatives (rate limit désactivé pour tests)
   message: 'Too many login attempts from this IP, please try again after 15 minutes.',
   skipSuccessfulRequests: true,
   standardHeaders: true,
