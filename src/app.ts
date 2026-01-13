@@ -321,8 +321,9 @@ const startServer = async () => {
   await connectDatabase(); // Connexion MongoDB activée
     
     const PORT = config.server.port || 5000;
+    const HOST = '0.0.0.0'; // Railway nécessite 0.0.0.0 pour être accessible
     
-    server.listen(PORT, () => {
+    server.listen(PORT, HOST, () => {
       logger.info(`🚀 RestauConnect API démarrée sur le port ${PORT}`);
       logger.info(`📊 Environment: ${config.server.nodeEnv}`);
       logger.info(`🔗 Connexion: http://localhost:${PORT}`);
