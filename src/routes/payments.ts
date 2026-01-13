@@ -81,8 +81,9 @@ router.post('/create-payment-intent', authenticateToken, async (req: Request, re
     // Parser l'adresse de livraison (format: "rue, ville code_postal")
     const deliveryAddressParts = (orderData.deliveryAddress || '').split(',').map((s: string) => s.trim());
     const deliveryStreet = deliveryAddressParts[0] || 'Adresse non spécifiée';
-    const deliveryCity = deliveryAddressParts[1]?.split(' ')[0] || 'Ville non spécifiée';
-    const deliveryPostalCode = deliveryAddressParts[1]?.match(/\d{5}/)?.[0] || '00000';
+    const cityAndPostal = deliveryAddressParts[1] || '';
+    const deliveryPostalCode = cityAndPostal.match(/\d{5}/)?.[0] || '00000';
+    const deliveryCity = cityAndPostal.replace(/\d{5}/, '').trim() || 'Ville non spécifiée';
 
     // Créer la commande en statut "pending"
   const order = new Order({
