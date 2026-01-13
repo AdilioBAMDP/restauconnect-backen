@@ -75,8 +75,18 @@ router.post('/create-payment-intent', authenticateToken, async (req: Request, re
       }
     }
 
+    // Générer un numéro de commande unique
+    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+    // Parser l'adresse de livraison (format: "rue, ville code_postal")
+    const deliveryAddressParts = (orderData.deliveryAddress || '').split(',').map((s: string) => s.trim());
+    const deliveryStreet = deliveryAddressParts[0] || 'Adresse non spécifiée';
+    const deliveryCity = deliveryAddressParts[1]?.split(' ')[0] || 'Ville non spécifiée';
+    const deliveryPostalCode = deliveryAddressParts[1]?.match(/\d{5}/)?.[0] || '00000';
+
     // Créer la commande en statut "pending"
   const order = new Order({
+      orderNumber,
       restaurantId: userId,
       supplierId: orderData.supplierId,
       items: orderData.items.map((item: any) => ({
@@ -90,14 +100,14 @@ router.post('/create-payment-intent', authenticateToken, async (req: Request, re
       })),
       pickupAddress: {
   street: (supplierDoc as any).address || 'Adresse fournisseur',
-  city: (supplierDoc as any).city || '',
-  postalCode: (supplierDoc as any).postalCode || '',
+  city: (supplierDoc as any).city || 'Paris',
+  postalCode: (supplierDoc as any).postalCode || '75001',
         country: 'France',
       },
       deliveryAddress: {
-        street: orderData.deliveryAddress,
-        city: '',
-        postalCode: '',
+        street: deliveryStreet,
+        city: deliveryCity,
+        postalCode: deliveryPostalCode,
         country: 'France',
         instructions: orderData.specialInstructions,
       },
