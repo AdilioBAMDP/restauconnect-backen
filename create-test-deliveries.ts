@@ -1,249 +1,295 @@
-/**
- * 🚚 Script de création de livraisons de test pour le suivi en temps réel
- * Crée des livraisons actives pour tester la carte de suivi restaurant
- */
-
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+import { User } from './src/models/User';
 
-dotenv.config();
+const MONGODB_URI = 'mongodb+srv://adiliobalde_db_user:CTEuzwTlsyYCMVzI@cluster0.iund9rp.mongodb.net/restauconnect?retryWrites=true&w=majority&appName=Cluster0';
 
-// Schéma Delivery
+// Définir le schéma Delivery
 const deliverySchema = new mongoose.Schema({
-  orderId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  requesterId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  supplierId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  driverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  deliveryNumber: { type: String, required: true, unique: true },
   status: { 
     type: String, 
-    enum: ['pending', 'assigned', 'pickup_pending', 'picked_up', 'in_transit', 'delivered', 'cancelled'],
-    default: 'pending'
+    enum: ['pending', 'assigned', 'pickup_pending', 'picked_up', 'in_transit', 'delivered', 'failed', 'cancelled'],
+    default: 'in_transit'
   },
-  requesterId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  supplierId: { type: mongoose.Schema.Types.ObjectId, required: true },
-  driverId: { type: mongoose.Schema.Types.ObjectId },
+  priority: { type: String, enum: ['low', 'normal', 'high', 'urgent'], default: 'normal' },
+  type: { type: String, enum: ['standard', 'express', 'scheduled', 'return'], default: 'standard' },
   pickupAddress: {
     street: String,
     city: String,
     postalCode: String,
-    coordinates: [Number], // [longitude, latitude]
+    country: { type: String, default: 'France' },
     latitude: Number,
-    longitude: Number
+    longitude: Number,
+    contactName: String,
+    contactPhone: String,
+    contactEmail: String
   },
   deliveryAddress: {
     street: String,
     city: String,
     postalCode: String,
-    coordinates: [Number], // [longitude, latitude]
+    country: { type: String, default: 'France' },
     latitude: Number,
-    longitude: Number
+    longitude: Number,
+    contactName: String,
+    contactPhone: String,
+    contactEmail: String
   },
   items: [{
     name: String,
+    description: String,
     quantity: Number,
-    unit: String
+    weight: Number,
+    category: String,
+    fragile: Boolean,
+    refrigerated: Boolean
   }],
-  estimatedTime: String,
-  actualDeliveryTime: Date,
-  notes: String,
+  totalWeight: Number,
+  totalValue: Number,
+  currentLocation: {
+    latitude: Number,
+    longitude: Number,
+    timestamp: Date
+  },
+  estimatedPickupTime: Date,
+  estimatedDeliveryTime: Date,
+  pricing: {
+    totalCost: Number,
+    currency: { type: String, default: 'EUR' },
+    paymentStatus: { type: String, default: 'pending' }
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
 
-const DeliveryModel = mongoose.model('Delivery', deliverySchema);
-
-// Schéma User simplifié
-const userSchema = new mongoose.Schema({
-  email: String,
-  name: String,
-  role: String
-});
-const User = mongoose.model('User', userSchema);
-
-// Schéma Order simplifié
-const orderSchema = new mongoose.Schema({
-  restaurantEmail: String,
-  items: Array
-});
-const Order = mongoose.model('Order', orderSchema);
+const Delivery = mongoose.model('Delivery', deliverySchema);
 
 async function createTestDeliveries() {
   try {
-    const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/restauconnect';
-    
-    console.log('📡 Connexion à MongoDB...');
+    console.log('📡 Connexion à MongoDB Atlas...');
     await mongoose.connect(MONGODB_URI);
-    console.log('✅ Connecté à MongoDB\n');
+    console.log('✅ Connecté!\n');
 
-    // 1. Trouver le restaurant test
-    const restaurant = await User.findOne({ email: 'restaurant@test.fr' });
-    if (!restaurant) {
-      console.error('❌ Restaurant test non trouvé (restaurant@test.fr)');
+    // Récupérer les utilisateurs
+    const restaurant = await User.findOne({ email: 'restaurant1@restauconnect.com' });
+    const supplier = await User.findOne({ email: 'fournisseur@test.fr' });
+    const driver = await User.findOne({ email: 'driver1@test.fr' });
+
+    if (!restaurant || !supplier || !driver) {
+      console.error('❌ Utilisateurs manquants:');
+      console.log('Restaurant:', restaurant ? '✅' : '❌');
+      console.log('Fournisseur:', supplier ? '✅' : '❌');
+      console.log('Driver:', driver ? '✅' : '❌');
       process.exit(1);
     }
-    console.log('✅ Restaurant trouvé:', restaurant.name, restaurant._id);
 
-    // 2. Trouver un fournisseur test
-    const supplier = await User.findOne({ role: 'fournisseur' });
-    if (!supplier) {
-      console.error('❌ Aucun fournisseur trouvé');
-      process.exit(1);
-    }
-    console.log('✅ Fournisseur trouvé:', supplier.name, supplier._id);
+    console.log('👥 Utilisateurs trouvés:');
+    console.log(`  Restaurant: ${restaurant.email} (${restaurant._id})`);
+    console.log(`  Fournisseur: ${supplier.email} (${supplier._id})`);
+    console.log(`  Livreur: ${driver.email} (${driver._id})`);
 
-    // 3. Trouver un livreur test
-    const driver = await User.findOne({ email: 'test.mobile@webspider.com' }) || 
-                   await User.findOne({ role: 'livreur' });
-    if (!driver) {
-      console.error('❌ Aucun livreur trouvé');
-      process.exit(1);
-    }
-    console.log('✅ Livreur trouvé:', driver.name, driver._id);
+    // Supprimer les anciennes livraisons test
+    await Delivery.deleteMany({});
+    console.log('\n🗑️  Anciennes livraisons supprimées');
 
-    // 4. Trouver une commande existante du restaurant
-    let order = await Order.findOne({ restaurantEmail: restaurant.email });
-    
-    // Si pas de commande, en créer une
-    if (!order) {
-      console.log('⚠️  Aucune commande trouvée, création d\'une commande test...');
-      order = await Order.create({
-        restaurantEmail: restaurant.email,
-        items: [
-          { name: 'Tomates fraîches', quantity: 10, unit: 'kg' },
-          { name: 'Mozzarella di Bufala', quantity: 5, unit: 'kg' }
-        ],
-        status: 'confirmed',
-        totalAmount: 150,
-        createdAt: new Date()
-      });
-      console.log('✅ Commande test créée:', order._id);
-    } else {
-      console.log('✅ Commande trouvée:', order._id);
-    }
-
-    // 5. Supprimer les anciennes livraisons de test
-    await DeliveryModel.deleteMany({ 
-      requesterId: restaurant._id,
-      status: { $in: ['assigned', 'picked_up', 'in_transit'] }
-    });
-    console.log('🧹 Anciennes livraisons supprimées\n');
-
-    // 6. Créer des livraisons de test avec différents statuts
+    // Créer 3 livraisons test
     const testDeliveries = [
       {
-        orderId: order._id,
-        status: 'assigned',
         requesterId: restaurant._id,
         supplierId: supplier._id,
         driverId: driver._id,
+        deliveryNumber: `DEL-${Date.now()}-001`,
+        status: 'in_transit',
+        priority: 'high',
+        type: 'express',
         pickupAddress: {
           street: '15 Rue de la Paix',
           city: 'Paris',
           postalCode: '75002',
-          coordinates: [2.3314, 48.8692], // [lng, lat]
-          latitude: 48.8692,
-          longitude: 2.3314
+          country: 'France',
+          latitude: 48.8698,
+          longitude: 2.3316,
+          contactName: 'Fournisseur Test',
+          contactPhone: '+33612345678',
+          contactEmail: 'fournisseur@test.fr'
         },
         deliveryAddress: {
           street: '123 Avenue des Champs-Élysées',
           city: 'Paris',
           postalCode: '75008',
-          coordinates: [2.3078, 48.8698], // [lng, lat]
-          latitude: 48.8698,
-          longitude: 2.3078
+          country: 'France',
+          latitude: 48.8738,
+          longitude: 2.2950,
+          contactName: 'Restaurant Le Gourmet',
+          contactPhone: '+33687654321',
+          contactEmail: 'restaurant1@restauconnect.com'
         },
         items: [
-          { name: 'Tomates fraîches', quantity: 10, unit: 'kg' },
-          { name: 'Basilic bio', quantity: 2, unit: 'bottes' }
+          {
+            name: 'Caisses de légumes frais',
+            description: 'Tomates, salades, carottes bio',
+            quantity: 5,
+            weight: 25,
+            category: 'food',
+            fragile: false,
+            refrigerated: true
+          }
         ],
-        estimatedTime: '30 minutes',
-        notes: 'Livraison assignée au livreur'
+        totalWeight: 25,
+        totalValue: 150,
+        currentLocation: {
+          latitude: 48.8718,
+          longitude: 2.3133,
+          timestamp: new Date()
+        },
+        estimatedPickupTime: new Date(Date.now() - 30 * 60000),
+        estimatedDeliveryTime: new Date(Date.now() + 15 * 60000),
+        pricing: {
+          totalCost: 35,
+          currency: 'EUR',
+          paymentStatus: 'pending'
+        }
       },
       {
-        orderId: order._id,
-        status: 'in_transit',
         requesterId: restaurant._id,
         supplierId: supplier._id,
         driverId: driver._id,
+        deliveryNumber: `DEL-${Date.now()}-002`,
+        status: 'pickup_pending',
+        priority: 'normal',
+        type: 'standard',
         pickupAddress: {
-          street: '42 Boulevard Saint-Germain',
+          street: '45 Boulevard Saint-Michel',
           city: 'Paris',
           postalCode: '75005',
-          coordinates: [2.3488, 48.8534],
-          latitude: 48.8534,
-          longitude: 2.3488
+          country: 'France',
+          latitude: 48.8506,
+          longitude: 2.3440,
+          contactName: 'Fournisseur Test',
+          contactPhone: '+33612345678',
+          contactEmail: 'fournisseur@test.fr'
         },
         deliveryAddress: {
           street: '123 Avenue des Champs-Élysées',
           city: 'Paris',
           postalCode: '75008',
-          coordinates: [2.3078, 48.8698],
-          latitude: 48.8698,
-          longitude: 2.3078
+          country: 'France',
+          latitude: 48.8738,
+          longitude: 2.2950,
+          contactName: 'Restaurant Le Gourmet',
+          contactPhone: '+33687654321',
+          contactEmail: 'restaurant1@restauconnect.com'
         },
         items: [
-          { name: 'Mozzarella di Bufala', quantity: 5, unit: 'kg' },
-          { name: 'Huile d\'olive extra vierge', quantity: 3, unit: 'litres' }
+          {
+            name: 'Équipement de cuisine',
+            description: 'Ustensiles professionnels',
+            quantity: 3,
+            weight: 15,
+            category: 'equipment',
+            fragile: true,
+            refrigerated: false
+          }
         ],
-        estimatedTime: '15 minutes',
-        notes: 'En route vers votre restaurant ! 🚚'
+        totalWeight: 15,
+        totalValue: 280,
+        currentLocation: {
+          latitude: 48.8506,
+          longitude: 2.3440,
+          timestamp: new Date()
+        },
+        estimatedPickupTime: new Date(Date.now() + 20 * 60000),
+        estimatedDeliveryTime: new Date(Date.now() + 60 * 60000),
+        pricing: {
+          totalCost: 25,
+          currency: 'EUR',
+          paymentStatus: 'pending'
+        }
       },
       {
-        orderId: order._id,
-        status: 'pickup_pending',
         requesterId: restaurant._id,
         supplierId: supplier._id,
         driverId: driver._id,
+        deliveryNumber: `DEL-${Date.now()}-003`,
+        status: 'assigned',
+        priority: 'urgent',
+        type: 'express',
         pickupAddress: {
-          street: '8 Rue du Faubourg Saint-Honoré',
+          street: '78 Rue de Rivoli',
           city: 'Paris',
-          postalCode: '75008',
-          coordinates: [2.3196, 48.8707],
-          latitude: 48.8707,
-          longitude: 2.3196
+          postalCode: '75001',
+          country: 'France',
+          latitude: 48.8606,
+          longitude: 2.3376,
+          contactName: 'Fournisseur Test',
+          contactPhone: '+33612345678',
+          contactEmail: 'fournisseur@test.fr'
         },
         deliveryAddress: {
           street: '123 Avenue des Champs-Élysées',
           city: 'Paris',
           postalCode: '75008',
-          coordinates: [2.3078, 48.8698],
-          latitude: 48.8698,
-          longitude: 2.3078
+          country: 'France',
+          latitude: 48.8738,
+          longitude: 2.2950,
+          contactName: 'Restaurant Le Gourmet',
+          contactPhone: '+33687654321',
+          contactEmail: 'restaurant1@restauconnect.com'
         },
         items: [
-          { name: 'Jambon de Parme', quantity: 2, unit: 'kg' },
-          { name: 'Parmesan Reggiano', quantity: 1, unit: 'kg' }
+          {
+            name: 'Commande urgente',
+            description: 'Ingrédients manquants pour service du soir',
+            quantity: 2,
+            weight: 8,
+            category: 'food',
+            fragile: false,
+            refrigerated: true
+          }
         ],
-        estimatedTime: '45 minutes',
-        notes: 'Livreur en route vers le fournisseur'
+        totalWeight: 8,
+        totalValue: 95,
+        currentLocation: {
+          latitude: 48.8606,
+          longitude: 2.3376,
+          timestamp: new Date()
+        },
+        estimatedPickupTime: new Date(Date.now() + 10 * 60000),
+        estimatedDeliveryTime: new Date(Date.now() + 40 * 60000),
+        pricing: {
+          totalCost: 45,
+          currency: 'EUR',
+          paymentStatus: 'pending'
+        }
       }
     ];
 
-    console.log('🚚 Création des livraisons de test...\n');
-    
-    for (const deliveryData of testDeliveries) {
-      const delivery = await DeliveryModel.create(deliveryData);
-      console.log(`✅ Livraison créée:
-   📦 ID: ${delivery._id}
-   📍 Statut: ${delivery.status}
-   🏪 De: ${deliveryData.pickupAddress.street}
-   🎯 Vers: ${deliveryData.deliveryAddress.street}
-   ⏱️  Temps estimé: ${deliveryData.estimatedTime}
-   🚗 Livreur: ${driver.name}
-`);
+    console.log('\n📦 Création de 3 livraisons test...\n');
+
+    for (const delivery of testDeliveries) {
+      const created = await Delivery.create(delivery);
+      console.log(`✅ ${delivery.deliveryNumber} - Status: ${delivery.status} - Priority: ${delivery.priority}`);
     }
 
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('✅ 3 LIVRAISONS DE TEST CRÉÉES !');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('\n📱 Connectez-vous avec restaurant@test.fr / restaurant123');
-    console.log('🗺️  Allez dans le tableau de bord restaurant');
-    console.log('👀 Vous verrez maintenant 3 livraisons actives sur la carte !\n');
+    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('📊 RÉSUMÉ');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('✅ 3 livraisons test créées');
+    console.log('📍 Toutes pour: restaurant1@restauconnect.com');
+    console.log('🚗 Livreur: driver1@test.fr');
+    console.log('\n🎯 MAINTENANT:');
+    console.log('1. Connecte-toi avec restaurant1@restauconnect.com / password123');
+    console.log('2. Le suivi des livraisons devrait afficher ces 3 livraisons!');
+    console.log('3. Tu verras les positions sur la carte en temps réel\n');
 
-  } catch (error) {
-    console.error('❌ Erreur:', error);
-  } finally {
-    await mongoose.disconnect();
-    console.log('📡 Déconnecté de MongoDB');
+    process.exit(0);
+  } catch (error: any) {
+    console.error('\n❌ ERREUR:', error.message);
+    process.exit(1);
   }
 }
 
-// Lancer le script
 createTestDeliveries();

@@ -16,6 +16,7 @@
 
 import express, { Request, Response } from 'express';
 import Partner, { IPartner } from '../models/Partner';
+import { User } from '../models/User';
 import { authenticateToken } from '../middleware/auth';
 import { body, param, query, validationResult } from 'express-validator';
 import { logger } from '../utils/logger';
@@ -279,11 +280,16 @@ router.get('/by-role/:role', async (req: Request, res: Response): Promise<any> =
       });
     }
 
-    const partners = await Partner.find({
+    // ✅ Chercher dans le modèle User (pas Partner) car les fournisseurs sont des utilisateurs
+    const partners = await User.find({
       role,
-      isActive: true
+      $or: [
+        { isActive: true },
+        { isActive: { $exists: false } } // Support des anciens comptes sans ce champ
+      ]
     })
-      .sort({ featured: -1, rating: -1, reviewCount: -1 })
+      .select('-password') // Exclure le mot de passe
+      .sort({ createdAt: -1 })
       .limit(Number(limit))
       .exec();
 
@@ -369,7 +375,7 @@ router.patch('/:id', authenticateToken, async (req: Request, res: Response): Pro
     const nonEditableFields = ['userId', 'profileViews', 'contactRequests', 'createdAt'];
     arrayForEach(nonEditableFields, (field: string) => delete req.body[field]);
 
-    // Mettre � jour
+    // Mettre � jour
     objectAssign(partner, req.body);
     await partner.save();
 
