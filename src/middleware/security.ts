@@ -32,6 +32,13 @@ export const corsOptions = {
       // console.log('[CORS] Pas d\'origin, autorisé (Postman ou même origine)');
       return callback(null, true);
     }
+    
+    // ✅ Allow all Vercel preview URLs (*.vercel.app)
+    if (origin.includes('.vercel.app')) {
+      // console.log('[CORS] Vercel preview URL autorisée :', origin);
+      return callback(null, true);
+    }
+    
     if (allowedOrigins.includes(origin)) {
       // console.log('[CORS] Origin autorisée :', origin);
       return callback(null, true);
