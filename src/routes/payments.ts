@@ -34,12 +34,20 @@ router.post('/create-payment-intent', authenticateToken, async (req: Request, re
     const userId = (req as any).user.id;
     const { amount, currency = 'eur', orderData } = req.body;
 
+    // 🔍 LOG DEBUG - Voir ce qui arrive du frontend
+    logger.info('=== PAYMENT INTENT REQUEST ===');
+    logger.info('User ID:', userId);
+    logger.info('Amount:', amount, typeof amount);
+    logger.info('OrderData received:', JSON.stringify(orderData, null, 2));
+
     // Validation
     if (!amount || amount <= 0) {
+      logger.error('Validation failed: Invalid amount', amount);
       return res.status(400).json({ error: 'Montant invalide' });
     }
 
     if (!orderData || !orderData.items || orderData.items.length === 0) {
+      logger.error('Validation failed: Missing order data or items');
       return res.status(400).json({ error: 'Données de commande manquantes' });
     }
 
@@ -158,10 +166,12 @@ router.post('/create-payment-intent', authenticateToken, async (req: Request, re
       paymentIntentId: paymentIntent.id,
     });
   } catch (error) {
-    logger.error('Erreur création PaymentIntent:', error);
+    logger.error('❌ Erreur création PaymentIntent:', error);
+    logger.error('Stack trace:', (error as any).stack);
     return res.status(500).json({ 
       error: 'Erreur lors de la création du paiement',
-  details: (error as any).message,
+      details: (error as any).message,
+      stack: process.env.NODE_ENV === 'development' ? (error as any).stack : undefined
     });
   }
 });
