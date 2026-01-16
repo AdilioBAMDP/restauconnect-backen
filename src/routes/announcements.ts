@@ -22,37 +22,50 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
       });
     }
     
-    const query: any = {
-      status: 'active',
-      $or: [
-        { expiresAt: { $gt: new Date() } },
-        { expiresAt: { $exists: false } }
-      ]
+    // Construire la requête de base : annonces actives et non expirées
+    let query: any = {
+      status: 'active'
     };
+    
+    // Ajouter le filtre d'expiration
+    query.$or = [
+      { expiresAt: { $gt: new Date() } }, // Pas encore expirée
+      { expiresAt: { $exists: false } },   // Pas de date d'expiration
+      { expiresAt: null }                  // Date nulle
+    ];
 
-    // Filtrer par audience cible si nécessaire
-    if (userRole) {
-      query.$and = [
-        {
-          $or: [
-            { targetAudience: { $in: [userRole] } },
-            { targetAudience: { $size: 0 } },
-            { targetAudience: { $exists: false } }
-          ]
-        }
-      ];
-    }
+    console.log('🔍 [Announcements] User role:', userRole);
+    console.log('🔍 [Announcements] Initial query:', JSON.stringify(query, null, 2));
 
-    const announcements = await db.collection('globalannouncements')
+    // Récupérer toutes les annonces actives
+    const allAnnouncements = await db.collection('globalannouncements')
       .find(query)
       .sort({ priority: -1, createdAt: -1 })
-      .limit(50)
       .toArray();
+
+    console.log(`📊 [Announcements] Found ${allAnnouncements.length} total active announcements`);
+
+    // Filtrer par rôle côté application (plus simple que MongoDB)
+    let announcements = allAnnouncements;
+    if (userRole) {
+      announcements = allAnnouncements.filter((ann: any) => {
+        // Si pas de targetAudience ou tableau vide = visible par tous
+        if (!ann.targetAudience || ann.targetAudience.length === 0) {
+          return true;
+        }
+        // Sinon, vérifier si le rôle est dans la liste
+        return ann.targetAudience.includes(userRole);
+      });
+      console.log(`📊 [Announcements] Filtered to ${announcements.length} for role "${userRole}"`);
+    }
+
+    const finalAnnouncements = announcements.slice(0, 50); // Limiter à 50
+    console.log(`✅ [Announcements] Returning ${finalAnnouncements.length} announcements`);
 
     res.json({
       success: true,
-      data: announcements,
-      count: announcements.length
+      data: finalAnnouncements,
+      count: finalAnnouncements.length
     });
 
   } catch (error: any) {
