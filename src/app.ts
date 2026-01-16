@@ -38,6 +38,7 @@ import deliveriesRoutes from './routes/deliveries'; // 📦 LIVRAISONS
 import marketplaceRoutes from './routes/marketplace';
 import announcementsRoutes from './routes/announcements';
 import applicationsRoutes from './routes/applications';
+import seedRoutes from './routes/seed'; // 🌱 SEED DATA (temporary)
 
 // Routes manquantes ajoutées - Audit Phase 1
 import accountantRoutes from './routes/accountant';
@@ -214,6 +215,7 @@ app.use('/api/deliveries', deliveriesRoutes); // 📦 LIVRAISONS
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/announcements', announcementsRoutes);
 app.use('/api/applications', applicationsRoutes);
+app.use('/api/seed', seedRoutes); // 🌱 SEED DATA (À SUPPRIMER après utilisation)
 
 // Routes ajoutées - Audit Phase 1 (31 routes manquantes)
 app.use('/api/accountant', accountantRoutes);
