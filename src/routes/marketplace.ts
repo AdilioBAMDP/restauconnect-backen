@@ -1,14 +1,14 @@
 import express, { Request, Response } from 'express';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken, optionalAuth } from '../middleware/auth';
 import { logger } from '../utils/logger';
 import { MarketplacePost } from '../models/MarketplacePost';
 import { User } from '../models/User';
 
 const router = express.Router();
 
-router.get('/posts', authenticateToken, async (req: Request, res: Response) => {
+router.get('/posts', optionalAuth, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user.userId;
+    const userId = (req as any).user?.userId;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const category = req.query.category as string;
@@ -31,8 +31,8 @@ router.get('/posts', authenticateToken, async (req: Request, res: Response) => {
     const postsWithUserFlags = posts.map(post => ({
       ...post,
       id: post._id.toString(),
-      isLiked: post.likedBy.includes(userId),
-      isBookmarked: post.bookmarkedBy.includes(userId)
+      isLiked: userId ? post.likedBy.includes(userId) : false,
+      isBookmarked: userId ? post.bookmarkedBy.includes(userId) : false
     }));
     
     res.json({
@@ -49,7 +49,7 @@ router.get('/posts', authenticateToken, async (req: Request, res: Response) => {
     logger.error('Erreur GET /api/marketplace/posts:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des posts'
+      error: 'Erreur lors de la rï¿½cupï¿½ration des posts'
     });
   }
 });
@@ -70,7 +70,7 @@ router.post('/posts', authenticateToken, async (req: Request, res: Response) => 
     
     const user = await User.findById(userId).exec();
     if (!user) {
-      return res.status(404).json({ success: false, error: 'Utilisateur non trouvé' });
+      return res.status(404).json({ success: false, error: 'Utilisateur non trouvï¿½' });
     }
     
     const newPost = new MarketplacePost({
@@ -100,7 +100,7 @@ router.post('/posts', authenticateToken, async (req: Request, res: Response) => 
     });
   } catch (error) {
     logger.error('Erreur POST /api/marketplace/posts:', error);
-    res.status(500).json({ success: false, error: 'Erreur lors de la création du post' });
+    res.status(500).json({ success: false, error: 'Erreur lors de la crï¿½ation du post' });
   }
 });
 
@@ -111,7 +111,7 @@ router.post('/posts/:id/like', authenticateToken, async (req: Request, res: Resp
     
     const post = await MarketplacePost.findById(id).exec();
     if (!post) {
-      res.status(404).json({ success: false, error: 'Post non trouvé' });
+      res.status(404).json({ success: false, error: 'Post non trouvï¿½' });
       return;
     }
     
@@ -140,7 +140,7 @@ router.post('/posts/:id/bookmark', authenticateToken, async (req: Request, res: 
     
     const post = await MarketplacePost.findById(id).exec();
     if (!post) {
-      res.status(404).json({ success: false, error: 'Post non trouvé' });
+      res.status(404).json({ success: false, error: 'Post non trouvï¿½' });
       return;
     }
     
