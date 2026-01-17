@@ -1231,37 +1231,6 @@ router.get('/moderation/reviews', authenticateToken, requireAdmin, async (req: A
   }
 });
 
-router.get('/audit-logs', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
-  try {
-    const AuditLog = mongoose.model('AuditLog');
-    
-    // Récupérer les logs d'audit (avec pagination)
-    const { limit = 100, skip = 0 } = req.query;
-    
-    const logs = await AuditLog.find()
-      .populate('userId', 'email businessName firstName lastName')
-      .sort({ createdAt: -1 })
-      .limit(Number(limit))
-      .skip(Number(skip))
-      .lean();
-
-    const total = await AuditLog.countDocuments();
-
-    res.json({
-      success: true,
-      data: logs,
-      total,
-      message: total === 0 ? 'Aucun log d\'audit pour le moment' : undefined
-    } as ApiResponse);
-  } catch (error) {
-    // console.error('❌ Erreur get audit logs:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Erreur lors de la récupération des logs d\'audit'
-    } as ApiResponse);
-  }
-});
-
 // ==========================================
 // 📋 APPLICATIONS/CANDIDATURES - Endpoints stubs
 // ==========================================
@@ -1360,19 +1329,18 @@ router.get('/audit-logs', authenticateToken, requireAdmin, async (req: AuthReque
     
     // Filtre par date
     if (startDate || endDate) {
-      filter.timestamp = {};
-      if (startDate) filter.timestamp.$gte = new Date(startDate as string);
-      if (endDate) filter.timestamp.$lte = new Date(endDate as string);
+      filter.createdAt = {};
+      if (startDate) filter.createdAt.$gte = new Date(startDate as string);
+      if (endDate) filter.createdAt.$lte = new Date(endDate as string);
     }
 
     const skip = (Number(page) - 1) * Number(limit);
 
     const logs = await AuditLog.find(filter)
-      .sort({ timestamp: -1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit))
       .populate('performedBy', 'email name role')
-      .populate('targetUser', 'email name role')
       .lean();
 
     const total = await AuditLog.countDocuments(filter);
@@ -1404,15 +1372,11 @@ router.get('/audit-logs/user/:userId', authenticateToken, requireAdmin, async (r
     const { limit = 50 } = req.query;
 
     const logs = await AuditLog.find({
-      $or: [
-        { performedBy: userId },
-        { targetUser: userId }
-      ]
+      performedBy: userId
     })
-      .sort({ timestamp: -1 })
+      .sort({ createdAt: -1 })
       .limit(Number(limit))
       .populate('performedBy', 'email name role')
-      .populate('targetUser', 'email name role')
       .lean();
 
     res.json({
@@ -1437,9 +1401,9 @@ router.get('/audit-logs/stats', authenticateToken, requireAdmin, async (req: Aut
     
     const filter: any = {};
     if (startDate || endDate) {
-      filter.timestamp = {};
-      if (startDate) filter.timestamp.$gte = new Date(startDate as string);
-      if (endDate) filter.timestamp.$lte = new Date(endDate as string);
+      filter.createdAt = {};
+      if (startDate) filter.createdAt.$gte = new Date(startDate as string);
+      if (endDate) filter.createdAt.$lte = new Date(endDate as string);
     }
 
     const totalLogs = await AuditLog.countDocuments(filter);
