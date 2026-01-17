@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import mongoose from 'mongoose';
 import Product from '../models/Product';
 import { upload, ImageService } from '../services/ImageService';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
@@ -135,7 +136,7 @@ router.post('/', authenticateToken, upload.single('image'), async (req: AuthRequ
 
     const productData = {
       ...req.body,
-      supplierId: user.userId,
+      supplierId: new mongoose.Types.ObjectId(user.userId),
       imageUrl: '/images/products/default.jpg'
     };
 

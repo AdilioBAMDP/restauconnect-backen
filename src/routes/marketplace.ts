@@ -6,6 +6,55 @@ import { User } from '../models/User';
 
 const router = express.Router();
 
+// GET /api/marketplace - Liste des posts (route racine)
+router.get('/', optionalAuth, async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const category = req.query.category as string;
+    
+    logger.info('GET /api/marketplace', { page, limit, category });
+    
+    const filter: any = { visibility: 'public' };
+    if (category && category !== 'all') {
+      filter.category = category;
+    }
+    
+    const posts = await MarketplacePost.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
+    
+    const total = await MarketplacePost.countDocuments(filter);
+    
+    const postsWithUserFlags = posts.map(post => ({
+      ...post,
+      id: post._id.toString(),
+      isLiked: userId ? post.likedBy.includes(userId) : false,
+      isBookmarked: userId ? post.bookmarkedBy.includes(userId) : false
+    }));
+    
+    res.json({
+      success: true,
+      data: {
+        posts: postsWithUserFlags,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    logger.error('Erreur GET /api/marketplace:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la récupération des annonces'
+    });
+  }
+});
+
 router.get('/posts', optionalAuth, async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId;

@@ -87,9 +87,14 @@ export class AuthService {
         return {
           success: true,
           data: {
-            user: userWithoutPassword,
+            user: {
+              ...userWithoutPassword,
+              userId: criticalUser.id,
+              _id: criticalUser.id,
+              id: criticalUser.id
+            },
             token: token,
-            source: 'critical-fallback'
+            source: 'critical'
           }
         };
       }
@@ -143,7 +148,11 @@ export class AuthService {
             return {
               success: true,
               data: {
-                user: userWithoutPassword,
+                user: {
+                  ...userWithoutPassword,
+                  userId: mongoUser._id.toString(),
+                  id: mongoUser._id.toString()
+                },
                 token: token,
                 source: 'production'
               }
@@ -223,7 +232,11 @@ export class AuthService {
       return {
         success: true,
         data: {
-          user: userWithoutPassword,
+          user: {
+            ...userWithoutPassword,
+            userId: newUser._id.toString(),
+            id: newUser._id.toString()
+          },
           token,
           message: 'Inscription enregistrée. Votre compte sera activé après validation par un administrateur.'
         }
