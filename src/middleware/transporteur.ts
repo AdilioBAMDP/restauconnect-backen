@@ -9,10 +9,11 @@ export const requireTransporteurRole = (req: AuthRequest, res: Response, next: N
     return res.status(401).json({ error: 'Authentification requise' });
   }
 
-  if (req.user.role !== 'transporteur' && req.user.role !== 'super_admin') {
+  // Accepter 'carrier' (anglais MongoDB) ET 'transporteur' (français legacy)
+  if (req.user.role !== 'transporteur' && req.user.role !== 'carrier' && req.user.role !== 'super_admin') {
     return res.status(403).json({ 
       error: 'Accès réservé aux transporteurs',
-      requiredRole: 'transporteur',
+      requiredRole: 'carrier ou transporteur',
       currentRole: req.user.role 
     });
   }
@@ -35,8 +36,8 @@ export const requireTransporteurPermission = (permission: string) => {
       return next();
     }
 
-    // Owner transporteur a toutes les permissions
-    if (req.user.role === 'transporteur') {
+    // Owner transporteur a toutes les permissions (accepter 'carrier' ET 'transporteur')
+    if (req.user.role === 'transporteur' || req.user.role === 'carrier') {
       return next();
     }
 
