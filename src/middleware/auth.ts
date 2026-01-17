@@ -131,12 +131,10 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
       }
       console.log('✅ User found:', user.email, 'role:', user.role);
       // ✅ Le rôle MongoDB est déjà en anglais, on le garde tel quel
-      // ✅ Ajouter userId pour compatibilité avec routes
-      req.user = {
-        ...user.toObject(),
-        userId: user._id.toString(),
-        id: user._id.toString()
-      };
+      // ✅ Ajouter userId pour compatibilité avec routes (sans toObject pour éviter problèmes)
+      (user as any).userId = user._id.toString();
+      (user as any).id = user._id.toString();
+      req.user = user;
     } catch (mongoError) {
       console.log('❌ JWT token - MongoDB error:', mongoError);
       res.status(401).json({
