@@ -6,6 +6,7 @@ import { User } from '../models/User';
 import { Message } from '../models/Message';
 import Offer from '../models/Offer';
 import { Review } from '../models/Review';
+import { AuditLog } from '../models/AuditLog';
 import { authenticateToken, AuthRequest, requireAdmin } from '../middleware/auth';
 import { requirePermission, rolePermissions } from '../middleware/rbac';
 import { logger } from '../utils/logger';
@@ -228,7 +229,7 @@ router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, 
       isActive = true
     } = req.body;
 
-    // Validation
+    // ✅ VALIDATION STRICTE
     if (!email || !password || !role) {
       res.status(400).json({
         success: false,
@@ -237,21 +238,54 @@ router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, 
       return;
     }
 
+    // Validation email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      res.status(400).json({
+        success: false,
+        error: 'Format d\'email invalide'
+      } as ApiResponse);
+      return;
+    }
+
+    // Validation mot de passe (minimum 8 caractères)
+    if (password.length < 8) {
+      res.status(400).json({
+        success: false,
+        error: 'Le mot de passe doit contenir au moins 8 caractères'
+      } as ApiResponse);
+      return;
+    }
+
+    // Validation rôle
+    const validRoles = [
+      'restaurant', 'artisan', 'supplier', 'candidat', 'community_manager',
+      'admin', 'super_admin', 'banker', 'accountant', 'investor',
+      'driver', 'carrier', 'auditor'
+    ];
+    if (!validRoles.includes(role)) {
+      res.status(400).json({
+        success: false,
+        error: `Rôle invalide. Rôles autorisés: ${validRoles.join(', ')}`
+      } as ApiResponse);
+      return;
+    }
+
     // Vérifier si l'email existe déjà
     const existingUser = await User.findOne({ email }).exec();
     if (existingUser) {
-      res.status(400).json({
+      res.status(409).json({
         success: false,
         error: 'Un utilisateur avec cet email existe déjà'
       } as ApiResponse);
       return;
     }
 
-    // Hasher le mot de passe
+    // ✅ HASHER LE MOT DE PASSE
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Créer l'utilisateur
-  const fullName: string = String((firstName || '') + ' ' + (lastName || '')).trim();
+    // ✅ CRÉER L'UTILISATEUR
+    const fullName: string = String((firstName || '') + ' ' + (lastName || '')).trim();
     const userData: any = {
       email,
       password: hashedPassword,
@@ -263,6 +297,7 @@ router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, 
       companyName: companyName || '',
       isActive,
       verified: true, // Auto-vérifié par admin
+      status: 'approved', // Approuvé automatiquement
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -273,19 +308,54 @@ router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, 
     }
 
     const newUser = new User(userData);
-
     await newUser.save();
+
+    // ✅ AUDIT LOG
+    try {
+      await AuditLog.create({
+        action: 'user_created',
+        targetType: 'user',
+        targetId: newUser._id.toString(),
+        performedBy: req.user._id,
+        performedByRole: req.user.role,
+        details: {
+          email: newUser.email,
+          role: newUser.role,
+          name: newUser.name,
+          ipAddress: req.ip,
+          userAgent: req.headers['user-agent']
+        }
+      });
+    } catch (auditError) {
+      logger.error('Erreur création audit log:', auditError);
+      // Ne pas bloquer la création si l'audit log échoue
+    }
+
+    // ✅ ENVOYER EMAIL AVEC IDENTIFIANTS
+    try {
+      await sendApprovalWithCredentialsEmail(
+        newUser.email,
+        newUser.name,
+        newUser.email,
+        password, // Mot de passe en clair (avant hash)
+        newUser.role
+      );
+      logger.info(`📧 Email envoyé à ${newUser.email}`);
+    } catch (emailError) {
+      logger.error('Erreur envoi email:', emailError);
+      // Ne pas bloquer la création si l'email échoue
+    }
 
     // Retourner sans mot de passe
     const userResponse = newUser.toObject();
     delete (userResponse as any).password;
 
-    logger.info(`Nouvel utilisateur créé par admin: ${email} (${role})`);
+    logger.info(`✅ Nouvel utilisateur créé par admin ${req.user.email}: ${email} (${role})`);
 
     res.status(201).json({
       success: true,
       data: userResponse,
-      message: `Utilisateur ${email} créé avec succès`
+      message: `Utilisateur ${email} créé avec succès. Un email avec les identifiants a été envoyé.`
     } as ApiResponse);
 
   } catch (error) {
@@ -1257,6 +1327,153 @@ router.get('/applications/stats', authenticateToken, requireAdmin, async (req: A
     });
   } catch (error) {
     // console.error('❌ Erreur get applications stats:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la récupération des statistiques'
+    } as ApiResponse);
+  }
+});
+
+// ===========================================
+// 📊 AUDIT LOGS - Consultation des logs d'actions admin
+// ===========================================
+
+// GET /api/admin/audit-logs - Liste des logs d'audit
+router.get('/audit-logs', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 50, 
+      action, 
+      performedBy, 
+      targetUser,
+      startDate,
+      endDate
+    } = req.query;
+
+    const filter: any = {};
+    
+    // Filtres optionnels
+    if (action) filter.action = action;
+    if (performedBy) filter.performedBy = performedBy;
+    if (targetUser) filter.targetUser = targetUser;
+    
+    // Filtre par date
+    if (startDate || endDate) {
+      filter.timestamp = {};
+      if (startDate) filter.timestamp.$gte = new Date(startDate as string);
+      if (endDate) filter.timestamp.$lte = new Date(endDate as string);
+    }
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const logs = await AuditLog.find(filter)
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .populate('performedBy', 'email name role')
+      .populate('targetUser', 'email name role')
+      .lean();
+
+    const total = await AuditLog.countDocuments(filter);
+
+    res.json({
+      success: true,
+      data: logs,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        totalPages: Math.ceil(total / Number(limit))
+      }
+    } as ApiResponse);
+
+  } catch (error) {
+    logger.error('Erreur récupération audit logs:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la récupération des logs'
+    } as ApiResponse);
+  }
+});
+
+// GET /api/admin/audit-logs/user/:userId - Logs d'un utilisateur spécifique
+router.get('/audit-logs/user/:userId', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { limit = 50 } = req.query;
+
+    const logs = await AuditLog.find({
+      $or: [
+        { performedBy: userId },
+        { targetUser: userId }
+      ]
+    })
+      .sort({ timestamp: -1 })
+      .limit(Number(limit))
+      .populate('performedBy', 'email name role')
+      .populate('targetUser', 'email name role')
+      .lean();
+
+    res.json({
+      success: true,
+      data: logs,
+      count: logs.length
+    } as ApiResponse);
+
+  } catch (error) {
+    logger.error('Erreur récupération logs utilisateur:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la récupération des logs'
+    } as ApiResponse);
+  }
+});
+
+// GET /api/admin/audit-logs/stats - Statistiques des actions admin
+router.get('/audit-logs/stats', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { startDate, endDate } = req.query;
+    
+    const filter: any = {};
+    if (startDate || endDate) {
+      filter.timestamp = {};
+      if (startDate) filter.timestamp.$gte = new Date(startDate as string);
+      if (endDate) filter.timestamp.$lte = new Date(endDate as string);
+    }
+
+    const totalLogs = await AuditLog.countDocuments(filter);
+    
+    const byAction = await AuditLog.aggregate([
+      { $match: filter },
+      { $group: { _id: '$action', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    const byPerformer = await AuditLog.aggregate([
+      { $match: filter },
+      { $group: { _id: '$performedByEmail', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalLogs,
+        byAction: byAction.reduce((acc: any, item: any) => {
+          acc[item._id] = item.count;
+          return acc;
+        }, {}),
+        topPerformers: byPerformer.map((item: any) => ({
+          email: item._id,
+          count: item.count
+        }))
+      }
+    } as ApiResponse);
+
+  } catch (error) {
+    logger.error('Erreur stats audit logs:', error);
     res.status(500).json({
       success: false,
       error: 'Erreur lors de la récupération des statistiques'
