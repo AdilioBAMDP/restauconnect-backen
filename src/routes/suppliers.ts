@@ -1,4 +1,5 @@
 import { Router, Response } from 'express';
+import mongoose from 'mongoose';
 import { User } from '../models/User';
 import { ApiResponse } from '../types';
 import { logger } from '../utils/logger';
@@ -12,7 +13,7 @@ const router = Router();
 // ⚠️ Route temporairement SANS authentification pour débloquer
 router.get('/', async (req, res) => {
   try {
-    const suppliers = await User.find({ role: 'fournisseur', verified: true })
+    const suppliers = await User.find({ role: 'supplier', verified: true })
       .select('_id name email companyName phone address location')
       .sort({ name: 1 });
 
@@ -34,8 +35,8 @@ router.get('/', async (req, res) => {
 // GET /api/suppliers/products - Catalogue produits du fournisseur connecté
 router.get('/products', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userEmail = req.user?.email;
-    if (!userEmail) {
+    const userId = req.user?.userId || req.user?._id;
+    if (!userId) {
       res.status(401).json({
         success: false,
         error: 'Utilisateur non authentifié'
@@ -43,16 +44,7 @@ router.get('/products', authenticateToken, async (req: AuthRequest, res: Respons
       return;
     }
 
-    const user = await User.findOne({ email: userEmail });
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        error: 'Utilisateur non trouvé'
-      } as ApiResponse);
-      return;
-    }
-
-    const products = await Product.find({ supplierId: user._id })
+    const products = await Product.find({ supplierId: userId })
       .sort({ createdAt: -1 });
 
     res.json({
@@ -74,8 +66,8 @@ router.get('/products', authenticateToken, async (req: AuthRequest, res: Respons
 // GET /api/suppliers/orders - Commandes reçues par le fournisseur
 router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userEmail = req.user?.email;
-    if (!userEmail) {
+    const userId = req.user?.userId || req.user?._id;
+    if (!userId) {
       res.status(401).json({
         success: false,
         error: 'Utilisateur non authentifié'
@@ -83,16 +75,7 @@ router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response)
       return;
     }
 
-    const user = await User.findOne({ email: userEmail });
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        error: 'Utilisateur non trouvé'
-      } as ApiResponse);
-      return;
-    }
-
-    const orders = await Order.find({ supplierId: user._id })
+    const orders = await Order.find({ supplierId: userId })
       .populate('restaurantId', 'name email companyName')
       .sort({ createdAt: -1 })
       .limit(50)
@@ -118,8 +101,8 @@ router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response)
 // GET /api/suppliers/stats - Statistiques fournisseur
 router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userEmail = req.user?.email;
-    if (!userEmail) {
+    const userId = req.user?.userId || req.user?._id;
+    if (!userId) {
       res.status(401).json({
         success: false,
         error: 'Utilisateur non authentifié'
@@ -127,14 +110,7 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response):
       return;
     }
 
-    const user = await User.findOne({ email: userEmail });
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        error: 'Utilisateur non trouvé'
-      } as ApiResponse);
-      return;
-    }
+    const supplierObjectId = new mongoose.Types.ObjectId(userId);
 
     const [
       totalProducts,
@@ -144,13 +120,13 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response):
       deliveredOrders,
       revenueResult
     ] = await Promise.all([
-      Product.countDocuments({ supplierId: user._id }).catch(() => 0),
-      Order.countDocuments({ supplierId: user._id }).catch(() => 0),
-      Order.countDocuments({ supplierId: user._id, status: 'pending' }).catch(() => 0),
-      Order.countDocuments({ supplierId: user._id, status: 'confirmed' }).catch(() => 0),
-      Order.countDocuments({ supplierId: user._id, status: 'delivered' }).catch(() => 0),
+      Product.countDocuments({ supplierId: supplierObjectId }).catch(() => 0),
+      Order.countDocuments({ supplierId: supplierObjectId }).catch(() => 0),
+      Order.countDocuments({ supplierId: supplierObjectId, status: 'pending' }).catch(() => 0),
+      Order.countDocuments({ supplierId: supplierObjectId, status: 'confirmed' }).catch(() => 0),
+      Order.countDocuments({ supplierId: supplierObjectId, status: 'delivered' }).catch(() => 0),
       Order.aggregate([
-        { $match: { supplierId: user._id, status: { $in: ['confirmed', 'delivered'] } } },
+        { $match: { supplierId: supplierObjectId, status: { $in: ['confirmed', 'delivered'] } } },
         { $group: { _id: null, total: { $sum: '$pricing.total' } } }
       ]).catch(() => [])
     ]);
