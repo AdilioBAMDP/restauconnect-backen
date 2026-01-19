@@ -9,8 +9,8 @@ const router = Router();
 // GET /api/restaurant/orders - Liste des commandes du restaurant
 router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userEmail = req.user?.email;
-    if (!userEmail) {
+    const userId = req.user?.userId || req.user?._id;
+    if (!userId) {
       res.status(401).json({
         success: false,
         error: 'Utilisateur non authentifié'
@@ -21,7 +21,7 @@ router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response)
     const { status, page = 1, limit = 20, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
 
     const filter: any = {
-      restaurantEmail: userEmail // Filtre par email du restaurant connecté
+      restaurantId: userId // Filtre par ID du restaurant connecté
     };
     
     if (status) filter.status = status;
@@ -66,8 +66,8 @@ router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response)
 // GET /api/restaurant/orders/stats - Statistiques commandes restaurant
 router.get('/orders/stats', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userEmail = req.user?.email;
-    if (!userEmail) {
+    const userId = req.user?.userId || req.user?._id;
+    if (!userId) {
       res.status(401).json({
         success: false,
         error: 'Utilisateur non authentifié'
@@ -78,7 +78,7 @@ router.get('/orders/stats', authenticateToken, async (req: AuthRequest, res: Res
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const filter = { restaurantEmail: userEmail };
+    const filter = { restaurantId: userId };
 
     const [
       total,
@@ -132,11 +132,11 @@ router.get('/orders/stats', authenticateToken, async (req: AuthRequest, res: Res
 router.get('/orders/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const userEmail = req.user?.email;
+    const userId = req.user?.userId || req.user?._id;
 
     const order = await Order.findOne({
       _id: id,
-      restaurantEmail: userEmail // Vérifier que la commande appartient au restaurant
+      restaurantId: userId // Vérifier que la commande appartient au restaurant
     }).lean();
 
     if (!order) {
@@ -169,7 +169,7 @@ router.put('/orders/:id/status', authenticateToken, async (req: AuthRequest, res
   try {
     const { id } = req.params;
     const { status } = req.body;
-    const userEmail = req.user?.email;
+    const userId = req.user?.userId || req.user?._id;
 
     if (!status) {
       res.status(400).json({
@@ -182,7 +182,7 @@ router.put('/orders/:id/status', authenticateToken, async (req: AuthRequest, res
     const order = await Order.findOneAndUpdate(
       {
         _id: id,
-        restaurantEmail: userEmail
+        restaurantId: userId
       },
       { status, updatedAt: new Date() },
       { new: true }
