@@ -8,7 +8,14 @@ import Papa from 'papaparse';
 export async function exportUsersCSV() {
   const users = await User.find().select('-password').lean();
   const csv = Papa.unparse(users);
-  const filePath = path.join(__dirname, '../../exports/users-export.csv');
+  
+  // Créer le dossier exports s'il n'existe pas
+  const exportDir = path.join(__dirname, '../../exports');
+  if (!fs.existsSync(exportDir)) {
+    fs.mkdirSync(exportDir, { recursive: true });
+  }
+  
+  const filePath = path.join(exportDir, 'users-export.csv');
   fs.writeFileSync(filePath, csv);
   return filePath;
 }
