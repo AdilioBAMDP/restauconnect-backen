@@ -25,8 +25,8 @@ const router = express.Router();
 // GET /api/tms/dashboard - Dashboard principal TMS
 router.get('/dashboard', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userEmail = req.user?.email;
-    if (!userEmail) {
+    const userId = req.user?.userId || req.user?._id;
+    if (!userId) {
       res.status(401).json({
         success: false,
         error: 'Utilisateur non authentifié'
@@ -34,7 +34,7 @@ router.get('/dashboard', authenticateToken, async (req: AuthRequest, res: Respon
       return;
     }
 
-    const currentUser = await User.findOne({ email: userEmail });
+    const currentUser = await User.findById(userId);
     if (!currentUser) {
       res.status(404).json({
         success: false,
@@ -98,10 +98,10 @@ router.get('/dashboard', authenticateToken, async (req: AuthRequest, res: Respon
 // GET /api/tms/driver/stats - Statistiques du driver connecté
 router.get('/driver/stats', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userEmail = req.user?.email;
+    const userId = req.user?.userId || req.user?._id;
     const userRole = req.user?.role;
     
-    if (!userEmail || (userRole !== 'driver' && userRole !== 'livreur')) {
+    if (!userId || (userRole !== 'driver' && userRole !== 'livreur')) {
       res.status(403).json({
         success: false,
         error: 'Accès réservé aux drivers'
@@ -109,7 +109,7 @@ router.get('/driver/stats', authenticateToken, async (req: AuthRequest, res: Res
       return;
     }
 
-    const currentUser = await User.findOne({ email: userEmail });
+    const currentUser = await User.findById(userId);
     if (!currentUser) {
       res.status(404).json({
         success: false,
@@ -254,11 +254,11 @@ router.get('/deliveries', authenticateToken, async (req: AuthRequest, res: Respo
 // GET /api/tms/deliveries/my-deliveries - Livraisons de l'utilisateur connecté
 router.get('/deliveries/my-deliveries', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // Récupérer l'email de l'utilisateur connecté depuis le token JWT
-    const userEmail = req.user?.email;
+    // Récupérer l'ID de l'utilisateur connecté depuis le token JWT
+    const userId = req.user?.userId || req.user?._id;
     const userRole = req.user?.role;
     
-    if (!userEmail) {
+    if (!userId) {
       res.status(401).json({
         success: false,
         error: 'Non authentifié'
@@ -266,8 +266,8 @@ router.get('/deliveries/my-deliveries', authenticateToken, async (req: AuthReque
       return;
     }
 
-    // Trouver l'utilisateur en base par son email pour obtenir son _id (ObjectId)
-    const currentUser = await User.findOne({ email: userEmail });
+    // Trouver l'utilisateur en base pour vérifier son existence
+    const currentUser = await User.findById(userId);
     
     if (!currentUser) {
       res.status(404).json({
@@ -277,9 +277,7 @@ router.get('/deliveries/my-deliveries', authenticateToken, async (req: AuthReque
       return;
     }
 
-    // Convertir l'_id string en ObjectId MongoDB
-    const userObjectId = new mongoose.Types.ObjectId(currentUser._id.toString());
-    console.log('🔍 [TMS] User:', { email: userEmail, role: userRole, _id: userObjectId.toString() });
+    console.log('🔍 [TMS] User:', { userId: userId.toString(), role: userRole });
     
     let filter: any = {};
     
@@ -287,11 +285,11 @@ router.get('/deliveries/my-deliveries', authenticateToken, async (req: AuthReque
     const orderId = req.query.orderId as string;
     const requestedStatus = req.query.status as string;
     
-    // Adapter le filtre selon le rôle (utiliser userObjectId au lieu de userId string)
+    // Adapter le filtre selon le rôle (utiliser userId)
     if (userRole === 'livreur' || userRole === 'driver') {
       // Pour livreur: livraisons assignées
       filter = { 
-        driverId: userObjectId
+        driverId: userId
       };
       
       // Si un statut spécifique est demandé (ex: 'delivered' pour historique)
@@ -306,13 +304,13 @@ router.get('/deliveries/my-deliveries', authenticateToken, async (req: AuthReque
     } else if (userRole === 'restaurant') {
       // Pour restaurant: livraisons demandées (en tant que requester)
       filter = { 
-        requesterId: userObjectId,
+        requesterId: userId,
         status: { $in: ['pending', 'assigned', 'pickup_pending', 'picked_up', 'in_transit'] }
       };
     } else if (userRole === 'fournisseur') {
       // Pour fournisseur: livraisons à envoyer (en tant que supplier)
       filter = { 
-        supplierId: userObjectId,
+        supplierId: userId,
         status: { $in: ['pending', 'assigned', 'pickup_pending', 'picked_up', 'in_transit'] }
       };
     } else {
