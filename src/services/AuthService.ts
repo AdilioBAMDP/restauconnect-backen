@@ -199,14 +199,14 @@ export class AuthService {
       const saltRounds = 12;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-      // Créer le nouvel utilisateur - EN ATTENTE DE VALIDATION ADMIN
+      // Créer le nouvel utilisateur - ACTIF IMMÉDIATEMENT
       const newUser = new User({
         name,
         email: email.toLowerCase(),
         password: hashedPassword,
         role,
-        status: 'pending',  // ⚠️ Nécessite validation admin
-        isActive: false,     // Désactivé jusqu'à approbation
+        status: 'approved',  // ✅ Compte actif immédiatement
+        isActive: true,      // ✅ Activé directement
         verified: false,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -227,7 +227,7 @@ export class AuthService {
 
       const { password: pwd2, ...userWithoutPassword } = newUser.toObject();
       
-      logger.info(`Inscription en attente de validation pour ${email} (rôle: ${role})`);
+      logger.info(`Inscription réussie pour ${email} (rôle: ${role})`);
 
       return {
         success: true,
@@ -238,7 +238,7 @@ export class AuthService {
             id: newUser._id.toString()
           },
           token,
-          message: 'Inscription enregistrée. Votre compte sera activé après validation par un administrateur.'
+          message: 'Inscription réussie ! Vous pouvez maintenant vous connecter.'
         }
       };
     } catch (error) {

@@ -50,7 +50,7 @@ const router = express.Router();
 // Validation middleware
 const validatePartner = [
   body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Le nom doit contenir entre 2 et 100 caractères'),
-  body('role').isIn(['restaurant', 'fournisseur', 'artisan', 'transporteur', 'community_manager', 'banquier', 'comptable', 'investisseur', 'auditeur', 'candidat']).withMessage('Rôle invalide'),
+  body('role').isIn(['restaurant', 'fournisseur', 'supplier', 'artisan', 'transporteur', 'carrier', 'livreur', 'driver', 'community_manager', 'banquier', 'banker', 'comptable', 'accountant', 'investisseur', 'investor', 'auditeur', 'auditor', 'candidat']).withMessage('Rôle invalide'),
   body('specialty').trim().isLength({ min: 2, max: 200 }).withMessage('La spécialité doit contenir entre 2 et 200 caractères'),
   body('location').trim().notEmpty().withMessage('La localisation est requise'),
   body('description').trim().isLength({ min: 10, max: 1000 }).withMessage('La description doit contenir entre 10 et 1000 caractères'),
