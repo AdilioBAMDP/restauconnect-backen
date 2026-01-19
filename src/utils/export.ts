@@ -10,12 +10,19 @@ export async function exportUsersCSV() {
   const csv = Papa.unparse(users);
   
   // Créer le dossier exports s'il n'existe pas
-  const exportDir = path.join(__dirname, '../../exports');
+  // En production Railway: /app/dist/utils -> /app/exports
+  // En dev: backend/src/utils -> backend/exports
+  const exportDir = process.env.NODE_ENV === 'production' 
+    ? '/app/exports'  // Chemin absolu Railway
+    : path.join(__dirname, '../../exports');
+  
   if (!fs.existsSync(exportDir)) {
+    console.log(`📁 Création dossier exports: ${exportDir}`);
     fs.mkdirSync(exportDir, { recursive: true });
   }
   
   const filePath = path.join(exportDir, 'users-export.csv');
+  console.log(`💾 Export CSV vers: ${filePath}`);
   fs.writeFileSync(filePath, csv);
   return filePath;
 }
