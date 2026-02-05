@@ -1352,7 +1352,7 @@ router.get('/audit-logs', authenticateToken, requireAdmin, async (req: AuthReque
         page: Number(page),
         limit: Number(limit),
         total,
-        totalPages: Math.ceil(total / Number(limit))
+        pages: Math.ceil(total / Number(limit))
       }
     } as ApiResponse);
 
