@@ -1,3 +1,4 @@
+/// <reference lib="es2015" />
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 

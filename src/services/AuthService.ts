@@ -1,4 +1,5 @@
-﻿import jwt from 'jsonwebtoken';
+﻿/// <reference lib="es2015" />
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { UserService } from './UserService';
 import { User } from '../models/User';
