@@ -218,29 +218,28 @@ const UserSchema = new Schema<UserDocument>({
   // 💳 Stripe Connect - Pour les fournisseurs qui reçoivent des paiements
   stripeAccountId: { 
     type: String, 
-    sparse: true, // Index unique mais autorise null/undefined
     default: null 
-  },
+  } as any,
   stripeOnboardingComplete: { 
     type: Boolean, 
     default: false 
-  },
+  } as any,
   stripeBankAccountVerified: { 
     type: Boolean, 
     default: false 
-  },
+  } as any,
   stripeDetailsSubmitted: { 
     type: Boolean, 
     default: false 
-  },
+  } as any,
   stripeChargesEnabled: { 
     type: Boolean, 
     default: false 
-  },
+  } as any,
   stripePayoutsEnabled: { 
     type: Boolean, 
     default: false 
-  }
+  } as any
 }, {
   timestamps: true,
     toJSON: { 

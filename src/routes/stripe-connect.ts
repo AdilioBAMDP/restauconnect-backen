@@ -12,8 +12,8 @@
 
 import express, { Request, Response } from 'express';
 import Stripe from 'stripe';
-import { auth, requireRole } from '../middleware/auth';
-import User from '../models/User';
+import { authenticateToken, requireRole } from '../middleware/auth';
+import { User } from '../models/User';
 import { logger } from '../utils/logger';
 
 const router = express.Router();
@@ -24,7 +24,7 @@ if (!stripeSecretKey || stripeSecretKey.startsWith('sk_test_51QG')) {
   logger.error('❌ STRIPE_SECRET_KEY non configurée ou invalide pour Stripe Connect !');
 }
 const stripe = new Stripe(stripeSecretKey || 'sk_test_votre_cle_secrete', {
-  apiVersion: '2025-01-27.acacia'
+  apiVersion: '2025-10-29.clover' as any
 });
 
 const FRONTEND_URL = process.env.CLIENT_URL || 'http://localhost:5173';
@@ -34,7 +34,7 @@ const FRONTEND_URL = process.env.CLIENT_URL || 'http://localhost:5173';
  * Créer un compte Stripe Connect Express pour un fournisseur
  * et générer le lien d'onboarding
  */
-router.post('/onboarding', auth, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
+router.post('/onboarding', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = (req as any).user.userId;
     const userDoc = await User.findById(userId);
@@ -99,7 +99,7 @@ router.post('/onboarding', auth, requireRole(['supplier', 'fournisseur']), async
  * GET /api/stripe-connect/status
  * Vérifier le statut d'onboarding du fournisseur
  */
-router.get('/status', auth, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
+router.get('/status', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = (req as any).user.userId;
     const userDoc = await User.findById(userId);
@@ -153,7 +153,7 @@ router.get('/status', auth, requireRole(['supplier', 'fournisseur']), async (req
  * POST /api/stripe-connect/refresh
  * Régénérer un lien d'onboarding si l'ancien a expiré
  */
-router.post('/refresh', auth, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
+router.post('/refresh', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = (req as any).user.userId;
     const userDoc = await User.findById(userId);
@@ -187,7 +187,7 @@ router.post('/refresh', auth, requireRole(['supplier', 'fournisseur']), async (r
  * GET /api/stripe-connect/dashboard
  * Générer un lien vers le tableau de bord Stripe Express du fournisseur
  */
-router.get('/dashboard', auth, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
+router.get('/dashboard', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = (req as any).user.userId;
     const userDoc = await User.findById(userId);
@@ -221,7 +221,7 @@ router.get('/dashboard', auth, requireRole(['supplier', 'fournisseur']), async (
  * GET /api/stripe-connect/balance
  * Récupérer le solde du compte Stripe Connect du fournisseur
  */
-router.get('/balance', auth, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
+router.get('/balance', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = (req as any).user.userId;
     const userDoc = await User.findById(userId);
@@ -259,7 +259,7 @@ router.get('/balance', auth, requireRole(['supplier', 'fournisseur']), async (re
  * GET /api/stripe-connect/transactions
  * Récupérer l'historique des transactions du fournisseur
  */
-router.get('/transactions', auth, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
+router.get('/transactions', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = (req as any).user.userId;
     const userDoc = await User.findById(userId);

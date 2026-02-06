@@ -382,7 +382,8 @@ router.post('/webhook', async (req: Request, res: Response): Promise<any> => {
         break;
       }
 
-      case 'transfer.paid': {
+      // 💳 STRIPE CONNECT WEBHOOKS - Typage explicite pour éviter erreur TS
+      case 'transfer.paid' as any: {
         const transfer = event.data.object as any;
         logger.info('✅ Transfer payé au fournisseur:', transfer.id);
         
