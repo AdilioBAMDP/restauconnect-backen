@@ -21,7 +21,13 @@ try {
 }
 
 // Initialiser Stripe avec la clé secrète
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_votre_cle_secrete', {
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+if (!stripeSecretKey || stripeSecretKey.startsWith('sk_test_51QG')) {
+  logger.error('❌ STRIPE_SECRET_KEY non configurée ou invalide !');
+  logger.error('Clé actuelle:', stripeSecretKey ? `${stripeSecretKey.substring(0, 20)}...` : 'undefined');
+}
+
+const stripe = new Stripe(stripeSecretKey || 'sk_test_votre_cle_secrete', {
   apiVersion: '2025-10-29.clover' as any, // Force version pour compatibilité Railway
 });
 
@@ -65,6 +71,14 @@ router.post('/create-payment-intent', authenticateToken, async (req: Request, re
 
     // Vérifier la disponibilité des produits et le stock
     for (const item of orderData.items) {
+      // Vérifier si productId est un ObjectId valide
+      if (!item.productId || !item.productId.match(/^[0-9a-fA-F]{24}$/)) {
+        logger.error(`Invalid productId format: ${item.productId}`);
+        return res.status(400).json({ 
+          error: `ID produit invalide pour ${item.name}. Veuillez sélectionner un produit depuis la liste.` 
+        });
+      }
+
       const productDoc = await Product.findById(item.productId).exec();
       if (!productDoc) {
         return res.status(404).json({ 
