@@ -85,9 +85,10 @@ import supportRoutes from './routes/support';
 
 
 // Import cron jobs (exports, alertes, monitoring)
-if (process.env.NODE_ENV !== 'test') {
-  require('./utils/cron');
-}
+// DÉSACTIVÉ temporairement pour éviter les crashes Railway (SIGTERM)
+// if (process.env.NODE_ENV !== 'test') {
+//   require('./utils/cron');
+// }
 
 
 const server = createServer(app);
