@@ -42,6 +42,13 @@ export interface UserDocument extends Omit<IUser, '_id'>, Document {
   role: UserRole;
   name?: string;
   verified?: boolean;
+  // 💳 Stripe Connect
+  stripeAccountId?: string | null;
+  stripeOnboardingComplete?: boolean;
+  stripeBankAccountVerified?: boolean;
+  stripeDetailsSubmitted?: boolean;
+  stripeChargesEnabled?: boolean;
+  stripePayoutsEnabled?: boolean;
   // M�thodes d'instance
   getDisplayName(): string;
   isVerifiedWith(targetUser: UserDocument): boolean;
@@ -219,27 +226,27 @@ const UserSchema = new Schema<UserDocument>({
   stripeAccountId: { 
     type: String, 
     default: null 
-  } as any,
+  },
   stripeOnboardingComplete: { 
     type: Boolean, 
     default: false 
-  } as any,
+  },
   stripeBankAccountVerified: { 
     type: Boolean, 
     default: false 
-  } as any,
+  },
   stripeDetailsSubmitted: { 
     type: Boolean, 
     default: false 
-  } as any,
+  },
   stripeChargesEnabled: { 
     type: Boolean, 
     default: false 
-  } as any,
+  },
   stripePayoutsEnabled: { 
     type: Boolean, 
     default: false 
-  } as any
+  }
 }, {
   timestamps: true,
     toJSON: { 
