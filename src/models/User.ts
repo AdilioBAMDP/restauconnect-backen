@@ -213,7 +213,34 @@ const UserSchema = new Schema<UserDocument>({
   reviewCount: { type: Number, default: 0 },
   profile: UserProfileSchema,
   preferences: UserPreferencesSchema,
-  lastActive: { type: Date, default: Date.now }
+  lastActive: { type: Date, default: Date.now },
+  
+  // 💳 Stripe Connect - Pour les fournisseurs qui reçoivent des paiements
+  stripeAccountId: { 
+    type: String, 
+    sparse: true, // Index unique mais autorise null/undefined
+    default: null 
+  },
+  stripeOnboardingComplete: { 
+    type: Boolean, 
+    default: false 
+  },
+  stripeBankAccountVerified: { 
+    type: Boolean, 
+    default: false 
+  },
+  stripeDetailsSubmitted: { 
+    type: Boolean, 
+    default: false 
+  },
+  stripeChargesEnabled: { 
+    type: Boolean, 
+    default: false 
+  },
+  stripePayoutsEnabled: { 
+    type: Boolean, 
+    default: false 
+  }
 }, {
   timestamps: true,
     toJSON: { 

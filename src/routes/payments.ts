@@ -31,6 +31,10 @@ const stripe = new Stripe(stripeSecretKey || 'sk_test_votre_cle_secrete', {
   apiVersion: '2025-10-29.clover' as any, // Force version pour compatibilité Railway
 });
 
+// Commission plateforme (5% par défaut)
+const COMMISSION_RATE = parseFloat(process.env.PLATFORM_COMMISSION_RATE || '0.05');
+logger.info(`💰 Commission plateforme configurée: ${(COMMISSION_RATE * 100).toFixed(1)}%`);
+
 /**
  * POST /api/payments/create-payment-intent
  * Crée un PaymentIntent Stripe pour une commande
@@ -157,17 +161,51 @@ router.post('/create-payment-intent', authenticateToken, async (req: Request, re
 
     await order.save();
 
-    // Créer le PaymentIntent Stripe
+    // ✅ STRIPE CONNECT : Vérifier que le fournisseur a configuré son compte
+    if (!supplierDoc.stripeAccountId) {
+      logger.error(`❌ Fournisseur ${supplierDoc.email} n'a pas de compte Stripe Connect`);
+      return res.status(400).json({ 
+        error: 'Ce fournisseur n\'a pas encore configuré son compte bancaire pour recevoir des paiements.',
+        requiresStripeOnboarding: true
+      });
+    }
+
+    if (!supplierDoc.stripeOnboardingComplete) {
+      logger.error(`❌ Fournisseur ${supplierDoc.email} n'a pas terminé l'onboarding Stripe`);
+      return res.status(400).json({ 
+        error: 'Ce fournisseur n\'a pas terminé la configuration de son compte bancaire.',
+        requiresStripeOnboarding: true
+      });
+    }
+
+    // Calculer la commission plateforme et le montant fournisseur
+    const platformFeeAmount = Math.round(amount * COMMISSION_RATE);
+    const supplierAmount = amount - platformFeeAmount;
+
+    logger.info(`💳 Paiement - Total: ${(amount / 100).toFixed(2)}€, Commission: ${(platformFeeAmount / 100).toFixed(2)}€, Fournisseur: ${(supplierAmount / 100).toFixed(2)}€`);
+
+    // Mettre à jour la commande avec les montants
+    order.pricing.platformFee = platformFeeAmount / 100; // Stocker en euros
+    await order.save();
+
+    // Créer le PaymentIntent Stripe avec Destination Charges
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount), // Montant en centimes
+      amount: Math.round(amount), // Montant total en centimes
       currency,
+      application_fee_amount: platformFeeAmount, // Commission plateforme
+      transfer_data: {
+        destination: supplierDoc.stripeAccountId, // Compte Connect du fournisseur
+      },
       metadata: {
         orderId: (order._id as any).toString(),
         userId: userId.toString(),
         supplierId: orderData.supplierId.toString(),
-  restaurantName: userDoc.name || 'Restaurant',
+        restaurantName: userDoc.name || 'Restaurant',
+        supplierName: supplierDoc.name || supplierDoc.companyName || 'Fournisseur',
+        platformFee: platformFeeAmount.toString(),
+        supplierAmount: supplierAmount.toString(),
       },
-      description: `Commande Web Spider - ${(order._id as any).toString()}`,
+      description: `Commande RestauConnect #${order.orderNumber}`,
     });
 
     // Sauvegarder l'ID du PaymentIntent dans la commande
@@ -322,6 +360,59 @@ router.post('/webhook', async (req: Request, res: Response): Promise<any> => {
             await orderDoc.updateStatus(OrderStatus.CANCELLED);
             logger.info(`❌ Commande ${orderDoc._id} annul�e (paiement �chou�)`);
           }
+        break;
+      }
+
+      // 💳 STRIPE CONNECT WEBHOOKS
+      case 'transfer.created': {
+        const transfer = event.data.object as any;
+        logger.info('✅ Transfer créé vers fournisseur:', transfer.id);
+        
+        // Mettre à jour la commande avec l'ID du transfer
+        const orderId = transfer.metadata?.orderId;
+        if (orderId) {
+          const orderDoc = await Order.findById(orderId).exec();
+          if (orderDoc) {
+            (orderDoc.payment as any).transferId = transfer.id;
+            (orderDoc.payment as any).supplierPaidAmount = transfer.amount / 100; // En euros
+            await orderDoc.save();
+            logger.info(`✅ Transfer ${transfer.id} enregistré pour commande ${orderId}`);
+          }
+        }
+        break;
+      }
+
+      case 'transfer.paid': {
+        const transfer = event.data.object as any;
+        logger.info('✅ Transfer payé au fournisseur:', transfer.id);
+        
+        // Marquer le transfer comme payé
+        const orderId = transfer.metadata?.orderId;
+        if (orderId) {
+          const orderDoc = await Order.findById(orderId).exec();
+          if (orderDoc) {
+            (orderDoc.payment as any).supplierPaidAt = new Date();
+            await orderDoc.save();
+            logger.info(`✅ Fournisseur payé pour commande ${orderId}`);
+          }
+        }
+        break;
+      }
+
+      case 'account.updated': {
+        const account = event.data.object as any;
+        logger.info('📝 Compte Stripe Connect mis à jour:', account.id);
+        
+        // Mettre à jour le statut du fournisseur
+        const userDoc = await User.findOne({ stripeAccountId: account.id });
+        if (userDoc) {
+          userDoc.stripeDetailsSubmitted = account.details_submitted || false;
+          userDoc.stripeChargesEnabled = account.charges_enabled || false;
+          userDoc.stripePayoutsEnabled = account.payouts_enabled || false;
+          userDoc.stripeOnboardingComplete = account.details_submitted && account.charges_enabled || false;
+          await userDoc.save();
+          logger.info(`✅ Statut Stripe Connect mis à jour pour ${userDoc.email}`);
+        }
         break;
       }
 

@@ -64,6 +64,7 @@ import messagesRoutes from './routes/messages';
 import notificationsRoutes from './routes/notifications';
 import offersNotificationsRoutes from './routes/offers-notifications';
 import paymentsRoutes from './routes/payments';
+import stripeConnectRoutes from './routes/stripe-connect'; // 💳 Stripe Connect
 import pushRoutes from './routes/push';
 import quotesRoutes from './routes/quotes';
 import restaurantRoutes from './routes/restaurant';
@@ -237,6 +238,7 @@ app.use('/api/messages', messagesRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/offers-notifications', offersNotificationsRoutes);
 app.use('/api/payments', paymentsRoutes);
+app.use('/api/stripe-connect', stripeConnectRoutes); // 💳 Stripe Connect
 app.use('/api/push', pushRoutes);
 app.use('/api/quotes', quotesRoutes);
 app.use('/api/restaurant', restaurantRoutes);
