@@ -8,6 +8,8 @@
  * 3. Stripe redirige vers /refresh après onboarding
  * 4. GET /status → Vérifie si onboarding terminé
  * 5. GET /dashboard → Accès tableau de bord Stripe fournisseur
+ * 
+ * Railway fix: Force rebuild
  */
 
 import express, { Request, Response } from 'express';
