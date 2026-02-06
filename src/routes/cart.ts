@@ -13,7 +13,7 @@ router.get('/:supplierId', authenticateToken, async (req: AuthRequest, res: Resp
     const userId = req.user?.userId || req.user?.id || req.user?._id;
 
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Utilisateur non authentifi\u00e9' });
+      res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
       return;
     }
     
@@ -79,7 +79,7 @@ router.post('/add', authenticateToken, async (req: AuthRequest, res: Response) =
     }
 
     if (!productId || !supplierId || !name || !unitPrice) {
-      res.status(400).json({ success: false, message: 'Donn�es incompl�tes' });
+      res.status(400).json({ success: false, message: 'Données incomplètes' });
       return;
     }
 
@@ -118,7 +118,7 @@ router.post('/add', authenticateToken, async (req: AuthRequest, res: Response) =
 
     res.json({
       success: true,
-      message: 'Produit ajout� au panier',
+      message: 'Produit ajouté au panier',
       data: {
         productId,
         quantity: quantityNum,
@@ -150,7 +150,7 @@ router.delete('/remove/:productId', authenticateToken, async (req: AuthRequest, 
     const cart = await Cart.findOne({ userId, supplierId }).exec();
 
     if (!cart) {
-      res.status(404).json({ success: false, message: 'Panier non trouv�' });
+      res.status(404).json({ success: false, message: 'Panier non trouvé' });
       return;
     }
 
@@ -160,7 +160,7 @@ router.delete('/remove/:productId', authenticateToken, async (req: AuthRequest, 
 
     res.json({
       success: true,
-      message: 'Produit retir� du panier',
+      message: 'Produit retiré du panier',
       data: {
         items: cart.items,
         total: cart.total
