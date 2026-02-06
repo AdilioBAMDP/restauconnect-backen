@@ -1,6 +1,7 @@
 /**
  * 💳 STRIPE CONNECT ROUTES
- * Gestion des comptes Stripe Connect pour les fournisseurs
+ * Gestion des comptes Stripe Connect pour tous les prestataires
+ * (fournisseurs, livreurs, transporteurs, artisans, community managers)
  * 
  * Flux:
  * 1. Fournisseur clique "Activer paiements"
@@ -33,10 +34,11 @@ const FRONTEND_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 /**
  * POST /api/stripe-connect/onboarding
- * Créer un compte Stripe Connect Express pour un fournisseur
+ * Créer un compte Stripe Connect Express pour tous les prestataires
+ * (fournisseurs, livreurs, transporteurs, artisans, community managers)
  * et générer le lien d'onboarding
  */
-router.post('/onboarding', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
+router.post('/onboarding', authenticateToken, requireRole(['supplier', 'fournisseur', 'driver', 'transporteur', 'artisan', 'community_manager']), async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = (req as any).user.userId;
     const userDoc = await User.findById(userId);
@@ -101,7 +103,7 @@ router.post('/onboarding', authenticateToken, requireRole(['supplier', 'fourniss
  * GET /api/stripe-connect/status
  * Vérifier le statut d'onboarding du fournisseur
  */
-router.get('/status', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
+router.get('/status', authenticateToken, requireRole(['supplier', 'fournisseur', 'driver', 'transporteur', 'artisan', 'community_manager']), async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = (req as any).user.userId;
     const userDoc = await User.findById(userId);
@@ -189,7 +191,7 @@ router.post('/refresh', authenticateToken, requireRole(['supplier', 'fournisseur
  * GET /api/stripe-connect/dashboard
  * Générer un lien vers le tableau de bord Stripe Express du fournisseur
  */
-router.get('/dashboard', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
+router.get('/dashboard', authenticateToken, requireRole(['supplier', 'fournisseur', 'driver', 'transporteur', 'artisan', 'community_manager']), async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = (req as any).user.userId;
     const userDoc = await User.findById(userId);
@@ -223,7 +225,7 @@ router.get('/dashboard', authenticateToken, requireRole(['supplier', 'fournisseu
  * GET /api/stripe-connect/balance
  * Récupérer le solde du compte Stripe Connect du fournisseur
  */
-router.get('/balance', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
+router.get('/balance', authenticateToken, requireRole(['supplier', 'fournisseur', 'driver', 'transporteur', 'artisan', 'community_manager']), async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = (req as any).user.userId;
     const userDoc = await User.findById(userId);
@@ -261,7 +263,7 @@ router.get('/balance', authenticateToken, requireRole(['supplier', 'fournisseur'
  * GET /api/stripe-connect/transactions
  * Récupérer l'historique des transactions du fournisseur
  */
-router.get('/transactions', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
+router.get('/transactions', authenticateToken, requireRole(['supplier', 'fournisseur', 'driver', 'transporteur', 'artisan', 'community_manager']), async (req: Request, res: Response): Promise<any> => {
   try {
     const userId = (req as any).user.userId;
     const userDoc = await User.findById(userId);

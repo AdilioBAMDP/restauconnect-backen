@@ -33,7 +33,13 @@ const stripe = new Stripe(stripeSecretKey || 'sk_test_votre_cle_secrete', {
 
 // Commission plateforme (5% par défaut)
 const COMMISSION_RATE = parseFloat(process.env.PLATFORM_COMMISSION_RATE || '0.05');
+
+// Frais Stripe : 2.9% + 0.25€ (en centimes)
+const STRIPE_FEE_PERCENTAGE = 0.029;
+const STRIPE_FEE_FIXED = 25; // 0.25€ en centimes
+
 logger.info(`💰 Commission plateforme configurée: ${(COMMISSION_RATE * 100).toFixed(1)}%`);
+logger.info(`💳 Frais Stripe: ${(STRIPE_FEE_PERCENTAGE * 100).toFixed(1)}% + ${STRIPE_FEE_FIXED / 100}€`);
 
 /**
  * POST /api/payments/create-payment-intent
@@ -161,36 +167,55 @@ router.post('/create-payment-intent', authenticateToken, async (req: Request, re
 
     await order.save();
 
-    // ✅ STRIPE CONNECT : Vérifier que le fournisseur a configuré son compte
+    // ✅ STRIPE CONNECT : Vérifier que le prestataire a configuré son compte
+    // Support pour tous les rôles prestataires: fournisseurs, livreurs, transporteurs, artisans, community managers
+    const prestataireRoles = ['supplier', 'fournisseur', 'driver', 'transporteur', 'artisan', 'community_manager'];
+    
     if (!supplierDoc.stripeAccountId) {
-      logger.error(`❌ Fournisseur ${supplierDoc.email} n'a pas de compte Stripe Connect`);
+      logger.error(`❌ Prestataire ${supplierDoc.email} (${supplierDoc.role}) n'a pas de compte Stripe Connect`);
       return res.status(400).json({ 
-        error: 'Ce fournisseur n\'a pas encore configuré son compte bancaire pour recevoir des paiements.',
+        error: `Ce ${supplierDoc.role === 'driver' ? 'livreur' : supplierDoc.role} n'a pas encore configuré son compte bancaire pour recevoir des paiements.`,
         requiresStripeOnboarding: true
       });
     }
 
     if (!supplierDoc.stripeOnboardingComplete) {
-      logger.error(`❌ Fournisseur ${supplierDoc.email} n'a pas terminé l'onboarding Stripe`);
+      logger.error(`❌ Prestataire ${supplierDoc.email} (${supplierDoc.role}) n'a pas terminé l'onboarding Stripe`);
       return res.status(400).json({ 
-        error: 'Ce fournisseur n\'a pas terminé la configuration de son compte bancaire.',
+        error: `Ce ${supplierDoc.role === 'driver' ? 'livreur' : supplierDoc.role} n'a pas terminé la configuration de son compte bancaire.`,
         requiresStripeOnboarding: true
       });
     }
 
-    // Calculer la commission plateforme et le montant fournisseur
-    const platformFeeAmount = Math.round(amount * COMMISSION_RATE);
-    const supplierAmount = amount - platformFeeAmount;
+    // OPTION A : Le payeur paie tout (montant + commission 5% + frais Stripe)
+    // Calcul : 
+    // 1. Montant de base (ex: 100€)
+    // 2. Commission plateforme 5% (5€)
+    // 3. Frais Stripe 2.9% + 0.25€ (~3.30€)
+    // 4. Total payé : 108.30€
+    // 5. Prestataire reçoit : 95€ (100€ - 5€)
+    
+    const baseAmount = amount; // Montant de base (ex: 10000 = 100€)
+    const platformFeeAmount = Math.round(baseAmount * COMMISSION_RATE); // 5% commission
+    const stripeFeeAmount = Math.round(baseAmount * STRIPE_FEE_PERCENTAGE) + STRIPE_FEE_FIXED; // Frais Stripe
+    const totalAmountCharged = baseAmount + platformFeeAmount + stripeFeeAmount; // Total facturé au payeur
+    const prestataireAmount = baseAmount - platformFeeAmount; // Montant net pour le prestataire
 
-    logger.info(`💳 Paiement - Total: ${(amount / 100).toFixed(2)}€, Commission: ${(platformFeeAmount / 100).toFixed(2)}€, Fournisseur: ${(supplierAmount / 100).toFixed(2)}€`);
+    logger.info(`💳 Paiement ${supplierDoc.role}:`);
+    logger.info(`   - Montant de base: ${(baseAmount / 100).toFixed(2)}€`);
+    logger.info(`   - Commission plateforme (5%): ${(platformFeeAmount / 100).toFixed(2)}€`);
+    logger.info(`   - Frais Stripe: ${(stripeFeeAmount / 100).toFixed(2)}€`);
+    logger.info(`   - TOTAL PAYEUR: ${(totalAmountCharged / 100).toFixed(2)}€`);
+    logger.info(`   - Prestataire reçoit: ${(prestataireAmount / 100).toFixed(2)}€`);
 
     // Mettre à jour la commande avec les montants
     order.pricing.platformFee = platformFeeAmount / 100; // Stocker en euros
+    order.pricing.total = totalAmountCharged / 100; // Total avec frais
     await order.save();
 
     // Créer le PaymentIntent Stripe avec Destination Charges
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount), // Montant total en centimes
+      amount: Math.round(totalAmountCharged), // TOTAL avec commission + frais Stripe
       currency,
       application_fee_amount: platformFeeAmount, // Commission plateforme
       transfer_data: {
@@ -200,12 +225,16 @@ router.post('/create-payment-intent', authenticateToken, async (req: Request, re
         orderId: (order._id as any).toString(),
         userId: userId.toString(),
         supplierId: orderData.supplierId.toString(),
-        restaurantName: userDoc.name || 'Restaurant',
-        supplierName: supplierDoc.name || supplierDoc.companyName || 'Fournisseur',
+        prestataireRole: supplierDoc.role,
+        payeurName: userDoc.name || 'Payeur',
+        prestataireName: supplierDoc.name || supplierDoc.companyName || 'Prestataire',
+        baseAmount: baseAmount.toString(),
         platformFee: platformFeeAmount.toString(),
-        supplierAmount: supplierAmount.toString(),
+        stripeFee: stripeFeeAmount.toString(),
+        totalCharged: totalAmountCharged.toString(),
+        prestataireAmount: prestataireAmount.toString(),
       },
-      description: `Commande RestauConnect #${order.orderNumber}`,
+      description: `RestauConnect - ${supplierDoc.role} #${order.orderNumber}`,
     });
 
     // Sauvegarder l'ID du PaymentIntent dans la commande
@@ -216,6 +245,13 @@ router.post('/create-payment-intent', authenticateToken, async (req: Request, re
       clientSecret: paymentIntent.client_secret,
       orderId: (order._id as any).toString(),
       paymentIntentId: paymentIntent.id,
+      amounts: {
+        base: baseAmount,
+        platformFee: platformFeeAmount,
+        stripeFee: stripeFeeAmount,
+        total: totalAmountCharged,
+        prestataireReceives: prestataireAmount
+      }
     });
   } catch (error) {
     logger.error('❌ Erreur création PaymentIntent:', error);
