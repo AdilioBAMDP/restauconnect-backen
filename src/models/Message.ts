@@ -1,7 +1,7 @@
-﻿import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 import { Message as IMessage, Conversation as IConversation } from '../types';
 
-// Étend l'interface pour inclure les champs de modération utilisés dans le schéma et les routes
+// Ã‰tend l'interface pour inclure les champs de modÃ©ration utilisÃ©s dans le schÃ©ma et les routes
 interface MessageModeration {
   flagged?: boolean;
   flaggedReason?: string;
@@ -45,7 +45,7 @@ const MessageSchema = new Schema<MessageDocument>({
   read: { type: Boolean, default: false },
   edited: { type: Boolean, default: false },
   editedAt: Date,
-  // Champs de modération
+  // Champs de modÃ©ration
   flagged: { type: Boolean, default: false },
   flaggedReason: { type: String },
   moderationStatus: { type: String, enum: ['pending', 'approved', 'rejected', 'flagged'], default: 'approved' },
@@ -218,7 +218,7 @@ MessageSchema.statics.findByConversation = function(conversationId: string, page
     .skip((page - 1) * limit);
 };
 
-// Guard pattern pour Ã©viter "OverwriteModelError"
-// RenommÃ© en MessageConversation pour Ã©viter conflit avec notre nouveau Conversation.ts
+// Guard pattern pour ÃƒÂ©viter "OverwriteModelError"
+// RenommÃƒÂ© en MessageConversation pour ÃƒÂ©viter conflit avec notre nouveau Conversation.ts
 export const Message = (mongoose.models.Message || mongoose.model<MessageDocument>('Message', MessageSchema)) as mongoose.Model<MessageDocument>;
 export const MessageConversation = (mongoose.models.MessageConversation || mongoose.model<ConversationDocument>('MessageConversation', ConversationSchema)) as mongoose.Model<ConversationDocument>;

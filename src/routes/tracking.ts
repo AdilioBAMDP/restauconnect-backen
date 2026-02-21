@@ -9,13 +9,13 @@ const router = Router();
 
 /**
  * GET /api/tracking/active
- * Récupère le tracking actif du livreur connecté
+ * RÃƒÂ©cupÃƒÂ¨re le tracking actif du livreur connectÃƒÂ©
  */
 router.get('/active', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const driverId = req.user._id;
 
-    // Récupérer la livraison active du livreur
+    // RÃƒÂ©cupÃƒÂ©rer la livraison active du livreur
     const { DeliveryModel } = await import('../models/Delivery');
     
     const activeDelivery = await DeliveryModel.findOne({
@@ -38,7 +38,7 @@ router.get('/active', authenticateToken, async (req: AuthRequest, res: Response)
     res.json({
       success: true,
       data: activeDelivery,
-      message: 'Tracking actif récupéré'
+      message: 'Tracking actif rÃƒÂ©cupÃƒÂ©rÃƒÂ©'
     });
   } catch (error: any) {
     console.error('Erreur /tracking/active:', error);
@@ -58,7 +58,7 @@ router.get('/drivers/active', authenticateToken, requireTransporteurPermission(T
   try {
     const transporteurId = req.user.transporteurId || req.user._id;
 
-    // Récupérer tous les chauffeurs avec position actuelle
+    // RÃƒÂ©cupÃƒÂ©rer tous les chauffeurs avec position actuelle
     const activeDrivers = await DriverEmployee.find({
       transporteurId,
       status: { $in: ['on_delivery', 'available'] },
@@ -122,7 +122,7 @@ router.get('/delivery/:deliveryId', authenticateToken, async (req: AuthRequest, 
 
 /**
  * GET /api/tracking/route/:routeId/progress
- * Progression d'une route en temps réel
+ * Progression d'une route en temps rÃƒÂ©el
  */
 router.get('/route/:routeId/progress', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.VIEW_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
@@ -146,7 +146,7 @@ router.get('/route/:routeId/progress', authenticateToken, requireTransporteurPer
     const completedStops = route.stops.filter((s: any) => s.status === 'completed').length;
     const progressPercent = totalStops > 0 ? (completedStops / totalStops) * 100 : 0;
 
-    // Prochain arrêt
+    // Prochain arrÃƒÂªt
     const nextStop = route.stops.find((s: any) => s.status !== 'completed');
 
     res.json({
@@ -169,7 +169,7 @@ router.get('/route/:routeId/progress', authenticateToken, requireTransporteurPer
 
 /**
  * POST /api/tracking/delivery/:deliveryId/share
- * Générer un lien de tracking public pour un client
+ * GÃƒÂ©nÃƒÂ©rer un lien de tracking public pour un client
  */
 router.post('/delivery/:deliveryId/share', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.MANAGE_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
@@ -185,11 +185,11 @@ router.post('/delivery/:deliveryId/share', authenticateToken, requireTransporteu
       return res.status(404).json({ error: 'Livraison introuvable' });
     }
 
-    // Générer un token unique pour le tracking public
+    // GÃƒÂ©nÃƒÂ©rer un token unique pour le tracking public
     const crypto = require('crypto');
     const trackingToken = crypto.randomBytes(32).toString('hex');
 
-    // Stocker le token (dans une vraie app, créer un modèle TrackingToken avec expiration)
+    // Stocker le token (dans une vraie app, crÃƒÂ©er un modÃƒÂ¨le TrackingToken avec expiration)
     // Pour simplifier, on stocke dans la livraison
     (delivery as any).publicTrackingToken = trackingToken;
     (delivery as any).trackingTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
@@ -223,10 +223,10 @@ router.get('/public/:token', async (req, res) => {
       .lean();
 
     if (!delivery) {
-      return res.status(404).json({ error: 'Lien de tracking invalide ou expiré' });
+      return res.status(404).json({ error: 'Lien de tracking invalide ou expirÃƒÂ©' });
     }
 
-    // Retourner uniquement les infos nécessaires au client
+    // Retourner uniquement les infos nÃƒÂ©cessaires au client
     res.json({
       success: true,
       tracking: {
@@ -234,7 +234,7 @@ router.get('/public/:token', async (req, res) => {
         currentLocation: delivery.currentLocation,
         destination: delivery.deliveryAddress,
         estimatedArrival: (delivery as any).estimatedDeliveryTime,
-        // Historique simplifié (dernières 10 positions)
+        // Historique simplifiÃƒÂ© (derniÃƒÂ¨res 10 positions)
         recentHistory: delivery.trackingHistory.slice(-10)
       }
     });

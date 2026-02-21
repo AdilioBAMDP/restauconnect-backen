@@ -1,5 +1,5 @@
-﻿/**
- * SEED USERS - CrÃ©er des comptes de test pour tous les rÃ´les
+/**
+ * SEED USERS - CrÃƒÂ©er des comptes de test pour tous les rÃƒÂ´les
  */
 
 import mongoose from 'mongoose';
@@ -15,12 +15,12 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/restau
 
 async function seedUsers() {
   try {
-    logger.info('ðŸŒ± DÃ©marrage du seed des utilisateurs...');
+    logger.info('Ã°Å¸Å’Â± DÃƒÂ©marrage du seed des utilisateurs...');
     
     await mongoose.connect(MONGODB_URI);
-    logger.info('âœ… MongoDB connectÃ©');
+    logger.info('Ã¢Å“â€¦ MongoDB connectÃƒÂ©');
     
-    // Mots de passe spÃ©cifiques pour chaque rÃ´le
+    // Mots de passe spÃƒÂ©cifiques pour chaque rÃƒÂ´le
     const restaurantPassword = await bcrypt.hash('restaurant123', 10);
     const artisanPassword = await bcrypt.hash('artisan123', 10);
     const fournisseurPassword = await bcrypt.hash('fournisseur123', 10);
@@ -49,11 +49,11 @@ async function seedUsers() {
         businessInfo: {
           companyName: 'Restaurant Le Gourmet',
           siret: '12345678900001',
-          description: 'Restaurant gastronomique franÃ§ais'
+          description: 'Restaurant gastronomique franÃƒÂ§ais'
         }
       },
       {
-        name: 'Artisan Pro RÃ©novation',
+        name: 'Artisan Pro RÃƒÂ©novation',
         email: 'artisan@test.fr',
         password: artisanPassword,
         role: 'artisan',
@@ -66,9 +66,9 @@ async function seedUsers() {
           coordinates: [5.3698, 43.2965]
         },
         businessInfo: {
-          companyName: 'Artisan Pro RÃ©novation',
+          companyName: 'Artisan Pro RÃƒÂ©novation',
           siret: '11122233300001',
-          description: 'SpÃ©cialiste cuisines professionnelles'
+          description: 'SpÃƒÂ©cialiste cuisines professionnelles'
         }
       },
       {
@@ -116,7 +116,7 @@ async function seedUsers() {
         role: 'community_manager',
         phone: '+33656789012',
         location: {
-          address: '15 boulevard des RÃ©seaux',
+          address: '15 boulevard des RÃƒÂ©seaux',
           city: 'Bordeaux',
           postalCode: '33000',
           country: 'France',
@@ -125,7 +125,7 @@ async function seedUsers() {
         businessInfo: {
           companyName: 'Community Manager Pro',
           siret: '33344455500001',
-          description: 'Gestion communautÃ© sociale'
+          description: 'Gestion communautÃƒÂ© sociale'
         }
       },
       {
@@ -163,7 +163,7 @@ async function seedUsers() {
         businessInfo: {
           companyName: 'Investisseur Capital',
           siret: '55566677700001',
-          description: 'OpportunitÃ©s d\'investissement'
+          description: 'OpportunitÃƒÂ©s d\'investissement'
         }
       },
       {
@@ -211,7 +211,7 @@ async function seedUsers() {
         role: 'super_admin',
         phone: '+33601234567',
         location: {
-          address: '80 avenue du ContrÃ´le Total',
+          address: '80 avenue du ContrÃƒÂ´le Total',
           city: 'Paris',
           postalCode: '75001',
           country: 'France',
@@ -225,23 +225,23 @@ async function seedUsers() {
       }
     ];
     
-    // VÃ©rifier et crÃ©er les utilisateurs
+    // VÃƒÂ©rifier et crÃƒÂ©er les utilisateurs
     for (const userData of testUsers) {
       const existing = await User.findOne({ email: userData.email });
       
       if (existing) {
-        logger.info(`â­ï¸  Utilisateur ${userData.role} (${userData.email}) existe dÃ©jÃ `);
+        logger.info(`Ã¢ÂÂ­Ã¯Â¸Â  Utilisateur ${userData.role} (${userData.email}) existe dÃƒÂ©jÃƒÂ `);
       } else {
         const user = new User(userData);
         await user.save();
-        logger.info(`âœ… Utilisateur ${userData.role} crÃ©Ã© : ${userData.email}`);
+        logger.info(`Ã¢Å“â€¦ Utilisateur ${userData.role} crÃƒÂ©ÃƒÂ© : ${userData.email}`);
       }
     }
     
-    logger.info('\nðŸ“‹ RÃ‰CAPITULATIF DES COMPTES :');
-    logger.info('â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”');
-    logger.info('Email                              | Mot de passe      | RÃ´le');
-    logger.info('â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”');
+    logger.info('\nÃ°Å¸â€œâ€¹ RÃƒâ€°CAPITULATIF DES COMPTES :');
+    logger.info('Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â');
+    logger.info('Email                              | Mot de passe      | RÃƒÂ´le');
+    logger.info('Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â');
     logger.info('restaurant@test.fr                 | restaurant123     | restaurant');
     logger.info('artisan@test.fr                    | artisan123        | artisan');
     logger.info('fournisseur@test.fr                | fournisseur123    | fournisseur');
@@ -252,13 +252,13 @@ async function seedUsers() {
     logger.info('comptable@test.fr                  | comptable123      | comptable');
     logger.info('admin@restauconnect.fr             | admin123          | admin');
     logger.info('super_admin@test.fr                | superadmin123     | super_admin');
-    logger.info('â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n');
+    logger.info('Ã¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€ÂÃ¢â€Â\n');
     
     await mongoose.disconnect();
-    logger.info('âœ… Seed des utilisateurs terminÃ© !');
+    logger.info('Ã¢Å“â€¦ Seed des utilisateurs terminÃƒÂ© !');
     
   } catch (error) {
-    logger.error('âŒ Erreur lors du seed :', error);
+    logger.error('Ã¢ÂÅ’ Erreur lors du seed :', error);
     process.exit(1);
   }
 }

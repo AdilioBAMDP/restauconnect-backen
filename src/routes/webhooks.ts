@@ -11,16 +11,16 @@ router.post('/stripe', express.raw({ type: 'application/json' }), async (req: Re
   const sig = req.headers['stripe-signature'];
   
   try {
-    // TODO: Vérifier la signature Stripe
+    // TODO: VÃƒÂ©rifier la signature Stripe
     // const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
     // const event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
     
     // Pour l'instant, parser le body directement
     const event = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
 
-    logger.info(`🔔 Webhook Stripe reçu: ${event.type}`);
+    logger.info(`Ã°Å¸â€â€ Webhook Stripe reÃƒÂ§u: ${event.type}`);
 
-    // Gérer l'événement payment_intent.succeeded
+    // GÃƒÂ©rer l'ÃƒÂ©vÃƒÂ©nement payment_intent.succeeded
     if (event.type === 'payment_intent.succeeded') {
       const paymentIntent = event.data.object;
       
@@ -34,32 +34,32 @@ router.post('/stripe', express.raw({ type: 'application/json' }), async (req: Re
       });
 
       if (!payment) {
-        logger.warn(`⚠️ Paiement non trouvé pour PaymentIntent: ${paymentIntent.id}`);
+        logger.warn(`Ã¢Å¡Â Ã¯Â¸Â Paiement non trouvÃƒÂ© pour PaymentIntent: ${paymentIntent.id}`);
         return res.status(404).json({ received: true, error: 'Payment not found' });
       }
 
-      // Mettre à jour le paiement
+      // Mettre ÃƒÂ  jour le paiement
       await payment.markSucceeded(paymentIntent.id);
       await payment.addWebhook(event.type, event.data.object);
 
-      // Mettre à jour la commande
+      // Mettre ÃƒÂ  jour la commande
       const order = await OrderModel.findById(payment.orderId).exec();
       if (order) {
         order.payment.status = 'succeeded';
         order.payment.transactionId = paymentIntent.id;
         order.payment.paidAt = new Date();
-        // Ne pas changer le statut ici, il reste 'pending' jusqu'à action du fournisseur
+        // Ne pas changer le statut ici, il reste 'pending' jusqu'ÃƒÂ  action du fournisseur
         await order.save();
 
-        logger.info(`✅ Paiement reçu pour la commande ${order.orderNumber} - Statut laissé à '${order.status}' (confirmation manuelle requise)`);
-        // TODO: Socket.io notification au fournisseur (paiement reçu)
+        logger.info(`Ã¢Å“â€¦ Paiement reÃƒÂ§u pour la commande ${order.orderNumber} - Statut laissÃƒÂ© ÃƒÂ  '${order.status}' (confirmation manuelle requise)`);
+        // TODO: Socket.io notification au fournisseur (paiement reÃƒÂ§u)
       }
     }
 
     res.json({ received: true });
 
   } catch (error) {
-    logger.error('❌ Erreur webhook Stripe:', error);
+    logger.error('Ã¢ÂÅ’ Erreur webhook Stripe:', error);
     res.status(400).json({ error: (error as Error).message });
   }
 });
@@ -72,9 +72,9 @@ router.post('/paypal', express.json(), async (req: Request, res: Response): Prom
   try {
     const event = req.body;
 
-    logger.info(`🔔 Webhook PayPal reçu: ${event.event_type}`);
+    logger.info(`Ã°Å¸â€â€ Webhook PayPal reÃƒÂ§u: ${event.event_type}`);
 
-    // Gérer l'événement PAYMENT.CAPTURE.COMPLETED
+    // GÃƒÂ©rer l'ÃƒÂ©vÃƒÂ©nement PAYMENT.CAPTURE.COMPLETED
     if (event.event_type === 'PAYMENT.CAPTURE.COMPLETED') {
       const capture = event.resource;
       
@@ -87,38 +87,38 @@ router.post('/paypal', express.json(), async (req: Request, res: Response): Prom
       });
 
       if (!payment) {
-        logger.warn(`⚠️ Paiement non trouvé pour PayPal Order: ${capture.supplementary_data?.related_ids?.order_id}`);
+        logger.warn(`Ã¢Å¡Â Ã¯Â¸Â Paiement non trouvÃƒÂ© pour PayPal Order: ${capture.supplementary_data?.related_ids?.order_id}`);
         return res.status(404).json({ received: true, error: 'Payment not found' });
       }
 
-      // Mettre à jour le paiement
+      // Mettre ÃƒÂ  jour le paiement
       await payment.markSucceeded(capture.id);
       await payment.addWebhook(event.event_type, capture);
 
-      // Mettre à jour la commande
+      // Mettre ÃƒÂ  jour la commande
       const order = await OrderModel.findById(payment.orderId).exec();
       if (order) {
         order.payment.status = 'succeeded';
         order.payment.transactionId = capture.id;
         order.payment.paidAt = new Date();
-        // Ne pas changer le statut ici, il reste 'pending' jusqu'à action du fournisseur
+        // Ne pas changer le statut ici, il reste 'pending' jusqu'ÃƒÂ  action du fournisseur
         await order.save();
 
-        logger.info(`✅ Paiement PayPal reçu pour la commande ${order.orderNumber} - Statut laissé à '${order.status}' (confirmation manuelle requise)`);
+        logger.info(`Ã¢Å“â€¦ Paiement PayPal reÃƒÂ§u pour la commande ${order.orderNumber} - Statut laissÃƒÂ© ÃƒÂ  '${order.status}' (confirmation manuelle requise)`);
       }
     }
 
     res.json({ received: true });
 
   } catch (error) {
-    logger.error('❌ Erreur webhook PayPal:', error);
+    logger.error('Ã¢ÂÅ’ Erreur webhook PayPal:', error);
     res.status(400).json({ error: (error as Error).message });
   }
 });
 
 /**
  * POST /api/webhooks/payment-manual
- * Simuler un paiement réussi (DEV/TEST uniquement)
+ * Simuler un paiement rÃƒÂ©ussi (DEV/TEST uniquement)
  */
 router.post('/payment-manual', express.json(), async (req: Request, res: Response): Promise<any> => {
   try {
@@ -140,34 +140,34 @@ router.post('/payment-manual', express.json(), async (req: Request, res: Respons
     if (!payment) {
       return res.status(404).json({
         success: false,
-        error: 'Paiement non trouvé'
+        error: 'Paiement non trouvÃƒÂ©'
       });
     }
 
-    // Marquer comme réussi
+    // Marquer comme rÃƒÂ©ussi
     await payment.markSucceeded(transactionId || `manual_${Date.now()}`);
 
-    // Mettre à jour la commande
+    // Mettre ÃƒÂ  jour la commande
     const order = await OrderModel.findById(orderId).exec();
     if (order) {
       order.payment.status = 'succeeded';
       order.payment.transactionId = payment.transactionId;
       order.payment.paidAt = new Date();
-      // Ne pas changer le statut ici, il reste 'pending' jusqu'à action du fournisseur
+      // Ne pas changer le statut ici, il reste 'pending' jusqu'ÃƒÂ  action du fournisseur
       await order.save();
 
-      logger.info(`✅ Paiement manuel simulé - Statut laissé à '${order.status}' (confirmation manuelle requise)`);
+      logger.info(`Ã¢Å“â€¦ Paiement manuel simulÃƒÂ© - Statut laissÃƒÂ© ÃƒÂ  '${order.status}' (confirmation manuelle requise)`);
     }
 
     res.json({
       success: true,
-      message: 'Paiement validé manuellement',
+      message: 'Paiement validÃƒÂ© manuellement',
       payment,
       order
     });
 
   } catch (error) {
-    logger.error('❌ Erreur paiement manuel:', error);
+    logger.error('Ã¢ÂÅ’ Erreur paiement manuel:', error);
     res.status(500).json({
       success: false,
       error: (error as Error).message

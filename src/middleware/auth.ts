@@ -1,11 +1,11 @@
-﻿import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import { config } from '../config';
 import { User } from '../models/User';
 import { ApiResponse } from '../types';
 
-// 🔄 MAPPING RÔLES FRANÇAIS → ANGLAIS (MongoDB)
-// Frontend utilise noms français, MongoDB attend noms anglais
+// ðŸ”„ MAPPING RÃ”LES FRANÃ‡AIS â†’ ANGLAIS (MongoDB)
+// Frontend utilise noms franÃ§ais, MongoDB attend noms anglais
 function mapRoleToMongoDB(frontendRole: string): string {
   const roleMap: Record<string, string> = {
     'fournisseur': 'supplier',
@@ -15,7 +15,7 @@ function mapRoleToMongoDB(frontendRole: string): string {
     'comptable': 'accountant',
     'investisseur': 'investor',
     'auditeur': 'auditor',
-    // Rôles identiques français/anglais (pas de mapping nécessaire)
+    // RÃ´les identiques franÃ§ais/anglais (pas de mapping nÃ©cessaire)
     'restaurant': 'restaurant',
     'artisan': 'artisan',
     'candidat': 'candidat',
@@ -26,7 +26,7 @@ function mapRoleToMongoDB(frontendRole: string): string {
   return roleMap[frontendRole] || frontendRole;
 }
 
-// 🔴 COMPTES DE TEST TEMPORAIRES - Pour éviter les appels MongoDB
+// ðŸ”´ COMPTES DE TEST TEMPORAIRES - Pour Ã©viter les appels MongoDB
 const testAccounts = [
   // Comptes livreurs (apps mobiles)
   { id: '18', email: 'test.mobile@restauconnect.com', password: 'Test123!', role: 'livreur', name: 'Chauffeur Test' },
@@ -57,12 +57,12 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
     const authHeader = req.headers.authorization;
     const token = authHeader && typeof authHeader === 'string' && (authHeader as string).split(' ')[1]; // Bearer TOKEN
 
-    console.log('🔐 Auth middleware - Header:', authHeader);
-    console.log('🔐 Auth middleware - Token extracted:', token ? token.substring(0, 20) + '...' : 'NONE');
-    console.log('🔐 Auth middleware - NODE_ENV:', process.env.NODE_ENV);
+    console.log('ðŸ” Auth middleware - Header:', authHeader);
+    console.log('ðŸ” Auth middleware - Token extracted:', token ? token.substring(0, 20) + '...' : 'NONE');
+    console.log('ðŸ” Auth middleware - NODE_ENV:', process.env.NODE_ENV);
 
     if (!token) {
-      console.log('❌ No token provided');
+      console.log('âŒ No token provided');
       res.status(401).json({
         success: false,
         error: 'Access token required'
@@ -70,16 +70,16 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
       return;
     }
 
-    // 🧪 Support des tokens de test en développement
+    // ðŸ§ª Support des tokens de test en dÃ©veloppement
     if (process.env.NODE_ENV !== 'production' && token.startsWith('test-token-')) {
-      // console.log('🧪 Test token detected:', token);
+      // console.log('ðŸ§ª Test token detected:', token);
       const userId = token.replace('test-token-', '');
-      // console.log('🧪 Extracted userId:', userId);
+      // console.log('ðŸ§ª Extracted userId:', userId);
       
-      // 🔴 Utiliser comptes de test au lieu de MongoDB
+      // ðŸ”´ Utiliser comptes de test au lieu de MongoDB
       const testUser = testAccounts.find(account => account.id === userId);
       if (!testUser) {
-        // console.log('❌ Test token - user not found for ID:', userId);
+        // console.log('âŒ Test token - user not found for ID:', userId);
         res.status(401).json({
           success: false,
           error: 'Invalid test token - user not found'
@@ -87,56 +87,56 @@ export const authenticateToken = async (req: AuthRequest, res: Response, next: N
         return;
       }
       
-      // console.log('✅ Test token validated for user:', testUser.email);
+      // console.log('âœ… Test token validated for user:', testUser.email);
       req.user = {
         userId: testUser.id,
         email: testUser.email,
-        role: mapRoleToMongoDB(testUser.role), // 🔄 Mapper rôle français → anglais
+        role: mapRoleToMongoDB(testUser.role), // ðŸ”„ Mapper rÃ´le franÃ§ais â†’ anglais
         name: testUser.name
       };
       next();
       return;
     }
 
-    console.log('🔑 Processing JWT token');
+    console.log('ðŸ”‘ Processing JWT token');
     // Token JWT normal
     const decoded = jwt.verify(token, config.jwt.secret as string) as any;
-    console.log('✅ JWT decoded - userId:', decoded.userId, 'email:', decoded.email);
+    console.log('âœ… JWT decoded - userId:', decoded.userId, 'email:', decoded.email);
     
-    // 🔴 Utiliser comptes de test au lieu de MongoDB pour les tokens JWT aussi
+    // ðŸ”´ Utiliser comptes de test au lieu de MongoDB pour les tokens JWT aussi
     const testUser = testAccounts.find(account => account.id === decoded.userId);
     if (testUser) {
-      console.log('✅ JWT token validated for test user:', testUser.email);
+      console.log('âœ… JWT token validated for test user:', testUser.email);
       req.user = {
         userId: testUser.id,
         email: testUser.email,
-        role: mapRoleToMongoDB(testUser.role), // 🔄 Mapper rôle français → anglais
+        role: mapRoleToMongoDB(testUser.role), // ðŸ”„ Mapper rÃ´le franÃ§ais â†’ anglais
         name: testUser.name
       };
       next();
       return;
     }
     
-    // Fallback vers MongoDB - UTILISER EMAIL car _id est ObjectId mais schéma attend String
+    // Fallback vers MongoDB - UTILISER EMAIL car _id est ObjectId mais schÃ©ma attend String
     try {
-      console.log('🔍 Searching user in MongoDB by email:', decoded.email);
+      console.log('ðŸ” Searching user in MongoDB by email:', decoded.email);
       const user = await User.findOne({ email: decoded.email }).select('-password').exec();
       if (!user) {
-        console.log('❌ JWT token - user not found by email');
+        console.log('âŒ JWT token - user not found by email');
         res.status(401).json({
           success: false,
           error: 'Invalid token - user not found'
         } as ApiResponse);
         return;
       }
-      console.log('✅ User found:', user.email, 'role:', user.role);
-      // ✅ Le rôle MongoDB est déjà en anglais, on le garde tel quel
-      // ✅ Ajouter userId pour compatibilité avec routes (sans toObject pour éviter problèmes)
+      console.log('âœ… User found:', user.email, 'role:', user.role);
+      // âœ… Le rÃ´le MongoDB est dÃ©jÃ  en anglais, on le garde tel quel
+      // âœ… Ajouter userId pour compatibilitÃ© avec routes (sans toObject pour Ã©viter problÃ¨mes)
       (user as any).userId = user._id.toString();
       (user as any).id = user._id.toString();
       req.user = user;
     } catch (mongoError) {
-      console.log('❌ JWT token - MongoDB error:', mongoError);
+      console.log('âŒ JWT token - MongoDB error:', mongoError);
       res.status(401).json({
         success: false,
         error: 'Invalid token'
@@ -188,13 +188,13 @@ export const optionalAuth = async (req: AuthRequest, res: Response, next: NextFu
     if (token) {
       const decoded = jwt.verify(token, config.jwt.secret as string) as any;
       
-      // 🔴 Utiliser comptes de test au lieu de MongoDB
+      // ðŸ”´ Utiliser comptes de test au lieu de MongoDB
       const testUser = testAccounts.find(account => account.id === decoded.userId);
       if (testUser) {
         req.user = {
           userId: testUser.id,
           email: testUser.email,
-          role: mapRoleToMongoDB(testUser.role), // 🔄 Mapper rôle français → anglais
+          role: mapRoleToMongoDB(testUser.role), // ðŸ”„ Mapper rÃ´le franÃ§ais â†’ anglais
           name: testUser.name
         };
       } else {

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-// Types pour les rôles de candidature
+// Types pour les rÃƒÂ´les de candidature
 export type ApplicationRole = 'restaurant' | 'artisan' | 'fournisseur' | 'candidat' | 'banker' | 'investor' | 'driver';
 
 // Statuts de candidature
@@ -29,8 +29,8 @@ export interface IApplication extends Document {
   // Statut de la candidature
   status: ApplicationStatus;
   
-  // Métadonnées
-  reviewedBy?: string; // ID de l'admin qui a traité
+  // MÃƒÂ©tadonnÃƒÂ©es
+  reviewedBy?: string; // ID de l'admin qui a traitÃƒÂ©
   reviewedAt?: Date;
   reviewNotes?: string; // Notes de l'admin
   
@@ -39,23 +39,23 @@ export interface IApplication extends Document {
   updatedAt: Date;
 }
 
-// Schéma Application
+// SchÃƒÂ©ma Application
 const ApplicationSchema: Schema = new Schema(
   {
     // Informations personnelles
     firstName: {
       type: String,
-      required: [true, 'Le prénom est requis'],
+      required: [true, 'Le prÃƒÂ©nom est requis'],
       trim: true,
-      minlength: [2, 'Le prénom doit contenir au moins 2 caractères'],
-      maxlength: [50, 'Le prénom ne peut pas dépasser 50 caractères']
+      minlength: [2, 'Le prÃƒÂ©nom doit contenir au moins 2 caractÃƒÂ¨res'],
+      maxlength: [50, 'Le prÃƒÂ©nom ne peut pas dÃƒÂ©passer 50 caractÃƒÂ¨res']
     },
     lastName: {
       type: String,
       required: [true, 'Le nom est requis'],
       trim: true,
-      minlength: [2, 'Le nom doit contenir au moins 2 caractères'],
-      maxlength: [50, 'Le nom ne peut pas dépasser 50 caractères']
+      minlength: [2, 'Le nom doit contenir au moins 2 caractÃƒÂ¨res'],
+      maxlength: [50, 'Le nom ne peut pas dÃƒÂ©passer 50 caractÃƒÂ¨res']
     },
     email: {
       type: String,
@@ -66,29 +66,29 @@ const ApplicationSchema: Schema = new Schema(
     },
     phone: {
       type: String,
-      required: [true, 'Le téléphone est requis'],
+      required: [true, 'Le tÃƒÂ©lÃƒÂ©phone est requis'],
       trim: true,
-      match: [/^[\d\s+()-]+$/, 'Numéro de téléphone invalide']
+      match: [/^[\d\s+()-]+$/, 'NumÃƒÂ©ro de tÃƒÂ©lÃƒÂ©phone invalide']
     },
     
     // Informations professionnelles
     role: {
       type: String,
-      required: [true, 'Le rôle est requis'],
+      required: [true, 'Le rÃƒÂ´le est requis'],
       enum: {
         values: ['restaurant', 'artisan', 'fournisseur', 'candidat', 'banker', 'investor', 'driver'],
-        message: '{VALUE} n\'est pas un rôle valide'
+        message: '{VALUE} n\'est pas un rÃƒÂ´le valide'
       }
     },
     company: {
       type: String,
       trim: true,
-      maxlength: [100, 'Le nom de l\'entreprise ne peut pas dépasser 100 caractères']
+      maxlength: [100, 'Le nom de l\'entreprise ne peut pas dÃƒÂ©passer 100 caractÃƒÂ¨res']
     },
     experience: {
       type: String,
       trim: true,
-      maxlength: [500, 'L\'expérience ne peut pas dépasser 500 caractères']
+      maxlength: [500, 'L\'expÃƒÂ©rience ne peut pas dÃƒÂ©passer 500 caractÃƒÂ¨res']
     },
     
     // Message de motivation
@@ -96,8 +96,8 @@ const ApplicationSchema: Schema = new Schema(
       type: String,
       required: [true, 'Le message de motivation est requis'],
       trim: true,
-      minlength: [50, 'Le message doit contenir au moins 50 caractères'],
-      maxlength: [2000, 'Le message ne peut pas dépasser 2000 caractères']
+      minlength: [50, 'Le message doit contenir au moins 50 caractÃƒÂ¨res'],
+      maxlength: [2000, 'Le message ne peut pas dÃƒÂ©passer 2000 caractÃƒÂ¨res']
     },
     
     // CV (optionnel)
@@ -117,7 +117,7 @@ const ApplicationSchema: Schema = new Schema(
       default: 'pending'
     },
     
-    // Métadonnées
+    // MÃƒÂ©tadonnÃƒÂ©es
     reviewedBy: {
       type: String,
       ref: 'User'
@@ -128,7 +128,7 @@ const ApplicationSchema: Schema = new Schema(
     reviewNotes: {
       type: String,
       trim: true,
-      maxlength: [1000, 'Les notes ne peuvent pas dépasser 1000 caractères']
+      maxlength: [1000, 'Les notes ne peuvent pas dÃƒÂ©passer 1000 caractÃƒÂ¨res']
     }
   },
   {
@@ -136,12 +136,12 @@ const ApplicationSchema: Schema = new Schema(
   }
 );
 
-// Index pour améliorer les performances
+// Index pour amÃƒÂ©liorer les performances
 ApplicationSchema.index({ email: 1 });
 ApplicationSchema.index({ status: 1, createdAt: -1 });
 ApplicationSchema.index({ role: 1, status: 1 });
 
-// Méthode pour approuver une candidature
+// MÃƒÂ©thode pour approuver une candidature
 ApplicationSchema.methods.approve = function(adminId: string, notes?: string) {
   this.status = 'approved';
   this.reviewedBy = adminId;
@@ -150,7 +150,7 @@ ApplicationSchema.methods.approve = function(adminId: string, notes?: string) {
   return this.save();
 };
 
-// Méthode pour rejeter une candidature
+// MÃƒÂ©thode pour rejeter une candidature
 ApplicationSchema.methods.reject = function(adminId: string, notes?: string) {
   this.status = 'rejected';
   this.reviewedBy = adminId;
@@ -159,7 +159,7 @@ ApplicationSchema.methods.reject = function(adminId: string, notes?: string) {
   return this.save();
 };
 
-// Méthode statique pour obtenir les statistiques
+// MÃƒÂ©thode statique pour obtenir les statistiques
 ApplicationSchema.statics.getStats = async function() {
   const total = await this.countDocuments();
   const pending = await this.countDocuments({ status: 'pending' });
@@ -187,7 +187,7 @@ ApplicationSchema.statics.getStats = async function() {
   };
 };
 
-// Guard pattern pour éviter "OverwriteModelError"
+// Guard pattern pour ÃƒÂ©viter "OverwriteModelError"
 const ApplicationModel = (mongoose.models.Application || mongoose.model<IApplication>('Application', ApplicationSchema)) as mongoose.Model<IApplication>;
 
 export default ApplicationModel;

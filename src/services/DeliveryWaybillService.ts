@@ -1,4 +1,4 @@
-﻿import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer';
 import mongoose from 'mongoose';
 import { Readable } from 'stream';
 
@@ -22,7 +22,7 @@ export interface WaybillData {
 export class DeliveryWaybillService {
   
   /**
-   * Générer une lettre de voiture PDF et la stocker dans MongoDB GridFS
+   * GÃ©nÃ©rer une lettre de voiture PDF et la stocker dans MongoDB GridFS
    */
   static async generateWaybillPDF(waybillData: WaybillData): Promise<string> {
     try {
@@ -36,7 +36,7 @@ export class DeliveryWaybillService {
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'networkidle0' });
       
-      // Générer le PDF en buffer (en mémoire)
+      // GÃ©nÃ©rer le PDF en buffer (en mÃ©moire)
       const pdfBuffer = await page.pdf({
         format: 'A4',
         printBackground: true,
@@ -54,11 +54,11 @@ export class DeliveryWaybillService {
       const fileName = `waybill_${waybillData.deliveryNumber}_${Date.now()}.pdf`;
       const fileId = await this.uploadToGridFS(Buffer.from(pdfBuffer), fileName, waybillData.deliveryNumber);
       
-      // console.log(`📋 Lettre de voiture générée et stockée dans GridFS: ${fileName} (ID: ${fileId})`);
+      // console.log(`ðŸ“‹ Lettre de voiture gÃ©nÃ©rÃ©e et stockÃ©e dans GridFS: ${fileName} (ID: ${fileId})`);
       return fileId.toString();
       
     } catch (error) {
-      // console.error('Erreur génération PDF lettre de voiture:', error);
+      // console.error('Erreur gÃ©nÃ©ration PDF lettre de voiture:', error);
       throw error;
     }
   }
@@ -93,7 +93,7 @@ export class DeliveryWaybillService {
   }
 
   /**
-   * Récupérer un PDF depuis GridFS
+   * RÃ©cupÃ©rer un PDF depuis GridFS
    */
   static async getFromGridFS(fileId: string): Promise<Buffer> {
     const db = mongoose.connection.db;
@@ -117,7 +117,7 @@ export class DeliveryWaybillService {
   }
 
   /**
-   * Générer le HTML de la lettre de voiture
+   * GÃ©nÃ©rer le HTML de la lettre de voiture
    */
   private static generateWaybillHTML(data: WaybillData): string {
     const formatDate = (date: Date) => {
@@ -241,17 +241,17 @@ export class DeliveryWaybillService {
       </div>
 
       <div class="section">
-        <div class="section-title">INFORMATIONS GÉNÉRALES</div>
+        <div class="section-title">INFORMATIONS GÃ‰NÃ‰RALES</div>
         <div class="row">
-          <span class="label">Numéro de livraison:</span>
+          <span class="label">NumÃ©ro de livraison:</span>
           <span class="value">${data.deliveryNumber}</span>
         </div>
         <div class="row">
-          <span class="label">Date d'émission:</span>
+          <span class="label">Date d'Ã©mission:</span>
           <span class="value">${formatDate(data.createdAt)}</span>
         </div>
         <div class="row">
-          <span class="label">Référence commande:</span>
+          <span class="label">RÃ©fÃ©rence commande:</span>
           <span class="value">${data.orderId || 'N/A'}</span>
         </div>
       </div>
@@ -260,7 +260,7 @@ export class DeliveryWaybillService {
         <div class="section-title">ADRESSES</div>
         <div class="addresses">
           <div class="address-block">
-            <h4>EXPÉDITEUR</h4>
+            <h4>EXPÃ‰DITEUR</h4>
             <div>${data.pickupAddress.street || ''}</div>
             <div>${data.pickupAddress.city || ''} ${data.pickupAddress.postalCode || ''}</div>
             <div>${data.pickupAddress.country || 'France'}</div>
@@ -283,27 +283,27 @@ export class DeliveryWaybillService {
           <span class="value">${data.totalWeight} kg</span>
         </div>
         <div class="row">
-          <span class="label">Valeur déclarée:</span>
-          <span class="value">${data.totalValue} €</span>
+          <span class="label">Valeur dÃ©clarÃ©e:</span>
+          <span class="value">${data.totalValue} â‚¬</span>
         </div>
         <div class="row">
-          <span class="label">Instructions spéciales:</span>
+          <span class="label">Instructions spÃ©ciales:</span>
           <span class="value">${data.specialInstructions || 'Aucune'}</span>
         </div>
       </div>
 
       <div class="section">
-        <div class="section-title">CONFIRMATION D'ENLÈVEMENT</div>
+        <div class="section-title">CONFIRMATION D'ENLÃˆVEMENT</div>
         <div class="addresses">
           <div class="address-block">
-            <h4>CODE D'ENLÈVEMENT</h4>
+            <h4>CODE D'ENLÃˆVEMENT</h4>
             <div class="code-display">${data.pickupCode || 'N/A'}</div>
             <p style="font-size: 10px; color: #666; margin-top: 10px;">
-              À communiquer au transporteur lors de l'enlèvement
+              Ã€ communiquer au transporteur lors de l'enlÃ¨vement
             </p>
           </div>
           <div class="address-block">
-            <h4>SIGNATURE EXPÉDITEUR</h4>
+            <h4>SIGNATURE EXPÃ‰DITEUR</h4>
             <div class="signature-box">
               ${data.pickupSignature ? `<img src="${data.pickupSignature}" alt="Signature" />` : 'En attente de signature'}
             </div>
@@ -318,7 +318,7 @@ export class DeliveryWaybillService {
             <h4>CODE DE LIVRAISON</h4>
             <div class="code-display">${data.deliveryCode || 'N/A'}</div>
             <p style="font-size: 10px; color: #666; margin-top: 10px;">
-              À communiquer au transporteur lors de la réception
+              Ã€ communiquer au transporteur lors de la rÃ©ception
             </p>
           </div>
           <div class="address-block">
@@ -331,8 +331,8 @@ export class DeliveryWaybillService {
       </div>
 
       <div class="footer">
-        <p>Document généré automatiquement par Web Spider le ${formatDate(new Date())}</p>
-        <p>Ce document fait foi en cas de litige selon les conditions générales de transport</p>
+        <p>Document gÃ©nÃ©rÃ© automatiquement par Web Spider le ${formatDate(new Date())}</p>
+        <p>Ce document fait foi en cas de litige selon les conditions gÃ©nÃ©rales de transport</p>
       </div>
     </body>
     </html>

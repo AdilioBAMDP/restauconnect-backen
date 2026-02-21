@@ -1,4 +1,4 @@
-﻿import { CalendarEvent, CalendarEventDocument } from '../models/CalendarEvent';
+import { CalendarEvent, CalendarEventDocument } from '../models/CalendarEvent';
 import { SavedSearch, SavedSearchDocument } from '../models/SavedSearch';
 import { User } from '../models/User';
 import { logger } from '../utils/logger';

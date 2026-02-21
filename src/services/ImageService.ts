@@ -1,11 +1,11 @@
-﻿import multer from 'multer';
+import multer from 'multer';
 import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
 import { Request } from 'express';
 import { logger } from '../utils/logger';
 
-// CrÃ©er le dossier uploads s'il n'existe pas
+// CrÃƒÂ©er le dossier uploads s'il n'existe pas
 const uploadsDir = path.join(__dirname, '../../uploads/products');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
@@ -32,7 +32,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
   if (extname && mimetype) {
     cb(null, true);
   } else {
-    cb(new Error('Seules les images (JPEG, PNG, GIF, WEBP) sont autorisÃ©es'));
+    cb(new Error('Seules les images (JPEG, PNG, GIF, WEBP) sont autorisÃƒÂ©es'));
   }
 };
 
@@ -85,7 +85,7 @@ export class ImageService {
   }
 
   /**
-   * CrÃ©e plusieurs tailles d'une mÃªme image (thumbnail, medium, large)
+   * CrÃƒÂ©e plusieurs tailles d'une mÃƒÂªme image (thumbnail, medium, large)
    */
   static async createThumbnails(filePath: string): Promise<{
     thumbnail: string;
@@ -132,7 +132,7 @@ export class ImageService {
         fs.unlinkSync(imagePath);
       }
 
-      // Supprimer aussi les thumbnails si prÃ©sents
+      // Supprimer aussi les thumbnails si prÃƒÂ©sents
       const dir = path.dirname(imagePath);
       const basename = path.basename(imagePath, path.extname(imagePath));
       
@@ -156,7 +156,7 @@ export class ImageService {
    * Convertit un chemin de fichier en URL publique
    */
   static getPublicUrl(filePath: string): string {
-    // Extraire le chemin relatif Ã  partir de "uploads"
+    // Extraire le chemin relatif ÃƒÂ  partir de "uploads"
     const relativePath = filePath.split('uploads')[1];
     return `/uploads${relativePath}`.replace(/\\/g, '/');
   }

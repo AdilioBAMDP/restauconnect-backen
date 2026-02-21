@@ -1,4 +1,4 @@
-﻿import { ReviewNotification } from '../models/Review';
+import { ReviewNotification } from '../models/Review';
 import { User } from '../models/User';
 import { NotificationType } from '../types';
 import { logger } from '../utils/logger';
@@ -180,7 +180,7 @@ export class NotificationService {
         reviewedId,
         'review_received',
         `Nouvel avis de ${reviewer.name}`,
-        `${reviewer.name} vous a donnÃ© ${rating}/5 Ã©toiles`,
+        `${reviewer.name} vous a donnÃƒÂ© ${rating}/5 ÃƒÂ©toiles`,
         {
           reviewerId,
           reviewerName: reviewer.name,
@@ -212,7 +212,7 @@ export class NotificationService {
         userId,
         'listing_match',
         'Nouveaux profils correspondants',
-        `${matchCount} nouveaux profils correspondent Ã  votre offre`,
+        `${matchCount} nouveaux profils correspondent ÃƒÂ  votre offre`,
         {
           listingId,
           listingTitle,
@@ -244,8 +244,8 @@ export class NotificationService {
       const notification = await this.createNotification(
         userId,
         'project_invitation',
-        'Invitation Ã  un projet',
-        `${inviter.name} vous invite Ã  participer au projet "${projectTitle}"`,
+        'Invitation ÃƒÂ  un projet',
+        `${inviter.name} vous invite ÃƒÂ  participer au projet "${projectTitle}"`,
         {
           inviterId,
           inviterName: inviter.name,
@@ -274,8 +274,8 @@ export class NotificationService {
       const notification = await this.createNotification(
         userId,
         'booking_confirmed',
-        'RÃ©servation confirmÃ©e',
-        `Votre rÃ©servation pour "${bookingDetails.service}" a Ã©tÃ© confirmÃ©e`,
+        'RÃƒÂ©servation confirmÃƒÂ©e',
+        `Votre rÃƒÂ©servation pour "${bookingDetails.service}" a ÃƒÂ©tÃƒÂ© confirmÃƒÂ©e`,
         {
           bookingId,
           ...bookingDetails
@@ -304,8 +304,8 @@ export class NotificationService {
       const notification = await this.createNotification(
         userId,
         'payment_received',
-        'Paiement reÃ§u',
-        `Vous avez reÃ§u un paiement de ${amount} ${currency}`,
+        'Paiement reÃƒÂ§u',
+        `Vous avez reÃƒÂ§u un paiement de ${amount} ${currency}`,
         {
           amount,
           currency,

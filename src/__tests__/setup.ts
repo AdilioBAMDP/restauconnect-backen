@@ -1,9 +1,9 @@
-﻿// Setup file for Jest
+// Setup file for Jest
 import { logger } from '../utils/logger';
 import { connectDatabase, disconnectDatabase } from '../database/connection';
 
 beforeAll(async () => {
-  logger.info('🧪 Starting tests...');
+  logger.info('ðŸ§ª Starting tests...');
   // Ensure test DB is connected before running tests
   await connectDatabase();
 });
@@ -11,7 +11,7 @@ beforeAll(async () => {
 afterAll(async () => {
   // Disconnect cleanly to avoid Jest open handle leaks
   await disconnectDatabase();
-  logger.info('✅ Tests completed');
+  logger.info('âœ… Tests completed');
 });
 
 // Mock environment variables

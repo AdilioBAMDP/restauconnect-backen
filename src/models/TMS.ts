@@ -1,11 +1,11 @@
-﻿import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 // ===================================================================
-// 🚚 MODÈLES TMS (TRANSPORT MANAGEMENT SYSTEM) COMPLETS
+// ðŸšš MODÃˆLES TMS (TRANSPORT MANAGEMENT SYSTEM) COMPLETS
 // ===================================================================
 
 // -----------------------------------------------
-// 📍 TYPES ÉNUMÉRÉS
+// ðŸ“ TYPES Ã‰NUMÃ‰RÃ‰S
 // -----------------------------------------------
 export type DeliveryStatus = 'pending' | 'assigned' | 'picked_up' | 'in_transit' | 'delivered' | 'failed' | 'cancelled';
 export type VehicleType = 'car' | 'van' | 'truck' | 'scooter' | 'bike';
@@ -15,7 +15,7 @@ export type Temperature = 'ambient' | 'cold' | 'frozen';
 export type PaymentStatus = 'pending' | 'paid' | 'refunded';
 
 // -----------------------------------------------
-// 📍 ADRESSE
+// ðŸ“ ADRESSE
 // -----------------------------------------------
 export interface Address {
   street: string;
@@ -38,11 +38,11 @@ const AddressSchema = new Schema({
     latitude: { type: Number },
     longitude: { type: Number }
   },
-  additionalInfo: String, // Instructions spéciales, code d'accès, etc.
+  additionalInfo: String, // Instructions spÃ©ciales, code d'accÃ¨s, etc.
 });
 
 // -----------------------------------------------
-// 🚗 VÉHICULE
+// ðŸš— VÃ‰HICULE
 // -----------------------------------------------
 export interface VehicleDocument extends Document {
   driverId: mongoose.Types.ObjectId;
@@ -111,7 +111,7 @@ const VehicleSchema = new Schema<VehicleDocument>({
 });
 
 // -----------------------------------------------
-// 🚚 LIVRAISON
+// ðŸšš LIVRAISON
 // -----------------------------------------------
 export interface DeliveryDocument extends Document {
   orderId: string;
@@ -259,7 +259,7 @@ const DeliverySchema = new Schema<DeliveryDocument>({
 });
 
 // -----------------------------------------------
-// 👨‍✈️ CHAUFFEUR/LIVREUR
+// ðŸ‘¨â€âœˆï¸ CHAUFFEUR/LIVREUR
 // -----------------------------------------------
 export interface DriverDocument extends Document {
   userId: mongoose.Types.ObjectId;
@@ -364,7 +364,7 @@ const DriverSchema = new Schema<DriverDocument>({
 });
 
 // -----------------------------------------------
-// 🗂️ ZONE DE LIVRAISON
+// ðŸ—‚ï¸ ZONE DE LIVRAISON
 // -----------------------------------------------
 export interface DeliveryZoneDocument extends Document {
   name: string;
@@ -409,7 +409,7 @@ const DeliveryZoneSchema = new Schema<DeliveryZoneDocument>({
 });
 
 // -----------------------------------------------
-// 📊 RAPPORT DE PERFORMANCE
+// ðŸ“Š RAPPORT DE PERFORMANCE
 // -----------------------------------------------
 export interface PerformanceReportDocument extends Document {
   driverId: mongoose.Types.ObjectId;
@@ -445,7 +445,7 @@ const PerformanceReportSchema = new Schema<PerformanceReportDocument>({
 });
 
 // ===================================================================
-// 📦 EXPORTS
+// ðŸ“¦ EXPORTS
 // ===================================================================
 export const Vehicle = mongoose.models.Vehicle || mongoose.model<VehicleDocument>('Vehicle', VehicleSchema);
 export const TMSDelivery = mongoose.models.TMSDelivery || mongoose.model<DeliveryDocument>('TMSDelivery', DeliverySchema);
@@ -454,7 +454,7 @@ export const DeliveryZone = mongoose.models.DeliveryZone || mongoose.model<Deliv
 export const PerformanceReport = mongoose.models.PerformanceReport || mongoose.model<PerformanceReportDocument>('PerformanceReport', PerformanceReportSchema);
 
 // ===================================================================
-// 🔧 INDEXES POUR PERFORMANCES
+// ðŸ”§ INDEXES POUR PERFORMANCES
 // ===================================================================
 DeliverySchema.index({ status: 1, createdAt: -1 });
 DeliverySchema.index({ driverId: 1, status: 1 });

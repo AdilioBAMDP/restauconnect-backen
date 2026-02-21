@@ -1,4 +1,4 @@
-// Service de génération de factures PDF pour le TMS
+// Service de gÃƒÂ©nÃƒÂ©ration de factures PDF pour le TMS
 
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
@@ -62,9 +62,9 @@ export async function generateInvoicePDF(
 
       // Info facture
       doc.fontSize(10);
-      doc.text(`Numéro: ${invoiceData.invoiceNumber}`, { align: 'right' });
+      doc.text(`NumÃƒÂ©ro: ${invoiceData.invoiceNumber}`, { align: 'right' });
       doc.text(`Date: ${formatDate(invoiceData.issueDate)}`, { align: 'right' });
-      doc.text(`Échéance: ${formatDate(invoiceData.dueDate)}`, { align: 'right' });
+      doc.text(`Ãƒâ€°chÃƒÂ©ance: ${formatDate(invoiceData.dueDate)}`, { align: 'right' });
       doc.moveDown(2);
 
       // Transporteur
@@ -111,8 +111,8 @@ export async function generateInvoicePDF(
       invoiceData.items.forEach((item) => {
         doc.text(item.description, col1X, currentY, { width: 240 });
         doc.text(`${item.distance.toFixed(1)} km`, col2X, currentY);
-        doc.text(`${item.basePrice.toFixed(2)}€`, col3X, currentY);
-        doc.text(`${item.total.toFixed(2)}€`, col4X, currentY);
+        doc.text(`${item.basePrice.toFixed(2)}Ã¢â€šÂ¬`, col3X, currentY);
+        doc.text(`${item.total.toFixed(2)}Ã¢â€šÂ¬`, col4X, currentY);
         
         currentY += 20;
         
@@ -121,7 +121,7 @@ export async function generateInvoicePDF(
           item.extraCharges.forEach((charge) => {
             doc.fontSize(8).fillColor('#666');
             doc.text(`  + ${charge.name}`, col1X, currentY);
-            doc.text(`${charge.amount.toFixed(2)}€`, col4X, currentY);
+            doc.text(`${charge.amount.toFixed(2)}Ã¢â€šÂ¬`, col4X, currentY);
             currentY += 15;
             doc.fontSize(10).fillColor('#000');
           });
@@ -135,16 +135,16 @@ export async function generateInvoicePDF(
       // Totals
       doc.font('Helvetica');
       doc.text('Sous-total HT:', col3X, currentY);
-      doc.text(`${invoiceData.subtotal.toFixed(2)}€`, col4X, currentY);
+      doc.text(`${invoiceData.subtotal.toFixed(2)}Ã¢â€šÂ¬`, col4X, currentY);
       currentY += 20;
 
       doc.text(`TVA (${invoiceData.taxRate}%):`, col3X, currentY);
-      doc.text(`${invoiceData.taxAmount.toFixed(2)}€`, col4X, currentY);
+      doc.text(`${invoiceData.taxAmount.toFixed(2)}Ã¢â€šÂ¬`, col4X, currentY);
       currentY += 20;
 
       doc.font('Helvetica-Bold').fontSize(12);
       doc.text('TOTAL TTC:', col3X, currentY);
-      doc.text(`${invoiceData.total.toFixed(2)}€`, col4X, currentY);
+      doc.text(`${invoiceData.total.toFixed(2)}Ã¢â€šÂ¬`, col4X, currentY);
 
       // Notes
       if (invoiceData.notes) {
@@ -159,7 +159,7 @@ export async function generateInvoicePDF(
       // Footer
       doc.fontSize(8).fillColor('#999');
       doc.text(
-        'Conditions de paiement: 30 jours. Pénalités de retard: 3 fois le taux d\'intérêt légal.',
+        'Conditions de paiement: 30 jours. PÃƒÂ©nalitÃƒÂ©s de retard: 3 fois le taux d\'intÃƒÂ©rÃƒÂªt lÃƒÂ©gal.',
         50,
         doc.page.height - 100,
         { align: 'center', width: doc.page.width - 100 }
@@ -188,11 +188,11 @@ function formatDate(date: Date): string {
   }).format(date);
 }
 
-// Génération de facture depuis données MongoDB
+// GÃƒÂ©nÃƒÂ©ration de facture depuis donnÃƒÂ©es MongoDB
 export async function generateInvoiceFromDB(invoice: any): Promise<string> {
   const uploadsDir = path.join(__dirname, '../../uploads/invoices');
   
-  // Créer le dossier si nécessaire
+  // CrÃƒÂ©er le dossier si nÃƒÂ©cessaire
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }

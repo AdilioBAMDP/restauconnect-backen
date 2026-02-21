@@ -12,14 +12,14 @@ import {
   VehicleDocument,
   DriverDocument
 } from '../models/TMS';
-import { DeliveryModel } from '../models/Delivery'; // ✅ AJOUT: Le bon modèle avec requesterId/supplierId
+import { DeliveryModel } from '../models/Delivery'; // Ã¢Å“â€¦ AJOUT: Le bon modÃƒÂ¨le avec requesterId/supplierId
 import { User } from '../models/User';
 import { TmsService, DeliveryStatus, VehicleType } from '../services/TmsService';
 
 const router = express.Router();
 
 // ===================================================================
-// 📊 DASHBOARD TMS
+// Ã°Å¸â€œÅ  DASHBOARD TMS
 // ===================================================================
 
 // GET /api/tms/dashboard - Dashboard principal TMS
@@ -29,7 +29,7 @@ router.get('/dashboard', authenticateToken, async (req: AuthRequest, res: Respon
     if (!userId) {
       res.status(401).json({
         success: false,
-        error: 'Utilisateur non authentifié'
+        error: 'Utilisateur non authentifiÃƒÂ©'
       } as ApiResponse);
       return;
     }
@@ -43,7 +43,7 @@ router.get('/dashboard', authenticateToken, async (req: AuthRequest, res: Respon
       return;
     }
 
-    // Statistiques générales
+    // Statistiques gÃƒÂ©nÃƒÂ©rales
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -77,7 +77,7 @@ router.get('/dashboard', authenticateToken, async (req: AuthRequest, res: Respon
         },
         recentDeliveries
       },
-      message: 'Dashboard TMS récupéré'
+      message: 'Dashboard TMS rÃƒÂ©cupÃƒÂ©rÃƒÂ©'
     } as ApiResponse);
     return;
 
@@ -85,17 +85,17 @@ router.get('/dashboard', authenticateToken, async (req: AuthRequest, res: Respon
     logger.error('Erreur dashboard TMS:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération du dashboard'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration du dashboard'
     } as ApiResponse);
     return;
   }
 });
 
 // ===================================================================
-// 🚛 GESTION DES LIVRAISONS
+// Ã°Å¸Å¡â€º GESTION DES LIVRAISONS
 // ===================================================================
 
-// GET /api/tms/driver/stats - Statistiques du driver connecté
+// GET /api/tms/driver/stats - Statistiques du driver connectÃƒÂ©
 router.get('/driver/stats', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId || req.user?._id;
@@ -104,7 +104,7 @@ router.get('/driver/stats', authenticateToken, async (req: AuthRequest, res: Res
     if (!userId || (userRole !== 'driver' && userRole !== 'livreur')) {
       res.status(403).json({
         success: false,
-        error: 'Accès réservé aux drivers'
+        error: 'AccÃƒÂ¨s rÃƒÂ©servÃƒÂ© aux drivers'
       } as ApiResponse);
       return;
     }
@@ -139,18 +139,18 @@ router.get('/driver/stats', authenticateToken, async (req: AuthRequest, res: Res
 
     // Calculer les statistiques
     const todayEarnings = todayDeliveries.reduce((sum, d: any) => {
-      // Chercher dans différents endroits possibles pour les gains
+      // Chercher dans diffÃƒÂ©rents endroits possibles pour les gains
       const fee = d.pricing?.totalCost || d.pricing?.deliveryFee || d.pricing?.totalPrice || d.deliveryFee || 10;
       return sum + fee;
     }, 0);
     
     const totalEarnings = allDeliveries.reduce((sum, d: any) => {
-      // Chercher dans différents endroits possibles pour les gains
+      // Chercher dans diffÃƒÂ©rents endroits possibles pour les gains
       const fee = d.pricing?.totalCost || d.pricing?.deliveryFee || d.pricing?.totalPrice || d.deliveryFee || 10;
       return sum + fee;
     }, 0);
     
-    // Distance - chercher dans différents endroits possibles
+    // Distance - chercher dans diffÃƒÂ©rents endroits possibles
     const todayDistance = todayDeliveries.reduce((sum, d: any) => {
       const dist = d.routeInfo?.distanceKm || d.distance || d.estimatedDistance || 8.5;
       return sum + dist;
@@ -161,8 +161,8 @@ router.get('/driver/stats', authenticateToken, async (req: AuthRequest, res: Res
       return sum + dist;
     }, 0);
 
-    // Note moyenne (simulée pour l'instant)
-    const rating = 4.5; // TODO: implémenter le système de notation
+    // Note moyenne (simulÃƒÂ©e pour l'instant)
+    const rating = 4.5; // TODO: implÃƒÂ©menter le systÃƒÂ¨me de notation
 
     res.json({
       success: true,
@@ -182,10 +182,10 @@ router.get('/driver/stats', authenticateToken, async (req: AuthRequest, res: Res
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération stats driver:', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration stats driver:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des statistiques'
     } as ApiResponse);
   }
 });
@@ -243,30 +243,30 @@ router.get('/deliveries', authenticateToken, async (req: AuthRequest, res: Respo
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur r�cup�ration livraisons:', error);
+    logger.error('Erreur rÃ¯Â¿Â½cupÃ¯Â¿Â½ration livraisons:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la r�cup�ration des livraisons'
+      error: 'Erreur lors de la rÃ¯Â¿Â½cupÃ¯Â¿Â½ration des livraisons'
     } as ApiResponse);
   }
 });
 
-// GET /api/tms/deliveries/my-deliveries - Livraisons de l'utilisateur connecté
+// GET /api/tms/deliveries/my-deliveries - Livraisons de l'utilisateur connectÃƒÂ©
 router.get('/deliveries/my-deliveries', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // Récupérer l'ID de l'utilisateur connecté depuis le token JWT
+    // RÃƒÂ©cupÃƒÂ©rer l'ID de l'utilisateur connectÃƒÂ© depuis le token JWT
     const userId = req.user?.userId || req.user?._id;
     const userRole = req.user?.role;
     
     if (!userId) {
       res.status(401).json({
         success: false,
-        error: 'Non authentifié'
+        error: 'Non authentifiÃƒÂ©'
       } as ApiResponse);
       return;
     }
 
-    // Trouver l'utilisateur en base pour vérifier son existence
+    // Trouver l'utilisateur en base pour vÃƒÂ©rifier son existence
     const currentUser = await User.findById(userId);
     
     if (!currentUser) {
@@ -277,7 +277,7 @@ router.get('/deliveries/my-deliveries', authenticateToken, async (req: AuthReque
       return;
     }
 
-    console.log('🔍 [TMS] User:', { userId: userId.toString(), role: userRole });
+    console.log('Ã°Å¸â€Â [TMS] User:', { userId: userId.toString(), role: userRole });
     
     let filter: any = {};
     
@@ -285,30 +285,30 @@ router.get('/deliveries/my-deliveries', authenticateToken, async (req: AuthReque
     const orderId = req.query.orderId as string;
     const requestedStatus = req.query.status as string;
     
-    // Adapter le filtre selon le rôle (utiliser userId)
+    // Adapter le filtre selon le rÃƒÂ´le (utiliser userId)
     if (userRole === 'livreur' || userRole === 'driver') {
-      // Pour livreur: livraisons assignées
+      // Pour livreur: livraisons assignÃƒÂ©es
       filter = { 
         driverId: userId
       };
       
-      // Si un statut spécifique est demandé (ex: 'delivered' pour historique)
+      // Si un statut spÃƒÂ©cifique est demandÃƒÂ© (ex: 'delivered' pour historique)
       if (requestedStatus) {
         filter.status = requestedStatus;
       } else {
-        // Par défaut: livraisons en cours
+        // Par dÃƒÂ©faut: livraisons en cours
         filter.status = { $in: ['assigned', 'picked_up', 'in_transit'] };
       }
       
-      console.log('🔍 [TMS] Filter for driver:', JSON.stringify(filter));
+      console.log('Ã°Å¸â€Â [TMS] Filter for driver:', JSON.stringify(filter));
     } else if (userRole === 'restaurant') {
-      // Pour restaurant: livraisons demandées (en tant que requester)
+      // Pour restaurant: livraisons demandÃƒÂ©es (en tant que requester)
       filter = { 
         requesterId: userId,
         status: { $in: ['pending', 'assigned', 'pickup_pending', 'picked_up', 'in_transit'] }
       };
     } else if (userRole === 'fournisseur') {
-      // Pour fournisseur: livraisons à envoyer (en tant que supplier)
+      // Pour fournisseur: livraisons ÃƒÂ  envoyer (en tant que supplier)
       filter = { 
         supplierId: userId,
         status: { $in: ['pending', 'assigned', 'pickup_pending', 'picked_up', 'in_transit'] }
@@ -324,13 +324,13 @@ router.get('/deliveries/my-deliveries', authenticateToken, async (req: AuthReque
     if (orderId) {
       try {
         filter.orderId = new mongoose.Types.ObjectId(orderId);
-        console.log('🔍 [TMS] Filtering by orderId:', orderId);
+        console.log('Ã°Å¸â€Â [TMS] Filtering by orderId:', orderId);
       } catch (error) {
-        console.log('⚠️ [TMS] Invalid orderId format:', orderId);
+        console.log('Ã¢Å¡Â Ã¯Â¸Â [TMS] Invalid orderId format:', orderId);
       }
     }
 
-    // Récupérer les livraisons selon le filtre
+    // RÃƒÂ©cupÃƒÂ©rer les livraisons selon le filtre
     const deliveries = await DeliveryModel.find(filter)
     .populate('driverId', 'name email')
     .populate('supplierId', 'name email companyName')
@@ -338,15 +338,15 @@ router.get('/deliveries/my-deliveries', authenticateToken, async (req: AuthReque
     .sort({ createdAt: -1 })
     .lean();
     
-    console.log('📦 [TMS] Deliveries found:', deliveries.length);
+    console.log('Ã°Å¸â€œÂ¦ [TMS] Deliveries found:', deliveries.length);
     if (deliveries.length > 0) {
-      console.log('📦 [TMS] First delivery driverId:', deliveries[0].driverId);
+      console.log('Ã°Å¸â€œÂ¦ [TMS] First delivery driverId:', deliveries[0].driverId);
     }
     
-    // Formatter les données pour le frontend
+    // Formatter les donnÃƒÂ©es pour le frontend
     const formattedDeliveries = deliveries.map((d: any) => ({
       ...d,
-      driverName: d.driverId?.name || 'Non assigné',
+      driverName: d.driverId?.name || 'Non assignÃƒÂ©',
       supplierName: d.supplierId?.companyName || d.supplierId?.name || 'Fournisseur inconnu',
       requesterName: d.requesterId?.companyName || d.requesterId?.name || 'Restaurant inconnu'
     }));
@@ -357,10 +357,10 @@ router.get('/deliveries/my-deliveries', authenticateToken, async (req: AuthReque
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération livraisons:', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration livraisons:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des livraisons'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des livraisons'
     } as ApiResponse);
   }
 });
@@ -371,12 +371,12 @@ router.get('/deliveries/supplier-deliveries', authenticateToken, async (req: Aut
     if (!['fournisseur', 'restaurant', 'super_admin'].includes(req.user?.role || '')) {
       res.status(403).json({
         success: false,
-        error: 'Acc�s r�serv� aux fournisseurs et restaurants'
+        error: 'AccÃ¯Â¿Â½s rÃ¯Â¿Â½servÃ¯Â¿Â½ aux fournisseurs et restaurants'
       } as ApiResponse);
       return;
     }
 
-    // Pour les démo, on retourne des livraisons génériques
+    // Pour les dÃƒÂ©mo, on retourne des livraisons gÃƒÂ©nÃƒÂ©riques
     // En production, filtrer par fournisseur/restaurant
     const deliveries = await DeliveryModel.find({
       status: { $in: ['pending', 'assigned', 'picked_up', 'in_transit'] }
@@ -415,15 +415,15 @@ router.get('/deliveries/supplier-deliveries', authenticateToken, async (req: Aut
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur r�cup�ration livraisons fournisseur:', error);
+    logger.error('Erreur rÃ¯Â¿Â½cupÃ¯Â¿Â½ration livraisons fournisseur:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la r�cup�ration des livraisons'
+      error: 'Erreur lors de la rÃ¯Â¿Â½cupÃ¯Â¿Â½ration des livraisons'
     } as ApiResponse);
   }
 });
 
-// POST /api/tms/deliveries - Cr�er une nouvelle livraison
+// POST /api/tms/deliveries - CrÃ¯Â¿Â½er une nouvelle livraison
 router.post('/deliveries', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const {
@@ -443,7 +443,7 @@ router.post('/deliveries', authenticateToken, async (req: AuthRequest, res: Resp
     if (!orderId || !customerName || !customerPhone || !pickupAddress || !deliveryAddress || !items) {
       res.status(400).json({
         success: false,
-        error: 'Donn�es manquantes pour cr�er la livraison'
+        error: 'DonnÃ¯Â¿Â½es manquantes pour crÃ¯Â¿Â½er la livraison'
       } as ApiResponse);
       return;
     }
@@ -473,19 +473,19 @@ router.post('/deliveries', authenticateToken, async (req: AuthRequest, res: Resp
       });
     }
 
-    logger.info(`Nouvelle livraison cr��e: ${orderId}`);
+    logger.info(`Nouvelle livraison crÃ¯Â¿Â½Ã¯Â¿Â½e: ${orderId}`);
 
     res.status(201).json({
       success: true,
       data: result.data,
-      message: 'Livraison cr��e avec succ�s'
+      message: 'Livraison crÃ¯Â¿Â½Ã¯Â¿Â½e avec succÃ¯Â¿Â½s'
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur cr�ation livraison:', error);
+    logger.error('Erreur crÃ¯Â¿Â½ation livraison:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la cr�ation de la livraison'
+      error: 'Erreur lors de la crÃ¯Â¿Â½ation de la livraison'
     } as ApiResponse);
   }
 });
@@ -519,16 +519,16 @@ router.put('/deliveries/:id/assign', authenticateToken, async (req: AuthRequest,
     if (io) {
       io.to(`driver-${driverId}`).emit('new-delivery-assigned', {
         delivery: result.data,
-        message: 'Nouvelle livraison assign�e'
+        message: 'Nouvelle livraison assignÃ¯Â¿Â½e'
       });
     }
 
-    logger.info(`Livraison ${id} assign�e au livreur ${driverId}`);
+    logger.info(`Livraison ${id} assignÃ¯Â¿Â½e au livreur ${driverId}`);
 
     res.json({
       success: true,
       data: result.data,
-      message: 'Livraison assign�e avec succ�s'
+      message: 'Livraison assignÃ¯Â¿Â½e avec succÃ¯Â¿Â½s'
     } as ApiResponse);
 
   } catch (error) {
@@ -540,20 +540,20 @@ router.put('/deliveries/:id/assign', authenticateToken, async (req: AuthRequest,
   }
 });
 
-// PUT /api/tms/deliveries/:id/status - Mettre � jour le statut
+// PUT /api/tms/deliveries/:id/status - Mettre Ã¯Â¿Â½ jour le statut
 router.put('/deliveries/:id/status', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const { status, location, driverNote } = req.body;
 
-    // Vérifier que c'est le bon livreur si c'est un livreur qui fait la requête
+    // VÃƒÂ©rifier que c'est le bon livreur si c'est un livreur qui fait la requÃƒÂªte
     if (req.user?.role === 'livreur') {
       const driver = await Driver.findOne({ userId: req.user.userId }).exec();
       const delivery = await DeliveryModel.findById(id).exec();
       if (!driver || !delivery || delivery.driverId?.toString() !== driver._id?.toString()) {
         res.status(403).json({
           success: false,
-          error: 'Non autoris� � modifier cette livraison'
+          error: 'Non autorisÃ¯Â¿Â½ Ã¯Â¿Â½ modifier cette livraison'
         } as ApiResponse);
         return;
       }
@@ -581,28 +581,28 @@ router.put('/deliveries/:id/status', authenticateToken, async (req: AuthRequest,
       });
     }
 
-    logger.info(`Statut livraison ${id} mis � jour: ${status}`);
+    logger.info(`Statut livraison ${id} mis Ã¯Â¿Â½ jour: ${status}`);
 
     res.json({
       success: true,
       data: result.data,
-      message: `Statut mis � jour: ${getStatusMessage(status)}`
+      message: `Statut mis Ã¯Â¿Â½ jour: ${getStatusMessage(status)}`
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur mise � jour statut:', error);
+    logger.error('Erreur mise Ã¯Â¿Â½ jour statut:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la mise � jour du statut'
+      error: 'Erreur lors de la mise Ã¯Â¿Â½ jour du statut'
     } as ApiResponse);
   }
 });
 
 // ===================================================================
-// ?? GESTION DES V�HICULES
+// ?? GESTION DES VÃ¯Â¿Â½HICULES
 // ===================================================================
 
-// GET /api/tms/vehicles - Liste des v�hicules
+// GET /api/tms/vehicles - Liste des vÃ¯Â¿Â½hicules
 router.get('/vehicles', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { driverId, type, isActive } = req.query;
@@ -627,20 +627,20 @@ router.get('/vehicles', authenticateToken, async (req: AuthRequest, res: Respons
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur r�cup�ration v�hicules:', error);
+    logger.error('Erreur rÃ¯Â¿Â½cupÃ¯Â¿Â½ration vÃ¯Â¿Â½hicules:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la r�cup�ration des v�hicules'
+      error: 'Erreur lors de la rÃ¯Â¿Â½cupÃ¯Â¿Â½ration des vÃ¯Â¿Â½hicules'
     } as ApiResponse);
   }
 });
 
-// POST /api/tms/vehicles - Ajouter un v�hicule
+// POST /api/tms/vehicles - Ajouter un vÃ¯Â¿Â½hicule
 router.post('/vehicles', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const vehicleData = req.body;
 
-    // Si c'est un livreur, associer � son profil
+    // Si c'est un livreur, associer Ã¯Â¿Â½ son profil
     if (req.user?.role === 'livreur') {
       const driver = await Driver.findOne({ userId: req.user.userId }).exec();
       if (driver) {
@@ -661,14 +661,14 @@ router.post('/vehicles', authenticateToken, async (req: AuthRequest, res: Respon
     res.status(201).json({
       success: true,
       data: result.data,
-      message: 'V�hicule ajout� avec succ�s'
+      message: 'VÃ¯Â¿Â½hicule ajoutÃ¯Â¿Â½ avec succÃ¯Â¿Â½s'
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur ajout v�hicule:', error);
+    logger.error('Erreur ajout vÃ¯Â¿Â½hicule:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de l\'ajout du v�hicule'
+      error: 'Erreur lors de l\'ajout du vÃ¯Â¿Â½hicule'
     } as ApiResponse);
   }
 });
@@ -700,21 +700,21 @@ router.get('/drivers', authenticateToken, async (req: AuthRequest, res: Response
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur r�cup�ration livreurs:', error);
+    logger.error('Erreur rÃ¯Â¿Â½cupÃ¯Â¿Â½ration livreurs:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la r�cup�ration des livreurs'
+      error: 'Erreur lors de la rÃ¯Â¿Â½cupÃ¯Â¿Â½ration des livreurs'
     } as ApiResponse);
   }
 });
 
-// POST /api/tms/drivers/update-location - Mettre � jour la position
+// POST /api/tms/drivers/update-location - Mettre Ã¯Â¿Â½ jour la position
 router.post('/drivers/update-location', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     if (req.user?.role !== 'livreur') {
       res.status(403).json({
         success: false,
-        error: 'Acc�s r�serv� aux livreurs'
+        error: 'AccÃ¯Â¿Â½s rÃ¯Â¿Â½servÃ¯Â¿Â½ aux livreurs'
       } as ApiResponse);
       return;
     }
@@ -725,7 +725,7 @@ router.post('/drivers/update-location', authenticateToken, async (req: AuthReque
     if (!driver) {
       res.status(404).json({
         success: false,
-        error: 'Profil livreur non trouv�'
+        error: 'Profil livreur non trouvÃ¯Â¿Â½'
       } as ApiResponse);
       return;
     }
@@ -742,14 +742,14 @@ router.post('/drivers/update-location', authenticateToken, async (req: AuthReque
 
     res.json({
       success: true,
-      message: 'Position mise � jour'
+      message: 'Position mise Ã¯Â¿Â½ jour'
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur mise � jour position:', error);
+    logger.error('Erreur mise Ã¯Â¿Â½ jour position:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la mise � jour de la position'
+      error: 'Erreur lors de la mise Ã¯Â¿Â½ jour de la position'
     } as ApiResponse);
   }
 });
@@ -777,10 +777,10 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response):
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur r�cup�ration stats TMS:', error);
+    logger.error('Erreur rÃ¯Â¿Â½cupÃ¯Â¿Â½ration stats TMS:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la r�cup�ration des statistiques'
+      error: 'Erreur lors de la rÃ¯Â¿Â½cupÃ¯Â¿Â½ration des statistiques'
     } as ApiResponse);
   }
 });
@@ -792,27 +792,27 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response):
 function getStatusMessage(status: string): string {
   const messages: { [key: string]: string } = {
     'pending': 'En attente d\'assignation',
-    'assigned': 'Assign�e au livreur',
-    'picked_up': 'Colis r�cup�r�',
+    'assigned': 'AssignÃ¯Â¿Â½e au livreur',
+    'picked_up': 'Colis rÃ¯Â¿Â½cupÃ¯Â¿Â½rÃ¯Â¿Â½',
     'in_transit': 'En cours de livraison',
-    'delivered': 'Livraison termin�e',
-    'failed': '�chec de livraison',
-    'cancelled': 'Livraison annul�e'
+    'delivered': 'Livraison terminÃ¯Â¿Â½e',
+    'failed': 'Ã¯Â¿Â½chec de livraison',
+    'cancelled': 'Livraison annulÃ¯Â¿Â½e'
   };
   
   return messages[status] || 'Statut inconnu';
 }
 
 // ===================================================================
-// 📦 ENDPOINTS POUR PWA DRIVER
+// Ã°Å¸â€œÂ¦ ENDPOINTS POUR PWA DRIVER
 // ===================================================================
 
-// GET /api/tms/deliveries/available - Récupérer les livraisons disponibles pour un driver
+// GET /api/tms/deliveries/available - RÃƒÂ©cupÃƒÂ©rer les livraisons disponibles pour un driver
 router.get('/deliveries/available', async (req: Request, res: Response): Promise<void> => {
   try {
-    logger.info('📦 PWA: Récupération livraisons disponibles pour drivers');
+    logger.info('Ã°Å¸â€œÂ¦ PWA: RÃƒÂ©cupÃƒÂ©ration livraisons disponibles pour drivers');
 
-    // Récupérer toutes les livraisons en statut 'pending' (disponibles pour assignation)
+    // RÃƒÂ©cupÃƒÂ©rer toutes les livraisons en statut 'pending' (disponibles pour assignation)
     const deliveries = await DeliveryModel.find({
       status: 'pending'
     })
@@ -820,7 +820,7 @@ router.get('/deliveries/available', async (req: Request, res: Response): Promise
     .limit(50)
     .lean();
 
-    logger.info(`📦 PWA: ${deliveries.length} livraisons disponibles trouvées`);
+    logger.info(`Ã°Å¸â€œÂ¦ PWA: ${deliveries.length} livraisons disponibles trouvÃƒÂ©es`);
 
     // Format des livraisons pour la PWA
     const formattedDeliveries = deliveries.map(delivery => ({
@@ -857,35 +857,35 @@ router.get('/deliveries/available', async (req: Request, res: Response): Promise
     });
 
   } catch (error) {
-    logger.error('❌ Erreur récupération livraisons disponibles:', error);
+    logger.error('Ã¢ÂÅ’ Erreur rÃƒÂ©cupÃƒÂ©ration livraisons disponibles:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur serveur lors de la récupération des livraisons',
+      message: 'Erreur serveur lors de la rÃƒÂ©cupÃƒÂ©ration des livraisons',
       error: error instanceof Error ? error.message : 'Erreur inconnue'
     });
   }
 });
 
 // ===================================================================
-// 🧪 ENDPOINTS DE TEST POUR PWA (TEMPORAIRE)
+// Ã°Å¸Â§Âª ENDPOINTS DE TEST POUR PWA (TEMPORAIRE)
 // ===================================================================
 
 // GET /api/tms/deliveries/test - Livraisons de test sans auth pour debug PWA
 router.get('/deliveries/test', async (req: Request, res: Response): Promise<void> => {
   try {
-    logger.info('🧪 PWA TEST: Récupération livraisons des vraies commandes validées');
+    logger.info('Ã°Å¸Â§Âª PWA TEST: RÃƒÂ©cupÃƒÂ©ration livraisons des vraies commandes validÃƒÂ©es');
 
-    // Récupérer les livraisons créées à partir des vraies commandes validées
+    // RÃƒÂ©cupÃƒÂ©rer les livraisons crÃƒÂ©ÃƒÂ©es ÃƒÂ  partir des vraies commandes validÃƒÂ©es
     const deliveries = await DeliveryModel.find({
       deliveryNumber: { 
         $in: [
           'DEL-1764857962232-6MCH7',  // ORDER-TEST-VALID-1764857503107-1
           'DEL-1764857802423-8AN6K',  // ORDER-TEST-VALID-1764857503108-2
           'DEL-1764857584097-RI20S',  // ORDER-TEST-VALID-1764857503108-3
-          'DEL-1764857715520-TQMJA',  // Autre livraison réelle
-          'DEL-1764856797481-7UGQ6',  // Autre livraison réelle
-          'DEL-1764860669230-C766F',  // Livraison récente
-          'DEL-1764860849116-DHDDT'   // Livraison récente
+          'DEL-1764857715520-TQMJA',  // Autre livraison rÃƒÂ©elle
+          'DEL-1764856797481-7UGQ6',  // Autre livraison rÃƒÂ©elle
+          'DEL-1764860669230-C766F',  // Livraison rÃƒÂ©cente
+          'DEL-1764860849116-DHDDT'   // Livraison rÃƒÂ©cente
         ]
       }
     })
@@ -902,7 +902,7 @@ router.get('/deliveries/test', async (req: Request, res: Response): Promise<void
         city: 'Paris',
         postalCode: '75002',
         country: 'France',
-        contactName: 'Fournisseur Validé',
+        contactName: 'Fournisseur ValidÃƒÂ©',
         contactPhone: '0123456789'
       },
       deliveryAddress: delivery.deliveryAddress || {
@@ -918,12 +918,12 @@ router.get('/deliveries/test', async (req: Request, res: Response): Promise<void
       pricing: delivery.pricing || { total: 15.50, currency: 'EUR' },
       createdAt: delivery.createdAt,
       items: delivery.items || [
-        { name: 'Commande validée via Bouton "Commande Prête"', quantity: 1, weight: 1.0 }
+        { name: 'Commande validÃƒÂ©e via Bouton "Commande PrÃƒÂªte"', quantity: 1, weight: 1.0 }
       ],
       orderId: delivery.orderId
     }));
 
-    logger.info(`🧪 PWA TEST: ${formattedDeliveries.length} livraisons réelles trouvées`);
+    logger.info(`Ã°Å¸Â§Âª PWA TEST: ${formattedDeliveries.length} livraisons rÃƒÂ©elles trouvÃƒÂ©es`);
 
     res.json({
       success: true,
@@ -932,26 +932,26 @@ router.get('/deliveries/test', async (req: Request, res: Response): Promise<void
     } as ApiResponse);
 
   } catch (error: any) {
-    logger.error('Erreur récupération livraisons vraies:', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration livraisons vraies:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur lors de la récupération des vraies livraisons'
+      error: 'Erreur serveur lors de la rÃƒÂ©cupÃƒÂ©ration des vraies livraisons'
     } as ApiResponse);
   }
 });
 
-// GET /api/tms/delivery/test/:id - Détail d'une livraison pour debug PWA  
+// GET /api/tms/delivery/test/:id - DÃƒÂ©tail d'une livraison pour debug PWA  
 router.get('/delivery/test/:id', async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    logger.info(`🧪 PWA TEST: Récupération détail livraison ${id}`);
+    logger.info(`Ã°Å¸Â§Âª PWA TEST: RÃƒÂ©cupÃƒÂ©ration dÃƒÂ©tail livraison ${id}`);
 
     const delivery = await DeliveryModel.findById(id).lean();
     
     if (!delivery) {
       res.status(404).json({
         success: false,
-        error: 'Livraison non trouvée'
+        error: 'Livraison non trouvÃƒÂ©e'
       } as ApiResponse);
       return;
     }
@@ -977,7 +977,7 @@ router.get('/delivery/test/:id', async (req: Request, res: Response): Promise<vo
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération détail livraison PWA:', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration dÃƒÂ©tail livraison PWA:', error);
     res.status(500).json({
       success: false,
       error: 'Erreur serveur'
@@ -989,7 +989,7 @@ router.get('/delivery/test/:id', async (req: Request, res: Response): Promise<vo
 router.get('/deliveries/test-by-order/:orderId', async (req: Request, res: Response): Promise<void> => {
   try {
     const { orderId } = req.params;
-    logger.info(`🧪 TEST: Recherche livraison pour commande ${orderId}`);
+    logger.info(`Ã°Å¸Â§Âª TEST: Recherche livraison pour commande ${orderId}`);
 
     let delivery = null;
     
@@ -1004,7 +1004,7 @@ router.get('/deliveries/test-by-order/:orderId', async (req: Request, res: Respo
       res.json({
         success: true,
         delivery: null,
-        message: `Aucune livraison trouvée pour la commande ${orderId}`
+        message: `Aucune livraison trouvÃƒÂ©e pour la commande ${orderId}`
       } as ApiResponse);
       return;
     }
@@ -1039,7 +1039,7 @@ router.get('/deliveries/test-by-order/:orderId', async (req: Request, res: Respo
   }
 });
 
-// GET /api/tms/delivery/:id/waybill - Télécharger la lettre de voiture PDF
+// GET /api/tms/delivery/:id/waybill - TÃƒÂ©lÃƒÂ©charger la lettre de voiture PDF
 router.get('/delivery/:id/waybill', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     // Authentification : accepter le token depuis les headers ou query params
@@ -1056,7 +1056,7 @@ router.get('/delivery/:id/waybill', async (req: AuthRequest, res: Response): Pro
       return;
     }
 
-    // Vérifier le token JWT
+    // VÃƒÂ©rifier le token JWT
     const jwt = require('jsonwebtoken');
     let decoded;
     try {
@@ -1083,7 +1083,7 @@ router.get('/delivery/:id/waybill', async (req: AuthRequest, res: Response): Pro
     if (!delivery) {
       res.status(404).json({
         success: false,
-        error: 'Livraison non trouvée'
+        error: 'Livraison non trouvÃƒÂ©e'
       } as ApiResponse);
       return;
     }
@@ -1096,13 +1096,13 @@ router.get('/delivery/:id/waybill', async (req: AuthRequest, res: Response): Pro
       return;
     }
 
-    // Récupérer le PDF depuis GridFS
+    // RÃƒÂ©cupÃƒÂ©rer le PDF depuis GridFS
     const { DeliveryWaybillService } = require('../services/DeliveryWaybillService');
     
     try {
       const pdfBuffer = await DeliveryWaybillService.getFromGridFS(delivery.waybillPdfPath);
       
-      // Définir les headers pour le téléchargement PDF
+      // DÃƒÂ©finir les headers pour le tÃƒÂ©lÃƒÂ©chargement PDF
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', `attachment; filename="lettre_voiture_${delivery.deliveryNumber}.pdf"`);
       res.setHeader('Content-Length', pdfBuffer.length);
@@ -1110,16 +1110,16 @@ router.get('/delivery/:id/waybill', async (req: AuthRequest, res: Response): Pro
       // Envoyer le PDF
       res.send(pdfBuffer);
     } catch (gridfsError) {
-      logger.error('Erreur récupération PDF depuis GridFS:', gridfsError);
+      logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration PDF depuis GridFS:', gridfsError);
       res.status(404).json({
         success: false,
-        error: 'Fichier PDF non trouvé dans GridFS'
+        error: 'Fichier PDF non trouvÃƒÂ© dans GridFS'
       } as ApiResponse);
       return;
     }
 
   } catch (error) {
-    logger.error('Erreur téléchargement lettre de voiture:', error);
+    logger.error('Erreur tÃƒÂ©lÃƒÂ©chargement lettre de voiture:', error);
     res.status(500).json({
       success: false,
       error: 'Erreur serveur'

@@ -6,14 +6,14 @@ const router = express.Router();
 
 /**
  * GET /api/announcements
- * Récupère toutes les annonces globales actives
- * Accessible à tous les utilisateurs authentifiés
+ * RÃƒÂ©cupÃƒÂ¨re toutes les annonces globales actives
+ * Accessible ÃƒÂ  tous les utilisateurs authentifiÃƒÂ©s
  */
 router.get('/', authenticateToken, async (req: Request, res: Response) => {
   try {
     const userRole = (req as any).user?.role;
 
-    // Récupérer depuis MongoDB via mongoose
+    // RÃƒÂ©cupÃƒÂ©rer depuis MongoDB via mongoose
     const db = mongoose.connection.db;
     if (!db) {
       return res.status(500).json({
@@ -22,30 +22,30 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
       });
     }
     
-    // Construire la requête de base : annonces actives et non expirées
+    // Construire la requÃƒÂªte de base : annonces actives et non expirÃƒÂ©es
     let query: any = {
       status: 'active'
     };
     
     // Ajouter le filtre d'expiration
     query.$or = [
-      { expiresAt: { $gt: new Date() } }, // Pas encore expirée
+      { expiresAt: { $gt: new Date() } }, // Pas encore expirÃƒÂ©e
       { expiresAt: { $exists: false } },   // Pas de date d'expiration
       { expiresAt: null }                  // Date nulle
     ];
 
-    console.log('🔍 [Announcements] User role:', userRole);
-    console.log('🔍 [Announcements] Initial query:', JSON.stringify(query, null, 2));
+    console.log('Ã°Å¸â€Â [Announcements] User role:', userRole);
+    console.log('Ã°Å¸â€Â [Announcements] Initial query:', JSON.stringify(query, null, 2));
 
-    // Récupérer toutes les annonces actives
+    // RÃƒÂ©cupÃƒÂ©rer toutes les annonces actives
     const allAnnouncements = await db.collection('globalannouncements')
       .find(query)
       .sort({ priority: -1, createdAt: -1 })
       .toArray();
 
-    console.log(`📊 [Announcements] Found ${allAnnouncements.length} total active announcements`);
+    console.log(`Ã°Å¸â€œÅ  [Announcements] Found ${allAnnouncements.length} total active announcements`);
 
-    // Filtrer par rôle côté application (plus simple que MongoDB)
+    // Filtrer par rÃƒÂ´le cÃƒÂ´tÃƒÂ© application (plus simple que MongoDB)
     let announcements = allAnnouncements;
     if (userRole) {
       announcements = allAnnouncements.filter((ann: any) => {
@@ -53,14 +53,14 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
         if (!ann.targetAudience || ann.targetAudience.length === 0) {
           return true;
         }
-        // Sinon, vérifier si le rôle est dans la liste
+        // Sinon, vÃƒÂ©rifier si le rÃƒÂ´le est dans la liste
         return ann.targetAudience.includes(userRole);
       });
-      console.log(`📊 [Announcements] Filtered to ${announcements.length} for role "${userRole}"`);
+      console.log(`Ã°Å¸â€œÅ  [Announcements] Filtered to ${announcements.length} for role "${userRole}"`);
     }
 
-    const finalAnnouncements = announcements.slice(0, 50); // Limiter à 50
-    console.log(`✅ [Announcements] Returning ${finalAnnouncements.length} announcements`);
+    const finalAnnouncements = announcements.slice(0, 50); // Limiter ÃƒÂ  50
+    console.log(`Ã¢Å“â€¦ [Announcements] Returning ${finalAnnouncements.length} announcements`);
 
     res.json({
       success: true,
@@ -69,17 +69,17 @@ router.get('/', authenticateToken, async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    console.error('Erreur récupération annonces:', error);
+    console.error('Erreur rÃƒÂ©cupÃƒÂ©ration annonces:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de la récupération des annonces'
+      message: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des annonces'
     });
   }
 });
 
 /**
  * POST /api/announcements/:id/view
- * Incrémente le compteur de vues d'une annonce
+ * IncrÃƒÂ©mente le compteur de vues d'une annonce
  */
 router.post('/:id/view', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -97,24 +97,24 @@ router.post('/:id/view', authenticateToken, async (req: Request, res: Response) 
     if (result.modifiedCount === 0) {
       return res.status(404).json({
         success: false,
-        message: 'Annonce non trouvée'
+        message: 'Annonce non trouvÃƒÂ©e'
       });
     }
 
     res.json({ success: true });
 
   } catch (error) {
-    console.error('Erreur incrémentation vues:', error);
+    console.error('Erreur incrÃƒÂ©mentation vues:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de l\'incrémentation'
+      message: 'Erreur lors de l\'incrÃƒÂ©mentation'
     });
   }
 });
 
 /**
  * POST /api/announcements/:id/click
- * Incrémente le compteur de clics d'une annonce
+ * IncrÃƒÂ©mente le compteur de clics d'une annonce
  */
 router.post('/:id/click', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -132,24 +132,24 @@ router.post('/:id/click', authenticateToken, async (req: Request, res: Response)
     if (result.modifiedCount === 0) {
       return res.status(404).json({
         success: false,
-        message: 'Annonce non trouvée'
+        message: 'Annonce non trouvÃƒÂ©e'
       });
     }
 
     res.json({ success: true });
 
   } catch (error) {
-    console.error('Erreur incrémentation clics:', error);
+    console.error('Erreur incrÃƒÂ©mentation clics:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de l\'incrémentation'
+      message: 'Erreur lors de l\'incrÃƒÂ©mentation'
     });
   }
 });
 
 /**
  * POST /api/announcements/:id/contact
- * Incrémente le compteur de contacts d'une annonce
+ * IncrÃƒÂ©mente le compteur de contacts d'une annonce
  */
 router.post('/:id/contact', authenticateToken, async (req: Request, res: Response) => {
   try {
@@ -167,17 +167,17 @@ router.post('/:id/contact', authenticateToken, async (req: Request, res: Respons
     if (result.modifiedCount === 0) {
       return res.status(404).json({
         success: false,
-        message: 'Annonce non trouvée'
+        message: 'Annonce non trouvÃƒÂ©e'
       });
     }
 
     res.json({ success: true });
 
   } catch (error) {
-    console.error('Erreur incrémentation contacts:', error);
+    console.error('Erreur incrÃƒÂ©mentation contacts:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de l\'incrémentation'
+      message: 'Erreur lors de l\'incrÃƒÂ©mentation'
     });
   }
 });

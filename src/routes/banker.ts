@@ -1,35 +1,35 @@
-﻿import express, { Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import LoanOffer from '../models/LoanOffer';
 import LoanRequest from '../models/LoanRequest';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
-// Middleware pour vérifier rôle banquier
+// Middleware pour vÃ©rifier rÃ´le banquier
 const requireBankerRole = (req: any, res: Response, next: Function) => {
-  console.log('🔐 requireBankerRole - User:', req.user);
-  console.log('🔐 requireBankerRole - Role:', req.user?.role);
+  console.log('ðŸ” requireBankerRole - User:', req.user);
+  console.log('ðŸ” requireBankerRole - Role:', req.user?.role);
   
   if (!req.user) {
-    console.log('❌ requireBankerRole - No user found');
+    console.log('âŒ requireBankerRole - No user found');
     return res.status(401).json({ error: 'Authentification requise' });
   }
   
-  // Accepter à la fois 'banker' et 'banquier' pour compatibilité
+  // Accepter Ã  la fois 'banker' et 'banquier' pour compatibilitÃ©
   const validRoles = ['banker', 'banquier', 'super_admin'];
   
   if (!validRoles.includes(req.user?.role)) {
-    console.log('❌ requireBankerRole - Access denied for role:', req.user?.role);
-    return res.status(403).json({ error: 'Accès réservé aux banquiers' });
+    console.log('âŒ requireBankerRole - Access denied for role:', req.user?.role);
+    return res.status(403).json({ error: 'AccÃ¨s rÃ©servÃ© aux banquiers' });
   }
   
-  console.log('✅ requireBankerRole - Access granted for:', req.user?.email);
+  console.log('âœ… requireBankerRole - Access granted for:', req.user?.email);
   return next();
 };
 
 /**
  * GET /api/banker/offers
- * Liste des offres de pr�t cr��es par le banquier
+ * Liste des offres de prï¿½t crï¿½ï¿½es par le banquier
  */
 router.get('/offers', authenticateToken, requireBankerRole, async (req: any, res: Response) => {
   try {
@@ -46,7 +46,7 @@ router.get('/offers', authenticateToken, requireBankerRole, async (req: any, res
   } catch (error: any) {
     // console.error('Error fetching loan offers:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des offres',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des offres',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -54,7 +54,7 @@ router.get('/offers', authenticateToken, requireBankerRole, async (req: any, res
 
 /**
  * POST /api/banker/offers
- * Cr�er une nouvelle offre de pr�t
+ * Crï¿½er une nouvelle offre de prï¿½t
  */
 router.post('/offers', authenticateToken, requireBankerRole, async (req: any, res: Response) => {
   try {
@@ -63,17 +63,17 @@ router.post('/offers', authenticateToken, requireBankerRole, async (req: any, re
     
     // Validation
     if (!loanType || !interestRate || !minAmount || !maxAmount || !minDuration || !maxDuration || !description) {
-      res.status(400).json({ error: 'Tous les champs obligatoires doivent �tre remplis' });
+      res.status(400).json({ error: 'Tous les champs obligatoires doivent ï¿½tre remplis' });
       return;
     }
     
     if (minAmount > maxAmount) {
-      res.status(400).json({ error: 'Le montant minimum ne peut pas �tre sup�rieur au montant maximum' });
+      res.status(400).json({ error: 'Le montant minimum ne peut pas ï¿½tre supï¿½rieur au montant maximum' });
       return;
     }
     
     if (minDuration > maxDuration) {
-      res.status(400).json({ error: 'La dur�e minimum ne peut pas �tre sup�rieure � la dur�e maximum' });
+      res.status(400).json({ error: 'La durï¿½e minimum ne peut pas ï¿½tre supï¿½rieure ï¿½ la durï¿½e maximum' });
       return;
     }
     
@@ -94,13 +94,13 @@ router.post('/offers', authenticateToken, requireBankerRole, async (req: any, re
     
     res.status(201).json({
       success: true,
-      message: 'Offre de pr�t cr��e avec succ�s',
+      message: 'Offre de prï¿½t crï¿½ï¿½e avec succï¿½s',
       offer
     });
   } catch (error: any) {
     // console.error('Error creating loan offer:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la cr�ation de l\'offre',
+      error: 'Erreur lors de la crï¿½ation de l\'offre',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -108,7 +108,7 @@ router.post('/offers', authenticateToken, requireBankerRole, async (req: any, re
 
 /**
  * GET /api/banker/requests
- * Liste des demandes de pr�t re�ues
+ * Liste des demandes de prï¿½t reï¿½ues
  */
 router.get('/requests', authenticateToken, requireBankerRole, async (req: any, res: Response) => {
   try {
@@ -132,7 +132,7 @@ router.get('/requests', authenticateToken, requireBankerRole, async (req: any, r
   } catch (error: any) {
     // console.error('Error fetching loan requests:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des demandes',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des demandes',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -140,7 +140,7 @@ router.get('/requests', authenticateToken, requireBankerRole, async (req: any, r
 
 /**
  * POST /api/banker/evaluate
- * �valuer une demande de pr�t
+ * ï¿½valuer une demande de prï¿½t
  */
 router.post('/evaluate', authenticateToken, requireBankerRole, async (req: any, res: Response) => {
   try {
@@ -159,17 +159,17 @@ router.post('/evaluate', authenticateToken, requireBankerRole, async (req: any, 
     }
     
     if (riskScore !== undefined && (riskScore < 0 || riskScore > 100)) {
-      res.status(400).json({ error: 'Le score de risque doit �tre entre 0 et 100' });
+      res.status(400).json({ error: 'Le score de risque doit ï¿½tre entre 0 et 100' });
       return;
     }
     
     const request = await LoanRequest.findById(requestId).exec();
     if (!request) {
-      res.status(404).json({ error: 'Demande de pr�t introuvable' });
+      res.status(404).json({ error: 'Demande de prï¿½t introuvable' });
       return;
     }
     
-    // Mise � jour
+    // Mise ï¿½ jour
     request.status = status;
     request.bankerId = bankerId;
     if (riskScore !== undefined) {
@@ -183,13 +183,13 @@ router.post('/evaluate', authenticateToken, requireBankerRole, async (req: any, 
     
     res.json({
       success: true,
-      message: '�valuation enregistr�e avec succ�s',
+      message: 'ï¿½valuation enregistrï¿½e avec succï¿½s',
       request
     });
   } catch (error: any) {
     // console.error('Error evaluating loan request:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de l\'�valuation',
+      error: 'Erreur lors de l\'ï¿½valuation',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -197,13 +197,13 @@ router.post('/evaluate', authenticateToken, requireBankerRole, async (req: any, 
 
 /**
  * GET /api/banker/clients
- * Liste des clients ayant des prêts
+ * Liste des clients ayant des prÃªts
  */
 router.get('/clients', authenticateToken, requireBankerRole, async (req: any, res: Response) => {
   try {
     const User = require('../models/User');
     
-    // Récupérer tous les clients ayant fait des demandes de prêt
+    // RÃ©cupÃ©rer tous les clients ayant fait des demandes de prÃªt
     const requests = await LoanRequest.find({})
       .populate('userId')
       .lean();
@@ -223,9 +223,9 @@ router.get('/clients', authenticateToken, requireBankerRole, async (req: any, re
           name: user.company || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
           type: user.role === 'restaurant' ? 'restaurant' : user.role === 'artisan' ? 'artisan' : user.role === 'fournisseur' ? 'fournisseur' : 'autre',
           email: user.email,
-          phone: user.phone || 'Non renseigné',
-          location: user.address?.city ? `${user.address.city}${user.address.postalCode ? ', ' + user.address.postalCode : ''}` : 'Non renseigné',
-          creditScore: 750, // Score par défaut, à calculer réellement plus tard
+          phone: user.phone || 'Non renseignÃ©',
+          location: user.address?.city ? `${user.address.city}${user.address.postalCode ? ', ' + user.address.postalCode : ''}` : 'Non renseignÃ©',
+          creditScore: 750, // Score par dÃ©faut, Ã  calculer rÃ©ellement plus tard
           totalLoans: 0,
           activeLoans: 0,
           totalBorrowed: 0,
@@ -245,7 +245,7 @@ router.get('/clients', authenticateToken, requireBankerRole, async (req: any, re
         client.totalBorrowed += request.amount || 0;
       }
       
-      // Mettre à jour la dernière activité
+      // Mettre Ã  jour la derniÃ¨re activitÃ©
       if (new Date(request.createdAt) > new Date(client.lastActivity)) {
         client.lastActivity = request.createdAt;
       }
@@ -253,7 +253,7 @@ router.get('/clients', authenticateToken, requireBankerRole, async (req: any, re
     
     const clients = Array.from(clientsMap.values());
     
-    // Calculer credit score et risk level basés sur l'historique
+    // Calculer credit score et risk level basÃ©s sur l'historique
     clients.forEach(client => {
       const approvalRate = client.totalLoans > 0 ? (client.activeLoans / client.totalLoans) : 0;
       
@@ -280,7 +280,7 @@ router.get('/clients', authenticateToken, requireBankerRole, async (req: any, re
   } catch (error: any) {
     // console.error('Error fetching banker clients:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la récupération des clients',
+      error: 'Erreur lors de la rÃ©cupÃ©ration des clients',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -288,13 +288,13 @@ router.get('/clients', authenticateToken, requireBankerRole, async (req: any, re
 
 /**
  * GET /api/banker/loans
- * Liste de tous les prêts (approved requests avec détails)
+ * Liste de tous les prÃªts (approved requests avec dÃ©tails)
  */
 router.get('/loans', authenticateToken, requireBankerRole, async (req: any, res: Response) => {
   try {
     const { status } = req.query;
     
-    // Filtrer les demandes approuvées ou spécifier un statut
+    // Filtrer les demandes approuvÃ©es ou spÃ©cifier un statut
     const filter: any = status ? { status } : { status: { $in: ['approved', 'in-review'] } };
     
     const loanRequests = await LoanRequest.find(filter)
@@ -312,7 +312,7 @@ router.get('/loans', authenticateToken, requireBankerRole, async (req: any, res:
       const clientName = `Client #${request.userId || 'inconnu'}`;
       const clientType = 'entreprise';
       
-      // Valeurs par défaut sécurisées
+      // Valeurs par dÃ©faut sÃ©curisÃ©es
       const amount = request.amount || 0;
       const interestRate = request.interestRate || 4;
       const duration = request.duration || 60;
@@ -323,7 +323,7 @@ router.get('/loans', authenticateToken, requireBankerRole, async (req: any, res:
         ? amount * (monthlyRate * Math.pow(1 + monthlyRate, duration)) / (Math.pow(1 + monthlyRate, duration) - 1)
         : 0;
       
-      // Simuler des paiements déjà effectués (entre 0 et 50% du total)
+      // Simuler des paiements dÃ©jÃ  effectuÃ©s (entre 0 et 50% du total)
       const paymentsMade = request.status === 'approved' ? Math.floor(Math.random() * (duration / 2)) : 0;
       const totalPaid = paymentsMade * monthlyPayment;
       const remainingBalance = Math.max(0, amount - totalPaid);
@@ -333,7 +333,7 @@ router.get('/loans', authenticateToken, requireBankerRole, async (req: any, res:
       const nextPaymentDate = new Date(startDate);
       nextPaymentDate.setMonth(nextPaymentDate.getMonth() + paymentsMade + 1);
       
-      // Vérifier que nextPaymentDate est une date valide
+      // VÃ©rifier que nextPaymentDate est une date valide
       const nextPaymentDateStr = !isNaN(nextPaymentDate.getTime()) 
         ? nextPaymentDate.toISOString().split('T')[0]
         : new Date().toISOString().split('T')[0];
@@ -365,7 +365,7 @@ router.get('/loans', authenticateToken, requireBankerRole, async (req: any, res:
     console.error('Erreur /banker/loans:', error);
     res.status(500).json({ 
       success: false,
-      error: 'Erreur lors de la récupération des prêts',
+      error: 'Erreur lors de la rÃ©cupÃ©ration des prÃªts',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

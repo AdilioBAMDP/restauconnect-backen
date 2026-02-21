@@ -5,14 +5,14 @@ import { DriverEmployee } from '../models/DriverEmployee';
 import { Vehicule } from '../models/Vehicule';
 
 /**
- * Service pour la génération de QR codes pour les documents de transport
+ * Service pour la gÃƒÂ©nÃƒÂ©ration de QR codes pour les documents de transport
  */
 export const generateDocumentQRCode = async (documentId: string): Promise<string> => {
   try {
-    // URL de vérification du document (à adapter selon votre domaine)
+    // URL de vÃƒÂ©rification du document (ÃƒÂ  adapter selon votre domaine)
     const verificationUrl = `https://restauconnect.com/verify-document/${documentId}`;
     
-    // Générer le QR code en base64
+    // GÃƒÂ©nÃƒÂ©rer le QR code en base64
     const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl, {
       errorCorrectionLevel: 'H',
       margin: 1,
@@ -21,13 +21,13 @@ export const generateDocumentQRCode = async (documentId: string): Promise<string
 
     return qrCodeDataUrl;
   } catch (error) {
-    console.error('Erreur génération QR code:', error);
-    throw new Error('Impossible de générer le QR code');
+    console.error('Erreur gÃƒÂ©nÃƒÂ©ration QR code:', error);
+    throw new Error('Impossible de gÃƒÂ©nÃƒÂ©rer le QR code');
   }
 };
 
 /**
- * Service pour générer un numéro de document unique
+ * Service pour gÃƒÂ©nÃƒÂ©rer un numÃƒÂ©ro de document unique
  */
 export const generateDocumentNumber = (documentType: string, transporteurId: string): string => {
   const prefix = {
@@ -45,8 +45,8 @@ export const generateDocumentNumber = (documentType: string, transporteurId: str
 };
 
 /**
- * Service pour générer un PDF du document de transport
- * @note Pour une vraie implémentation, utiliser une lib comme pdfkit ou puppeteer
+ * Service pour gÃƒÂ©nÃƒÂ©rer un PDF du document de transport
+ * @note Pour une vraie implÃƒÂ©mentation, utiliser une lib comme pdfkit ou puppeteer
  */
 export const generateTransportDocumentPDF = async (documentId: string): Promise<string> => {
   try {
@@ -56,23 +56,23 @@ export const generateTransportDocumentPDF = async (documentId: string): Promise<
       .lean();
 
     if (!document) {
-      throw new Error('Document non trouvé');
+      throw new Error('Document non trouvÃƒÂ©');
     }
 
-    // TODO: Implémenter la génération PDF réelle avec pdfkit
-    // Pour l'instant, retourner une URL simulée
+    // TODO: ImplÃƒÂ©menter la gÃƒÂ©nÃƒÂ©ration PDF rÃƒÂ©elle avec pdfkit
+    // Pour l'instant, retourner une URL simulÃƒÂ©e
     const pdfUrl = `/api/transporteur/documents/${documentId}/pdf`;
     
     return pdfUrl;
   } catch (error) {
-    console.error('Erreur génération PDF:', error);
-    throw new Error('Impossible de générer le PDF');
+    console.error('Erreur gÃƒÂ©nÃƒÂ©ration PDF:', error);
+    throw new Error('Impossible de gÃƒÂ©nÃƒÂ©rer le PDF');
   }
 };
 
 /**
  * Service pour optimiser les routes de livraison
- * @note Algorithme simple de tri par proximité - à améliorer avec Google Maps API / OSRM
+ * @note Algorithme simple de tri par proximitÃƒÂ© - ÃƒÂ  amÃƒÂ©liorer avec Google Maps API / OSRM
  */
 export const optimizeRoutes = async (deliveryIds: string[]): Promise<any[]> => {
   try {
@@ -90,7 +90,7 @@ export const optimizeRoutes = async (deliveryIds: string[]): Promise<any[]> => {
       return a.deliveryAddress.postalCode.localeCompare(b.deliveryAddress.postalCode);
     });
 
-    // Calculer un ordre de passage optimisé
+    // Calculer un ordre de passage optimisÃƒÂ©
     const optimizedRoute = sorted.map((delivery, index) => ({
       deliveryId: delivery._id,
       order: index + 1,
@@ -138,7 +138,7 @@ export const calculateDriverPerformance = async (driverId: string, period?: { st
       onTimeDeliveries,
       onTimeRate: Math.round(onTimeRate * 10) / 10,
       averageDeliveryTime: Math.round(avgDuration),
-      rating: 0 // TODO: Implémenter système de notation
+      rating: 0 // TODO: ImplÃƒÂ©menter systÃƒÂ¨me de notation
     };
   } catch (error) {
     console.error('Erreur calcul performance chauffeur:', error);
@@ -147,14 +147,14 @@ export const calculateDriverPerformance = async (driverId: string, period?: { st
 };
 
 /**
- * Service pour calculer les coûts de la flotte
+ * Service pour calculer les coÃƒÂ»ts de la flotte
  */
 export const calculateFleetCosts = async (transporteurId: string, period: { start: Date, end: Date }) => {
   try {
-    // Récupérer tous les véhicules
+    // RÃƒÂ©cupÃƒÂ©rer tous les vÃƒÂ©hicules
     const vehicles = await Vehicule.find({ transporteurId }).lean();
     
-    // Récupérer maintenances
+    // RÃƒÂ©cupÃƒÂ©rer maintenances
     const { MaintenanceRecord } = require('../models/MaintenanceRecord');
     const maintenances = await MaintenanceRecord.find({
       transporteurId,
@@ -163,11 +163,11 @@ export const calculateFleetCosts = async (transporteurId: string, period: { star
 
     const maintenanceCost = maintenances.reduce((sum: number, m: any) => sum + m.cost, 0);
 
-    // Récupérer chauffeurs pour salaires
+    // RÃƒÂ©cupÃƒÂ©rer chauffeurs pour salaires
     const drivers = await DriverEmployee.find({ transporteurId }).lean();
     const salaryCost = drivers.reduce((sum, d) => sum + d.salary + d.bonus, 0);
 
-    // Estimation carburant (à améliorer avec données réelles)
+    // Estimation carburant (ÃƒÂ  amÃƒÂ©liorer avec donnÃƒÂ©es rÃƒÂ©elles)
     const deliveries = await TransporteurDelivery.find({
       transporteurId,
       status: 'delivered',
@@ -175,29 +175,29 @@ export const calculateFleetCosts = async (transporteurId: string, period: { star
     }).lean();
 
     const totalDistance = deliveries.reduce((sum, d) => sum + d.distance, 0);
-    const fuelCost = totalDistance * 0.15; // Estimation 0.15€/km
+    const fuelCost = totalDistance * 0.15; // Estimation 0.15Ã¢â€šÂ¬/km
 
     return {
       fuel: Math.round(fuelCost),
       maintenance: maintenanceCost,
       salaries: salaryCost,
-      insurance: 0, // TODO: Récupérer données assurance
+      insurance: 0, // TODO: RÃƒÂ©cupÃƒÂ©rer donnÃƒÂ©es assurance
       other: 0,
       total: Math.round(fuelCost + maintenanceCost + salaryCost)
     };
   } catch (error) {
-    console.error('Erreur calcul coûts flotte:', error);
-    throw new Error('Impossible de calculer les coûts');
+    console.error('Erreur calcul coÃƒÂ»ts flotte:', error);
+    throw new Error('Impossible de calculer les coÃƒÂ»ts');
   }
 };
 
 /**
- * Service pour envoyer une notification (à implémenter avec système de notifications réel)
+ * Service pour envoyer une notification (ÃƒÂ  implÃƒÂ©menter avec systÃƒÂ¨me de notifications rÃƒÂ©el)
  */
 export const notifyDriverAssignment = async (driverId: string, deliveryId: string) => {
   try {
-    console.log(`📱 Notification: Chauffeur ${driverId} assigné à livraison ${deliveryId}`);
-    // TODO: Implémenter envoi push notification / SMS / email
+    console.log(`Ã°Å¸â€œÂ± Notification: Chauffeur ${driverId} assignÃƒÂ© ÃƒÂ  livraison ${deliveryId}`);
+    // TODO: ImplÃƒÂ©menter envoi push notification / SMS / email
     return true;
   } catch (error) {
     console.error('Erreur envoi notification:', error);
@@ -210,8 +210,8 @@ export const notifyDriverAssignment = async (driverId: string, deliveryId: strin
  */
 export const notifyMaintenanceAlert = async (vehicleId: string, type: string) => {
   try {
-    console.log(`🔧 Alerte maintenance: Véhicule ${vehicleId} - Type ${type}`);
-    // TODO: Implémenter envoi alerte
+    console.log(`Ã°Å¸â€Â§ Alerte maintenance: VÃƒÂ©hicule ${vehicleId} - Type ${type}`);
+    // TODO: ImplÃƒÂ©menter envoi alerte
     return true;
   } catch (error) {
     console.error('Erreur envoi alerte:', error);

@@ -1,7 +1,7 @@
-﻿/**
+/**
  * MIDDLEWARE UPLOAD MESSAGE FILES - Upload fichiers pour messagerie
  * 
- * Fonctionnalités :
+ * FonctionnalitÃ©s :
  * - Upload multiple (max 10 fichiers)
  * - Support images + documents + archives
  * - Compression automatique des images avec Sharp
@@ -16,14 +16,14 @@ import fs from 'fs';
 import sharp from 'sharp';
 import { Request, Response, NextFunction } from 'express';
 
-// Créer le dossier uploads/messages s'il n'existe pas
+// CrÃ©er le dossier uploads/messages s'il n'existe pas
 const uploadsDir = path.join(__dirname, '../../uploads/messages');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
-  // console.log('📁 Dossier uploads/messages créé');
+  // console.log('ðŸ“ Dossier uploads/messages crÃ©Ã©');
 }
 
-// Types de fichiers supportés
+// Types de fichiers supportÃ©s
 const ALLOWED_MIMETYPES = {
   // Images
   'image/jpeg': '.jpg',
@@ -63,7 +63,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
   if (file.mimetype in ALLOWED_MIMETYPES) {
     cb(null, true);
   } else {
-    cb(new Error(`Format non supporté: ${file.mimetype}. Formats acceptés: Images (JPG, PNG, WEBP, GIF), Documents (PDF, DOC, DOCX, XLS, XLSX, TXT), Archives (ZIP, RAR, 7Z)`));
+    cb(new Error(`Format non supportÃ©: ${file.mimetype}. Formats acceptÃ©s: Images (JPG, PNG, WEBP, GIF), Documents (PDF, DOC, DOCX, XLS, XLSX, TXT), Archives (ZIP, RAR, 7Z)`));
   }
 };
 
@@ -78,14 +78,14 @@ export const upload = multer({
 });
 
 /**
- * Vérifier si un fichier est une image
+ * VÃ©rifier si un fichier est une image
  */
 const isImage = (mimetype: string): boolean => {
   return mimetype.startsWith('image/');
 };
 
 /**
- * Middleware de traitement des fichiers uploadés
+ * Middleware de traitement des fichiers uploadÃ©s
  * - Compresse les images
  * - Conserve les documents tels quels
  */
@@ -109,7 +109,7 @@ export const processMessageFiles = async (req: Request, res: Response, next: Nex
       let finalPath: string;
       let finalFilename: string;
       
-      // Déterminer le type de fichier
+      // DÃ©terminer le type de fichier
       let fileType: 'image' | 'document' | 'archive' = 'document';
       if (isImage(file.mimetype)) {
         fileType = 'image';
@@ -137,7 +137,7 @@ export const processMessageFiles = async (req: Request, res: Response, next: Nex
           // Supprimer le fichier temporaire
           fs.unlinkSync(tempPath);
           
-          // console.log(`✅ Image compressée: ${finalFilename}`);
+          // console.log(`âœ… Image compressÃ©e: ${finalFilename}`);
         } 
         // Si c'est un GIF, conserver tel quel (pas de compression)
         else if (file.mimetype === 'image/gif') {
@@ -145,7 +145,7 @@ export const processMessageFiles = async (req: Request, res: Response, next: Nex
           finalPath = path.join(uploadsDir, finalFilename);
           
           fs.renameSync(tempPath, finalPath);
-          // console.log(`✅ GIF conservé: ${finalFilename}`);
+          // console.log(`âœ… GIF conservÃ©: ${finalFilename}`);
         }
         // Documents et archives : conserver tels quels
         else {
@@ -155,7 +155,7 @@ export const processMessageFiles = async (req: Request, res: Response, next: Nex
           finalPath = path.join(uploadsDir, finalFilename);
           
           fs.renameSync(tempPath, finalPath);
-          // console.log(`✅ ${fileType} conservé: ${finalFilename}`);
+          // console.log(`âœ… ${fileType} conservÃ©: ${finalFilename}`);
         }
 
         // Obtenir la taille du fichier final
@@ -172,7 +172,7 @@ export const processMessageFiles = async (req: Request, res: Response, next: Nex
         });
 
       } catch (error) {
-        // console.error(`❌ Erreur traitement ${file.filename}:`, error);
+        // console.error(`âŒ Erreur traitement ${file.filename}:`, error);
         // Supprimer le temp file en cas d'erreur
         if (fs.existsSync(tempPath)) {
           fs.unlinkSync(tempPath);
@@ -180,12 +180,12 @@ export const processMessageFiles = async (req: Request, res: Response, next: Nex
       }
     }
 
-    // Ajouter les infos au body de la requête
+    // Ajouter les infos au body de la requÃªte
     (req as any).processedFiles = processedFiles;
 
     next();
   } catch (error: any) {
-    // console.error('❌ Erreur middleware processMessageFiles:', error);
+    // console.error('âŒ Erreur middleware processMessageFiles:', error);
     res.status(500).json({
       success: false,
       error: 'Erreur lors du traitement des fichiers'
@@ -194,7 +194,7 @@ export const processMessageFiles = async (req: Request, res: Response, next: Nex
 };
 
 /**
- * Middleware combiné : upload + traitement
+ * Middleware combinÃ© : upload + traitement
  */
 export const uploadMessageFiles = [
   upload.array('files', 10),

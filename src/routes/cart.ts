@@ -1,4 +1,4 @@
-﻿import { Router, Response } from 'express';
+import { Router, Response } from 'express';
 import mongoose from 'mongoose';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
 import { Cart, ICartItem } from '../models/Cart';
@@ -13,7 +13,7 @@ router.get('/:supplierId', authenticateToken, async (req: AuthRequest, res: Resp
     const userId = req.user?.userId || req.user?.id || req.user?._id;
 
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Utilisateur non authentifié' });
+      res.status(401).json({ success: false, message: 'Utilisateur non authentifiÃ©' });
       return;
     }
     
@@ -53,7 +53,7 @@ router.get('/:supplierId', authenticateToken, async (req: AuthRequest, res: Resp
       }
     });
   } catch (error) {
-    // console.error('Erreur r�cup�ration panier:', error);
+    // console.error('Erreur rï¿½cupï¿½ration panier:', error);
     res.status(500).json({
       success: false,
       message: 'Erreur serveur'
@@ -74,12 +74,12 @@ router.post('/add', authenticateToken, async (req: AuthRequest, res: Response) =
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Utilisateur non authentifi�' });
+      res.status(401).json({ success: false, message: 'Utilisateur non authentifiï¿½' });
       return;
     }
 
     if (!productId || !supplierId || !name || !unitPrice) {
-      res.status(400).json({ success: false, message: 'Données incomplètes' });
+      res.status(400).json({ success: false, message: 'DonnÃ©es incomplÃ¨tes' });
       return;
     }
 
@@ -118,7 +118,7 @@ router.post('/add', authenticateToken, async (req: AuthRequest, res: Response) =
 
     res.json({
       success: true,
-      message: 'Produit ajouté au panier',
+      message: 'Produit ajoutÃ© au panier',
       data: {
         productId,
         quantity: quantityNum,
@@ -150,7 +150,7 @@ router.delete('/remove/:productId', authenticateToken, async (req: AuthRequest, 
     const cart = await Cart.findOne({ userId, supplierId }).exec();
 
     if (!cart) {
-      res.status(404).json({ success: false, message: 'Panier non trouvé' });
+      res.status(404).json({ success: false, message: 'Panier non trouvÃ©' });
       return;
     }
 
@@ -160,7 +160,7 @@ router.delete('/remove/:productId', authenticateToken, async (req: AuthRequest, 
 
     res.json({
       success: true,
-      message: 'Produit retiré du panier',
+      message: 'Produit retirÃ© du panier',
       data: {
         items: cart.items,
         total: cart.total
@@ -175,7 +175,7 @@ router.delete('/remove/:productId', authenticateToken, async (req: AuthRequest, 
   }
 });
 
-// Checkout du panier � cr�e r�ellement une Order en base
+// Checkout du panier ï¿½ crï¿½e rï¿½ellement une Order en base
 router.post('/:supplierId/checkout', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { supplierId } = req.params;
@@ -191,7 +191,7 @@ router.post('/:supplierId/checkout', authenticateToken, async (req: AuthRequest,
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({ success: false, message: 'Utilisateur non authentifi�' });
+      res.status(401).json({ success: false, message: 'Utilisateur non authentifiï¿½' });
       return;
     }
 
@@ -202,7 +202,7 @@ router.post('/:supplierId/checkout', authenticateToken, async (req: AuthRequest,
       return;
     }
 
-    // Construire les items attendus par le sch�ma
+    // Construire les items attendus par le schï¿½ma
     const orderItems: IOrderItem[] = cart.items.map((item: ICartItem) => ({
       listingId: item.productId,
       name: item.name,
@@ -218,7 +218,7 @@ router.post('/:supplierId/checkout', authenticateToken, async (req: AuthRequest,
     const discount = 0;
     const total = Math.round((subtotal + deliveryFee + tax + platformFee - discount) * 100) / 100;
 
-    // Pr�parer adresses (champ requis par le sch�ma)
+    // Prï¿½parer adresses (champ requis par le schï¿½ma)
     const defaultAddress = {
       street: (deliveryAddress && deliveryAddress.street) || 'Adresse inconnue',
       city: (deliveryAddress && deliveryAddress.city) || 'Paris',
@@ -226,7 +226,7 @@ router.post('/:supplierId/checkout', authenticateToken, async (req: AuthRequest,
       country: (deliveryAddress && deliveryAddress.country) || 'France'
     };
 
-    // G�n�rer orderNumber explicitement
+    // Gï¿½nï¿½rer orderNumber explicitement
     const date = new Date();
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -234,11 +234,11 @@ router.post('/:supplierId/checkout', authenticateToken, async (req: AuthRequest,
     const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
     const orderNumber = `ORD-${year}${month}${day}-${random}`;
 
-    // Cr�er la commande
+    // Crï¿½er la commande
     const orderDoc = new Order({
       restaurantId: userId,
       supplierId: supplierId,
-      orderNumber: orderNumber, // Explicitement d�fini
+      orderNumber: orderNumber, // Explicitement dï¿½fini
       status: 'pending',
       priority: 'medium',
       items: orderItems,
@@ -261,14 +261,14 @@ router.post('/:supplierId/checkout', authenticateToken, async (req: AuthRequest,
 
     await orderDoc.save();
 
-    // Vider le panier apr�s commande
+    // Vider le panier aprï¿½s commande
     cart.items = [];
     cart.total = 0;
     await cart.save();
 
-    // console.log(`? Cart checkout: Order created ${orderDoc._id} total=${total}�`);
+    // console.log(`? Cart checkout: Order created ${orderDoc._id} total=${total}ï¿½`);
 
-    res.status(201).json({ success: true, order: orderDoc, message: 'Commande cr��e et persist�e' });
+    res.status(201).json({ success: true, order: orderDoc, message: 'Commande crï¿½ï¿½e et persistï¿½e' });
   } catch (error) {
     // console.error('? Erreur checkout cart:', error);
     res.status(500).json({ success: false, message: 'Erreur serveur', details: (error as any).message });

@@ -1,16 +1,16 @@
-﻿/**
- * MODÈLE NOTIFICATION - Système de notifications en temps réel
+/**
+ * MODÃˆLE NOTIFICATION - SystÃ¨me de notifications en temps rÃ©el
  * 
- * Gère toutes les notifications de l'application :
+ * GÃ¨re toutes les notifications de l'application :
  * - Nouvelles offres urgentes
- * - Réponses à mes offres
+ * - RÃ©ponses Ã  mes offres
  * - Nouveaux messages
- * - Devis reçus/acceptés/refusés
- * - Événements système
+ * - Devis reÃ§us/acceptÃ©s/refusÃ©s
+ * - Ã‰vÃ©nements systÃ¨me
  * 
- * Fonctionnalités :
- * - Notifications persistantes (stockées en DB)
- * - Temps réel via Socket.io
+ * FonctionnalitÃ©s :
+ * - Notifications persistantes (stockÃ©es en DB)
+ * - Temps rÃ©el via Socket.io
  * - Push notifications navigateur
  * - Groupement par type
  * - Marquage lu/non lu
@@ -20,21 +20,21 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 // Types de notifications
 export type NotificationType = 
-  | 'offer-urgent'           // Nouvelle offre urgente ciblée
-  | 'offer-response'         // Quelqu'un a répondu à mon offre
+  | 'offer-urgent'           // Nouvelle offre urgente ciblÃ©e
+  | 'offer-response'         // Quelqu'un a rÃ©pondu Ã  mon offre
   | 'message-new'            // Nouveau message dans conversation
-  | 'quote-received'         // Devis reçu
-  | 'quote-viewed'           // Mon devis a été vu
-  | 'quote-accepted'         // Mon devis a été accepté
-  | 'quote-rejected'         // Mon devis a été refusé
-  | 'system'                 // Notification système (maintenance, etc.)
-  | 'payment-confirmed'      // Paiement confirmé
-  | 'delivery-update';       // Mise à jour livraison
+  | 'quote-received'         // Devis reÃ§u
+  | 'quote-viewed'           // Mon devis a Ã©tÃ© vu
+  | 'quote-accepted'         // Mon devis a Ã©tÃ© acceptÃ©
+  | 'quote-rejected'         // Mon devis a Ã©tÃ© refusÃ©
+  | 'system'                 // Notification systÃ¨me (maintenance, etc.)
+  | 'payment-confirmed'      // Paiement confirmÃ©
+  | 'delivery-update';       // Mise Ã  jour livraison
 
-// Priorités
+// PrioritÃ©s
 export type NotificationPriority = 'low' | 'normal' | 'high' | 'urgent';
 
-// Type pour la création de notifications (sans les champs auto-générés)
+// Type pour la crÃ©ation de notifications (sans les champs auto-gÃ©nÃ©rÃ©s)
 export type CreateNotificationInput = {
   userId: mongoose.Types.ObjectId | string;
   userRole: string;
@@ -60,7 +60,7 @@ export type CreateNotificationInput = {
   expiresAt?: Date;
 };
 
-// Interface principale du modèle Notification
+// Interface principale du modÃ¨le Notification
 export interface INotification extends Document {
   // Destinataire
   userId: mongoose.Types.ObjectId;
@@ -73,7 +73,7 @@ export interface INotification extends Document {
   title: string; // Ex: "Nouvelle offre urgente"
   message: string; // Ex: "Restaurant Le Gourmet cherche un frigoriste"
   
-  // Données structurées (pour navigation)
+  // DonnÃ©es structurÃ©es (pour navigation)
   data?: {
     offerId?: mongoose.Types.ObjectId;
     conversationId?: mongoose.Types.ObjectId;
@@ -83,7 +83,7 @@ export interface INotification extends Document {
     [key: string]: string | mongoose.Types.ObjectId | undefined;
   };
   
-  // Action suggérée
+  // Action suggÃ©rÃ©e
   actionUrl?: string; // URL de navigation (ex: #offer-details?id=xxx)
   actionLabel?: string; // Label du bouton (ex: "Voir l'offre")
   
@@ -93,12 +93,12 @@ export interface INotification extends Document {
   archived: boolean;
   
   // Envoi
-  sentViaSocket: boolean; // Envoyée en temps réel
+  sentViaSocket: boolean; // EnvoyÃ©e en temps rÃ©el
   sentViaPush: boolean; // Push notification navigateur
-  sentViaEmail: boolean; // Email envoyé
+  sentViaEmail: boolean; // Email envoyÃ©
   
-  // Groupement (pour éviter spam)
-  groupKey?: string; // Ex: "offer-123" pour regrouper les notifs d'une même offre
+  // Groupement (pour Ã©viter spam)
+  groupKey?: string; // Ex: "offer-123" pour regrouper les notifs d'une mÃªme offre
   
   // Expiration (nettoyage auto des anciennes notifs)
   expiresAt?: Date;
@@ -107,7 +107,7 @@ export interface INotification extends Document {
   updatedAt: Date;
 }
 
-// Schéma principal Notification
+// SchÃ©ma principal Notification
 const NotificationSchema: Schema = new Schema(
   {
     userId: {
@@ -203,15 +203,15 @@ const NotificationSchema: Schema = new Schema(
   }
 );
 
-// Index composés pour optimiser les requêtes
+// Index composÃ©s pour optimiser les requÃªtes
 NotificationSchema.index({ userId: 1, read: 1, createdAt: -1 });
 NotificationSchema.index({ userId: 1, archived: 1, createdAt: -1 });
 NotificationSchema.index({ userId: 1, type: 1, read: 1 });
 
-// TTL Index : Supprimer automatiquement les notifications après expiration
+// TTL Index : Supprimer automatiquement les notifications aprÃ¨s expiration
 NotificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-// Méthode pour marquer comme lu
+// MÃ©thode pour marquer comme lu
 NotificationSchema.methods.markAsRead = function() {
   if (!this.read) {
     this.read = true;
@@ -221,13 +221,13 @@ NotificationSchema.methods.markAsRead = function() {
   return Promise.resolve(this);
 };
 
-// Méthode pour archiver
+// MÃ©thode pour archiver
 NotificationSchema.methods.archive = function() {
   this.archived = true;
   return this.save();
 };
 
-// Méthode statique pour créer et envoyer une notification
+// MÃ©thode statique pour crÃ©er et envoyer une notification
 NotificationSchema.statics.createAndSend = async function(
   userId: mongoose.Types.ObjectId,
   userRole: string,
@@ -259,13 +259,13 @@ NotificationSchema.statics.createAndSend = async function(
       : undefined
   });
   
-  // TODO: Envoyer via Socket.io (sera implémenté dans socketHandler.ts)
+  // TODO: Envoyer via Socket.io (sera implÃ©mentÃ© dans socketHandler.ts)
   // io.to(userId.toString()).emit('notification', notification);
   
   return notification;
 };
 
-// Méthode statique pour compter les non lues
+// MÃ©thode statique pour compter les non lues
 NotificationSchema.statics.countUnread = function(userId: mongoose.Types.ObjectId) {
   return this.countDocuments({
     userId,
@@ -274,7 +274,7 @@ NotificationSchema.statics.countUnread = function(userId: mongoose.Types.ObjectI
   });
 };
 
-// Méthode statique pour marquer toutes comme lues
+// MÃ©thode statique pour marquer toutes comme lues
 NotificationSchema.statics.markAllAsRead = function(userId: mongoose.Types.ObjectId) {
   return this.updateMany(
     {
@@ -290,7 +290,7 @@ NotificationSchema.statics.markAllAsRead = function(userId: mongoose.Types.Objec
   );
 };
 
-// Méthode statique pour supprimer les anciennes notifications
+// MÃ©thode statique pour supprimer les anciennes notifications
 NotificationSchema.statics.cleanup = async function(daysOld: number = 30) {
   const cutoffDate = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000);
   
@@ -303,15 +303,15 @@ NotificationSchema.statics.cleanup = async function(daysOld: number = 30) {
   return result.deletedCount;
 };
 
-// Middleware pour définir expiration par défaut si non spécifiée
+// Middleware pour dÃ©finir expiration par dÃ©faut si non spÃ©cifiÃ©e
 NotificationSchema.pre('save', function(this: INotification, next) {
-  // Si pas d'expiration définie, mettre 90 jours par défaut
+  // Si pas d'expiration dÃ©finie, mettre 90 jours par dÃ©faut
   if (!this.expiresAt) {
     this.expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
   }
   next();
 });
 
-// Guard pattern pour éviter "OverwriteModelError"
+// Guard pattern pour Ã©viter "OverwriteModelError"
 const NotificationModel = (mongoose.models.Notification || mongoose.model<INotification>('Notification', NotificationSchema)) as mongoose.Model<INotification>;
 export default NotificationModel;

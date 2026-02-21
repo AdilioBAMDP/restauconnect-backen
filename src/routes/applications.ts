@@ -16,7 +16,7 @@ router.get('/', authenticateToken, requireAdmin, async (req: Request, res: Respo
     const applications = await Application.find();
     res.json({ success: true, applications, data: applications });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Erreur lors de la récupération des candidatures' });
+    res.status(500).json({ success: false, error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des candidatures' });
   }
 });
 
@@ -31,17 +31,17 @@ router.post('/', async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, email, phone, role, company, experience, message, cvUrl, cvFilename } = req.body;
     
-    logger.info(`📝 Nouvelle candidature reçue: ${firstName} ${lastName} (${role})`);
+    logger.info(`Ã°Å¸â€œÂ Nouvelle candidature reÃƒÂ§ue: ${firstName} ${lastName} (${role})`);
     
     // Validation des champs requis
     if (!firstName || !lastName || !email || !phone || !role || !message) {
       return res.status(400).json({
-        message: 'Tous les champs obligatoires doivent être remplis',
+        message: 'Tous les champs obligatoires doivent ÃƒÂªtre remplis',
         required: ['firstName', 'lastName', 'email', 'phone', 'role', 'message']
       });
     }
     
-    // Vérifier si une candidature existe déjà avec cet email
+    // VÃƒÂ©rifier si une candidature existe dÃƒÂ©jÃƒÂ  avec cet email
     const existingApplication = await Application.findOne({ 
       email: email.toLowerCase(),
       status: 'pending'
@@ -49,11 +49,11 @@ router.post('/', async (req: Request, res: Response) => {
     
     if (existingApplication) {
       return res.status(400).json({
-        message: 'Une candidature avec cet email est déjà en cours de traitement'
+        message: 'Une candidature avec cet email est dÃƒÂ©jÃƒÂ  en cours de traitement'
       });
     }
     
-    // Créer la nouvelle candidature
+    // CrÃƒÂ©er la nouvelle candidature
     const application = new Application({
       firstName,
       lastName,
@@ -70,10 +70,10 @@ router.post('/', async (req: Request, res: Response) => {
     
     await application.save();
     
-    logger.info(`✅ Candidature créée avec succès: ${application._id}`);
+    logger.info(`Ã¢Å“â€¦ Candidature crÃƒÂ©ÃƒÂ©e avec succÃƒÂ¨s: ${application._id}`);
     
     res.status(201).json({
-      message: 'Candidature soumise avec succès',
+      message: 'Candidature soumise avec succÃƒÂ¨s',
       application: {
         id: application._id,
         status: application.status,
@@ -82,7 +82,7 @@ router.post('/', async (req: Request, res: Response) => {
     });
     
   } catch (error: any) {
-    logger.error('❌ Erreur création candidature:', error);
+    logger.error('Ã¢ÂÅ’ Erreur crÃƒÂ©ation candidature:', error);
     
     // Erreur de validation Mongoose
     if (error.name === 'ValidationError') {
@@ -114,7 +114,7 @@ router.get('/', authenticateToken, requireAdmin, async (req: Request, res: Respo
     // Pagination
     const skip = (Number(page) - 1) * Number(limit);
     
-    // Récupérer les candidatures
+    // RÃƒÂ©cupÃƒÂ©rer les candidatures
     const applications = await Application.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -122,7 +122,7 @@ router.get('/', authenticateToken, requireAdmin, async (req: Request, res: Respo
     
     const total = await Application.countDocuments(filter);
     
-    logger.info(`📋 Liste candidatures: ${applications.length} résultats (filtre: ${JSON.stringify(filter)})`);
+    logger.info(`Ã°Å¸â€œâ€¹ Liste candidatures: ${applications.length} rÃƒÂ©sultats (filtre: ${JSON.stringify(filter)})`);
     
     res.json({
       applications,
@@ -135,8 +135,8 @@ router.get('/', authenticateToken, requireAdmin, async (req: Request, res: Respo
     });
     
   } catch (error) {
-    logger.error('❌ Erreur récupération candidatures:', error);
-    res.status(500).json({ message: 'Erreur serveur lors de la récupération des candidatures' });
+    logger.error('Ã¢ÂÅ’ Erreur rÃƒÂ©cupÃƒÂ©ration candidatures:', error);
+    res.status(500).json({ message: 'Erreur serveur lors de la rÃƒÂ©cupÃƒÂ©ration des candidatures' });
   }
 });
 
@@ -149,19 +149,19 @@ router.get('/stats', authenticateToken, requireAdmin, async (req: Request, res: 
   try {
     const stats = await (Application as any).getStats();
     
-    logger.info(`📊 Statistiques candidatures récupérées`);
+    logger.info(`Ã°Å¸â€œÅ  Statistiques candidatures rÃƒÂ©cupÃƒÂ©rÃƒÂ©es`);
     
     res.json(stats);
     
   } catch (error) {
-    logger.error('❌ Erreur récupération stats:', error);
-    res.status(500).json({ message: 'Erreur serveur lors de la récupération des statistiques' });
+    logger.error('Ã¢ÂÅ’ Erreur rÃƒÂ©cupÃƒÂ©ration stats:', error);
+    res.status(500).json({ message: 'Erreur serveur lors de la rÃƒÂ©cupÃƒÂ©ration des statistiques' });
   }
 });
 
 /**
  * @route   GET /api/applications/:id
- * @desc    Obtenir une candidature spécifique
+ * @desc    Obtenir une candidature spÃƒÂ©cifique
  * @access  Admin only
  */
 router.get('/:id', authenticateToken, requireAdmin, async (req: Request, res: Response) => {
@@ -171,16 +171,16 @@ router.get('/:id', authenticateToken, requireAdmin, async (req: Request, res: Re
     const application = await Application.findById(id);
     
     if (!application) {
-      return res.status(404).json({ message: 'Candidature non trouvée' });
+      return res.status(404).json({ message: 'Candidature non trouvÃƒÂ©e' });
     }
     
-    logger.info(`📄 Candidature récupérée: ${id}`);
+    logger.info(`Ã°Å¸â€œâ€ž Candidature rÃƒÂ©cupÃƒÂ©rÃƒÂ©e: ${id}`);
     
     res.json(application);
     
   } catch (error) {
-    logger.error('❌ Erreur récupération candidature:', error);
-    res.status(500).json({ message: 'Erreur serveur lors de la récupération de la candidature' });
+    logger.error('Ã¢ÂÅ’ Erreur rÃƒÂ©cupÃƒÂ©ration candidature:', error);
+    res.status(500).json({ message: 'Erreur serveur lors de la rÃƒÂ©cupÃƒÂ©ration de la candidature' });
   }
 });
 
@@ -198,25 +198,25 @@ router.patch('/:id/approve', authenticateToken, requireAdmin, async (req: Reques
     const application = await Application.findById(id);
     
     if (!application) {
-      return res.status(404).json({ message: 'Candidature non trouvée' });
+      return res.status(404).json({ message: 'Candidature non trouvÃƒÂ©e' });
     }
     
     if (application.status !== 'pending') {
-      return res.status(400).json({ message: 'Cette candidature a déjà été traitée' });
+      return res.status(400).json({ message: 'Cette candidature a dÃƒÂ©jÃƒÂ  ÃƒÂ©tÃƒÂ© traitÃƒÂ©e' });
     }
     
     // Approuver la candidature
     await (application as any).approve(user.userId, notes);
     
-    logger.info(`✅ Candidature approuvée: ${id} par ${user.userId}`);
+    logger.info(`Ã¢Å“â€¦ Candidature approuvÃƒÂ©e: ${id} par ${user.userId}`);
     
     res.json({
-      message: 'Candidature approuvée avec succès',
+      message: 'Candidature approuvÃƒÂ©e avec succÃƒÂ¨s',
       application
     });
     
   } catch (error) {
-    logger.error('❌ Erreur approbation candidature:', error);
+    logger.error('Ã¢ÂÅ’ Erreur approbation candidature:', error);
     res.status(500).json({ message: 'Erreur serveur lors de l\'approbation de la candidature' });
   }
 });
@@ -235,25 +235,25 @@ router.patch('/:id/reject', authenticateToken, requireAdmin, async (req: Request
     const application = await Application.findById(id);
     
     if (!application) {
-      return res.status(404).json({ message: 'Candidature non trouvée' });
+      return res.status(404).json({ message: 'Candidature non trouvÃƒÂ©e' });
     }
     
     if (application.status !== 'pending') {
-      return res.status(400).json({ message: 'Cette candidature a déjà été traitée' });
+      return res.status(400).json({ message: 'Cette candidature a dÃƒÂ©jÃƒÂ  ÃƒÂ©tÃƒÂ© traitÃƒÂ©e' });
     }
     
     // Rejeter la candidature
     await (application as any).reject(user.userId, notes);
     
-    logger.info(`❌ Candidature rejetée: ${id} par ${user.userId}`);
+    logger.info(`Ã¢ÂÅ’ Candidature rejetÃƒÂ©e: ${id} par ${user.userId}`);
     
     res.json({
-      message: 'Candidature rejetée',
+      message: 'Candidature rejetÃƒÂ©e',
       application
     });
     
   } catch (error) {
-    logger.error('❌ Erreur rejet candidature:', error);
+    logger.error('Ã¢ÂÅ’ Erreur rejet candidature:', error);
     res.status(500).json({ message: 'Erreur serveur lors du rejet de la candidature' });
   }
 });
@@ -271,15 +271,15 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req: Request, res:
     const application = await Application.findByIdAndDelete(id);
     
     if (!application) {
-      return res.status(404).json({ message: 'Candidature non trouvée' });
+      return res.status(404).json({ message: 'Candidature non trouvÃƒÂ©e' });
     }
     
-    logger.info(`🗑️ Candidature supprimée: ${id} par ${user.userId}`);
+    logger.info(`Ã°Å¸â€”â€˜Ã¯Â¸Â Candidature supprimÃƒÂ©e: ${id} par ${user.userId}`);
     
-    res.json({ message: 'Candidature supprimée avec succès' });
+    res.json({ message: 'Candidature supprimÃƒÂ©e avec succÃƒÂ¨s' });
     
   } catch (error) {
-    logger.error('❌ Erreur suppression candidature:', error);
+    logger.error('Ã¢ÂÅ’ Erreur suppression candidature:', error);
     res.status(500).json({ message: 'Erreur serveur lors de la suppression de la candidature' });
   }
 });

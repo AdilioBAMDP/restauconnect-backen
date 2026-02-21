@@ -38,7 +38,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
         pages: Math.ceil(total / Number(limit)),
         totalPages: Math.ceil(total / Number(limit))
       },
-      message: 'Livraisons récupérées'
+      message: 'Livraisons rÃƒÂ©cupÃƒÂ©rÃƒÂ©es'
     } as ApiResponse);
     return;
 
@@ -46,7 +46,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
     logger.error('Erreur liste deliveries:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des livraisons'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des livraisons'
     } as ApiResponse);
     return;
   }
@@ -81,7 +81,7 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response):
         delivered,
         todayCount
       },
-      message: 'Statistiques des livraisons récupérées'
+      message: 'Statistiques des livraisons rÃƒÂ©cupÃƒÂ©rÃƒÂ©es'
     } as ApiResponse);
     return;
 
@@ -89,13 +89,13 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response):
     logger.error('Erreur stats deliveries:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des statistiques'
     } as ApiResponse);
     return;
   }
 });
 
-// GET /api/deliveries/:id - Détails d'une livraison
+// GET /api/deliveries/:id - DÃƒÂ©tails d'une livraison
 router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -107,7 +107,7 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response): P
     if (!delivery) {
       res.status(404).json({
         success: false,
-        error: 'Livraison non trouvée'
+        error: 'Livraison non trouvÃƒÂ©e'
       } as ApiResponse);
       return;
     }
@@ -115,15 +115,15 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response): P
     res.json({
       success: true,
       data: delivery,
-      message: 'Détails de la livraison récupérés'
+      message: 'DÃƒÂ©tails de la livraison rÃƒÂ©cupÃƒÂ©rÃƒÂ©s'
     } as ApiResponse);
     return;
 
   } catch (error) {
-    logger.error('Erreur détails delivery:', error);
+    logger.error('Erreur dÃƒÂ©tails delivery:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération de la livraison'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration de la livraison'
     } as ApiResponse);
     return;
   }

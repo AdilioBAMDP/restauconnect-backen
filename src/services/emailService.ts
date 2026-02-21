@@ -1,4 +1,4 @@
-﻿import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer';
 import { config } from '../config';
 import { logger } from '../utils/logger';
 
@@ -57,10 +57,10 @@ export const emailTemplates = {
         <p>Nous sommes ravis de vous accueillir sur RestauConnect, la plateforme qui connecte les professionnels de la restauration.</p>
         <p>Vous pouvez maintenant :</p>
         <ul>
-          <li>CrÃ©er votre profil professionnel</li>
+          <li>CrÃƒÂ©er votre profil professionnel</li>
           <li>Publier vos offres et demandes</li>
           <li>Contacter d'autres professionnels</li>
-          <li>Ã‰changer via notre systÃ¨me de messagerie</li>
+          <li>Ãƒâ€°changer via notre systÃƒÂ¨me de messagerie</li>
         </ul>
         <p style="margin-top: 30px;">
           <a href="${config.cors.origin[0]}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
@@ -68,7 +68,7 @@ export const emailTemplates = {
           </a>
         </p>
         <p style="color: #666; font-size: 14px; margin-top: 30px;">
-          L'Ã©quipe Web Spider
+          L'ÃƒÂ©quipe Web Spider
         </p>
       </div>
     `
@@ -79,13 +79,13 @@ export const emailTemplates = {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #2563eb;">Nouveau message</h1>
-        <p>Vous avez reÃ§u un nouveau message de <strong>${senderName}</strong> :</p>
+        <p>Vous avez reÃƒÂ§u un nouveau message de <strong>${senderName}</strong> :</p>
         <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
           ${message}
         </div>
         <p>
           <a href="${config.cors.origin[0]}/messages" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
-            RÃ©pondre au message
+            RÃƒÂ©pondre au message
           </a>
         </p>
       </div>
@@ -93,14 +93,14 @@ export const emailTemplates = {
   }),
 
   newReview: (reviewerName: string, rating: number, comment: string) => ({
-    subject: 'Nouvel avis reÃ§u',
+    subject: 'Nouvel avis reÃƒÂ§u',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Nouvel avis reÃ§u</h1>
-        <p><strong>${reviewerName}</strong> a laissÃ© un avis sur votre profil :</p>
+        <h1 style="color: #2563eb;">Nouvel avis reÃƒÂ§u</h1>
+        <p><strong>${reviewerName}</strong> a laissÃƒÂ© un avis sur votre profil :</p>
         <div style="background-color: #f3f4f6; padding: 16px; border-radius: 8px; margin: 20px 0;">
           <div style="margin-bottom: 12px;">
-            ${'â˜…'.repeat(rating)}${'â˜†'.repeat(5 - rating)} (${rating}/5)
+            ${'Ã¢Ëœâ€¦'.repeat(rating)}${'Ã¢Ëœâ€ '.repeat(5 - rating)} (${rating}/5)
           </div>
           <p>${comment}</p>
         </div>
@@ -114,11 +114,11 @@ export const emailTemplates = {
   }),
 
   listingMatch: (listingTitle: string, matchCount: number) => ({
-    subject: `${matchCount} nouveaux profils correspondent Ã  votre offre`,
+    subject: `${matchCount} nouveaux profils correspondent ÃƒÂ  votre offre`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #2563eb;">Nouveaux profils correspondants</h1>
-        <p>Bonne nouvelle ! ${matchCount} nouveaux profils correspondent Ã  votre offre :</p>
+        <p>Bonne nouvelle ! ${matchCount} nouveaux profils correspondent ÃƒÂ  votre offre :</p>
         <h3 style="color: #374151;">${listingTitle}</h3>
         <p>
           <a href="${config.cors.origin[0]}/listings" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
@@ -130,34 +130,34 @@ export const emailTemplates = {
   }),
 
   passwordReset: (resetToken: string) => ({
-    subject: 'RÃ©initialisation de votre mot de passe',
+    subject: 'RÃƒÂ©initialisation de votre mot de passe',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">RÃ©initialisation de mot de passe</h1>
-        <p>Vous avez demandÃ© la rÃ©initialisation de votre mot de passe.</p>
-        <p>Cliquez sur le lien ci-dessous pour crÃ©er un nouveau mot de passe :</p>
+        <h1 style="color: #2563eb;">RÃƒÂ©initialisation de mot de passe</h1>
+        <p>Vous avez demandÃƒÂ© la rÃƒÂ©initialisation de votre mot de passe.</p>
+        <p>Cliquez sur le lien ci-dessous pour crÃƒÂ©er un nouveau mot de passe :</p>
         <p>
           <a href="${config.cors.origin[0]}/reset-password?token=${resetToken}" style="background-color: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
-            RÃ©initialiser mon mot de passe
+            RÃƒÂ©initialiser mon mot de passe
           </a>
         </p>
         <p style="color: #666; font-size: 14px;">
-          Ce lien expire dans 1 heure. Si vous n'avez pas demandÃ© cette rÃ©initialisation, ignorez cet email.
+          Ce lien expire dans 1 heure. Si vous n'avez pas demandÃƒÂ© cette rÃƒÂ©initialisation, ignorez cet email.
         </p>
       </div>
     `
   }),
 
   emailVerification: (verificationToken: string) => ({
-    subject: 'Vérifiez votre adresse email',
+    subject: 'VÃ©rifiez votre adresse email',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #2563eb;">Vérification d'email</h1>
-        <p>Merci de vous être inscrit sur Web Spider !</p>
+        <h1 style="color: #2563eb;">VÃ©rification d'email</h1>
+        <p>Merci de vous Ãªtre inscrit sur Web Spider !</p>
         <p>Pour activer votre compte, cliquez sur le lien ci-dessous :</p>
         <p>
           <a href="${config.cors.origin[0]}/verify-email?token=${verificationToken}" style="background-color: #059669; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
-            Vérifier mon email
+            VÃ©rifier mon email
           </a>
         </p>
         <p style="color: #666; font-size: 14px;">
@@ -168,21 +168,21 @@ export const emailTemplates = {
   }),
 
   approvalWithCredentials: (name: string, email: string, temporaryPassword: string, role: string) => ({
-    subject: '✅ Votre inscription a été approuvée - RestauConnect',
+    subject: 'âœ… Votre inscription a Ã©tÃ© approuvÃ©e - RestauConnect',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f9fafb; padding: 20px;">
         <div style="background-color: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
           <div style="text-align: center; margin-bottom: 30px;">
             <div style="display: inline-block; background-color: #10b981; color: white; border-radius: 50%; width: 60px; height: 60px; line-height: 60px; font-size: 30px; margin-bottom: 20px;">
-              ✓
+              âœ“
             </div>
-            <h1 style="color: #059669; margin: 0;">Inscription Approuvée !</h1>
+            <h1 style="color: #059669; margin: 0;">Inscription ApprouvÃ©e !</h1>
           </div>
           
           <p style="font-size: 16px; color: #374151;">Bonjour <strong>${name}</strong>,</p>
           
           <p style="font-size: 16px; color: #374151;">
-            Nous sommes heureux de vous informer que votre demande de partenariat a été <strong style="color: #059669;">approuvée</strong> !
+            Nous sommes heureux de vous informer que votre demande de partenariat a Ã©tÃ© <strong style="color: #059669;">approuvÃ©e</strong> !
           </p>
 
           <p style="font-size: 16px; color: #374151;">
@@ -191,46 +191,46 @@ export const emailTemplates = {
 
           <div style="background-color: #f3f4f6; border-left: 4px solid #2563eb; padding: 20px; margin: 25px 0; border-radius: 6px;">
             <p style="margin: 0 0 12px 0; color: #374151;">
-              <strong style="color: #1f2937;">📧 Email (identifiant) :</strong><br>
+              <strong style="color: #1f2937;">ðŸ“§ Email (identifiant) :</strong><br>
               <span style="font-size: 18px; color: #2563eb; font-family: monospace;">${email}</span>
             </p>
             <p style="margin: 0; color: #374151;">
-              <strong style="color: #1f2937;">🔑 Mot de passe provisoire :</strong><br>
+              <strong style="color: #1f2937;">ðŸ”‘ Mot de passe provisoire :</strong><br>
               <span style="font-size: 18px; color: #dc2626; font-family: monospace; background-color: #fee2e2; padding: 8px 12px; border-radius: 4px; display: inline-block;">${temporaryPassword}</span>
             </p>
           </div>
 
           <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 25px 0; border-radius: 6px;">
             <p style="margin: 0; color: #92400e; font-size: 14px;">
-              <strong>⚠️ Important :</strong> Ce mot de passe est provisoire. Pour votre sécurité, nous vous recommandons fortement de le changer lors de votre première connexion.
+              <strong>âš ï¸ Important :</strong> Ce mot de passe est provisoire. Pour votre sÃ©curitÃ©, nous vous recommandons fortement de le changer lors de votre premiÃ¨re connexion.
             </p>
           </div>
 
           <div style="text-align: center; margin: 30px 0;">
             <a href="${config.cors.origin[0]}/login" style="background-color: #2563eb; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">
-              🚀 Se connecter maintenant
+              ðŸš€ Se connecter maintenant
             </a>
           </div>
 
           <div style="border-top: 2px solid #e5e7eb; margin-top: 30px; padding-top: 20px;">
             <p style="font-size: 14px; color: #6b7280;">
-              <strong>Prochaines étapes :</strong>
+              <strong>Prochaines Ã©tapes :</strong>
             </p>
             <ul style="color: #6b7280; font-size: 14px;">
               <li>Connectez-vous avec vos identifiants</li>
               <li>Changez votre mot de passe provisoire</li>
-              <li>Complétez votre profil professionnel</li>
-              <li>Commencez à utiliser RestauConnect</li>
+              <li>ComplÃ©tez votre profil professionnel</li>
+              <li>Commencez Ã  utiliser RestauConnect</li>
             </ul>
           </div>
 
           <p style="color: #6b7280; font-size: 14px; margin-top: 30px; text-align: center;">
-            Besoin d'aide ? Contactez-nous à support@restauconnect.fr
+            Besoin d'aide ? Contactez-nous Ã  support@restauconnect.fr
           </p>
 
           <p style="color: #9ca3af; font-size: 12px; margin-top: 20px; text-align: center;">
-            L'équipe RestauConnect<br>
-            © ${new Date().getFullYear()} RestauConnect - Tous droits réservés
+            L'Ã©quipe RestauConnect<br>
+            Â© ${new Date().getFullYear()} RestauConnect - Tous droits rÃ©servÃ©s
           </p>
         </div>
       </div>

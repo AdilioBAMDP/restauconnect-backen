@@ -1,4 +1,4 @@
-﻿/// <reference types="node" />
+/// <reference types="node" />
 import mongoose, { Schema, Document, Types } from 'mongoose';
 // Import natif JS pour forcer la reconnaissance des valeurs
 
@@ -11,7 +11,7 @@ export interface DriverDocument {
   expiryDate?: Date;
 }
 
-// Interface pour les informations du véhicule
+// Interface pour les informations du vÃ©hicule
 export interface VehicleInfo {
   type: 'bike' | 'motorcycle' | 'car' | 'van' | 'truck';
   brand?: string;
@@ -36,7 +36,7 @@ export interface WorkingZone {
   radius: number; // km
 }
 
-// Interface pour la localisation en temps réel
+// Interface pour la localisation en temps rÃ©el
 export interface DriverLocation {
   latitude: number;
   longitude: number;
@@ -49,17 +49,17 @@ export interface DriverLocation {
 // Interface principale du Driver
 export interface Driver {
   _id?: Types.ObjectId;
-  userId: Types.ObjectId; // Référence vers User existant
+  userId: Types.ObjectId; // RÃ©fÃ©rence vers User existant
   
-  // Informations véhicule
+  // Informations vÃ©hicule
   vehicle: VehicleInfo;
   
-  // Documents et vérifications
+  // Documents et vÃ©rifications
   documents: DriverDocument[];
   verificationStatus: 'pending' | 'in_review' | 'verified' | 'rejected';
   verificationDate?: Date;
   
-  // Statut opérationnel
+  // Statut opÃ©rationnel
   status: 'offline' | 'available' | 'busy' | 'paused';
   currentLocation?: DriverLocation;
   lastActiveAt: Date;
@@ -67,7 +67,7 @@ export interface Driver {
   // Zone de travail
   workingZones: WorkingZone[];
   
-  // Évaluations et performances
+  // Ã‰valuations et performances
   rating: {
     average: number;
     count: number;
@@ -89,7 +89,7 @@ export interface Driver {
     onTimePercentage: number;
   };
   
-  // Préférences
+  // PrÃ©fÃ©rences
   preferences: {
     maxDistance: number; // km
     preferredHours: {
@@ -243,14 +243,14 @@ const DriverSchema = new Schema({
   toObject: { virtuals: true }
 });
 
-// Index pour les recherches géospatiales
+// Index pour les recherches gÃ©ospatiales
 DriverSchema.index({ 'currentLocation.latitude': 1, 'currentLocation.longitude': 1 });
 DriverSchema.index({ 'status': 1 });
 DriverSchema.index({ 'workingZones.city': 1 });
 DriverSchema.index({ 'isActive': 1 });
 DriverSchema.index({ 'verificationStatus': 1 });
 
-// Virtuel pour accéder aux infos utilisateur
+// Virtuel pour accÃ©der aux infos utilisateur
 DriverSchema.virtual('userInfo', {
   ref: 'User',
   localField: 'userId',
@@ -258,7 +258,7 @@ DriverSchema.virtual('userInfo', {
   justOne: true
 });
 
-// Méthode pour vérifier si le livreur est dans une zone
+// MÃ©thode pour vÃ©rifier si le livreur est dans une zone
 DriverSchema.methods.isInWorkingZone = function(latitude: number, longitude: number): boolean {
   const doc = this as any; // Cast to any to access Mongoose document properties
   if (!doc.currentLocation) return false;
@@ -267,7 +267,7 @@ DriverSchema.methods.isInWorkingZone = function(latitude: number, longitude: num
   const currentLng = doc.currentLocation.longitude;
 
   return doc.workingZones.some((zone: any) => {
-    // Calcul simple de distance (à améliorer avec une vraie fonction géospatiale)
+    // Calcul simple de distance (Ã  amÃ©liorer avec une vraie fonction gÃ©ospatiale)
     const distance = Math.sqrt(
       Math.pow(currentLat - latitude, 2) +
       Math.pow(currentLng - longitude, 2)
@@ -277,7 +277,7 @@ DriverSchema.methods.isInWorkingZone = function(latitude: number, longitude: num
   });
 };
 
-// Méthode pour calculer la distance par rapport à un point
+// MÃ©thode pour calculer la distance par rapport Ã  un point
 DriverSchema.methods.distanceFrom = function(latitude: number, longitude: number): number {
   const doc = this as any; // Cast to any to access Mongoose document properties
   if (!doc.currentLocation) return Number.POSITIVE_INFINITY;
@@ -298,7 +298,7 @@ DriverSchema.methods.distanceFrom = function(latitude: number, longitude: number
   return distance;
 };
 
-// Méthode pour mettre à jour la localisation
+// MÃ©thode pour mettre Ã  jour la localisation
 DriverSchema.methods.updateLocation = function(latitude: number, longitude: number, accuracy?: number, speed?: number, heading?: number) {
   const doc = this as any; // Cast to any to access Mongoose document properties
   doc.currentLocation = {
@@ -311,11 +311,11 @@ DriverSchema.methods.updateLocation = function(latitude: number, longitude: numb
   };
   doc.lastActiveAt = new Date();
   return doc.save();
-};// Middleware pre-save pour valider les données
+};// Middleware pre-save pour valider les donnÃ©es
 DriverSchema.pre<DriverDocumentDB>('save', function(next) {
   const doc = this as any; // Cast to any to access Mongoose document properties
 
-  // Validation des coordonnées
+  // Validation des coordonnÃ©es
   if (doc.currentLocation) {
     const lat = doc.currentLocation.latitude;
     const lng = doc.currentLocation.longitude;

@@ -143,24 +143,24 @@ router.get('/deliveries', authenticateToken, requireTransporteurPermission(TRANS
 
 /**
  * POST /api/transporteur/routes/optimize
- * Optimiser une tournée avec plusieurs livraisons
+ * Optimiser une tournÃƒÂ©e avec plusieurs livraisons
  */
 router.post('/routes/optimize', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.MANAGE_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
     const transporteurId = req.user.transporteurId || req.user._id;
     const { deliveryIds, vehicleId, startLocation, startTime, algorithm = 'nearest-neighbor' } = req.body;
 
-    // Récupérer les livraisons
+    // RÃƒÂ©cupÃƒÂ©rer les livraisons
     const deliveries = await TransporteurDelivery.find({
       _id: { $in: deliveryIds },
       transporteurId
     }).lean();
 
     if (deliveries.length === 0) {
-      return res.status(404).json({ error: 'Aucune livraison trouvée' });
+      return res.status(404).json({ error: 'Aucune livraison trouvÃƒÂ©e' });
     }
 
-    // Préparer les stops pour l'algorithme
+    // PrÃƒÂ©parer les stops pour l'algorithme
     const stops = deliveries.map(d => ({
       deliveryId: d._id.toString(),
       location: {
@@ -180,7 +180,7 @@ router.post('/routes/optimize', authenticateToken, requireTransporteurPermission
       optimizedRoute = optimizeRouteNearestNeighbor(startLocation, stops, new Date(startTime));
     }
 
-    // Créer l'objet Route en BDD
+    // CrÃƒÂ©er l'objet Route en BDD
     const route = new Route({
       transporteurId,
       name: `Route ${new Date(startTime).toLocaleDateString('fr-FR')}`,
@@ -206,7 +206,7 @@ router.post('/routes/optimize', authenticateToken, requireTransporteurPermission
 
     await route.save();
 
-    // Mettre à jour les livraisons
+    // Mettre ÃƒÂ  jour les livraisons
     await TransporteurDelivery.updateMany(
       { _id: { $in: deliveryIds } },
       { 
@@ -233,7 +233,7 @@ router.post('/routes/optimize', authenticateToken, requireTransporteurPermission
 
 /**
  * GET /api/transporteur/routes
- * Liste des routes optimisées
+ * Liste des routes optimisÃƒÂ©es
  */
 router.get('/routes', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.VIEW_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
@@ -263,7 +263,7 @@ router.get('/routes', authenticateToken, requireTransporteurPermission(TRANSPORT
 
 /**
  * PUT /api/transporteur/routes/:id/assign
- * Assigner un chauffeur à une route
+ * Assigner un chauffeur ÃƒÂ  une route
  */
 router.put('/routes/:id/assign', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.ASSIGN_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
@@ -293,7 +293,7 @@ router.put('/routes/:id/assign', authenticateToken, requireTransporteurPermissio
 
 /**
  * GET /api/transporteur/planning/:date
- * Récupérer le planning pour une date
+ * RÃƒÂ©cupÃƒÂ©rer le planning pour une date
  */
 router.get('/planning/:date', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.VIEW_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
@@ -309,7 +309,7 @@ router.get('/planning/:date', authenticateToken, requireTransporteurPermission(T
       }
     }).populate('routes');
 
-    // Si pas de planning, le créer automatiquement
+    // Si pas de planning, le crÃƒÂ©er automatiquement
     if (!planning) {
       const vehicles = await Vehicule.find({}).lean();
       const drivers = await DriverEmployee.find({ transporteurId, status: 'active' })
@@ -377,7 +377,7 @@ router.get('/planning/:date', authenticateToken, requireTransporteurPermission(T
 
 /**
  * PUT /api/transporteur/planning/:id
- * Mettre à jour le planning
+ * Mettre ÃƒÂ  jour le planning
  */
 router.put('/planning/:id', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.ASSIGN_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
@@ -400,14 +400,14 @@ router.put('/planning/:id', authenticateToken, requireTransporteurPermission(TRA
 
 /**
  * POST /api/transporteur/invoices
- * Créer une facture
+ * CrÃƒÂ©er une facture
  */
 router.post('/invoices', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.VIEW_ANALYTICS), async (req: AuthRequest, res: Response) => {
   try {
     const transporteurId = req.user.transporteurId || req.user._id;
     const { clientId, clientName, deliveryIds, dueDate, notes } = req.body;
 
-    // Récupérer les livraisons
+    // RÃƒÂ©cupÃƒÂ©rer les livraisons
     const deliveries = await TransporteurDelivery.find({
       _id: { $in: deliveryIds },
       transporteurId,
@@ -415,12 +415,12 @@ router.post('/invoices', authenticateToken, requireTransporteurPermission(TRANSP
     }).lean();
 
     if (deliveries.length === 0) {
-      return res.status(400).json({ error: 'Aucune livraison livrée trouvée' });
+      return res.status(400).json({ error: 'Aucune livraison livrÃƒÂ©e trouvÃƒÂ©e' });
     }
 
     // Calculer les items
     const items = deliveries.map(d => {
-      const basePrice = d.price || (d.distance * 1.5); // 1.5€/km si pas de prix
+      const basePrice = d.price || (d.distance * 1.5); // 1.5Ã¢â€šÂ¬/km si pas de prix
       const extraCharges = [];
       
       if (d.priority === 'urgent') {
@@ -431,7 +431,7 @@ router.post('/invoices', authenticateToken, requireTransporteurPermission(TRANSP
 
       return {
         deliveryId: d._id,
-        description: `Livraison ${d.pickupAddress.city} → ${d.deliveryAddress.city}`,
+        description: `Livraison ${d.pickupAddress.city} Ã¢â€ â€™ ${d.deliveryAddress.city}`,
         distance: d.distance,
         basePrice,
         extraCharges,
@@ -444,10 +444,10 @@ router.post('/invoices', authenticateToken, requireTransporteurPermission(TRANSP
     const taxAmount = subtotal * (taxRate / 100);
     const total = subtotal + taxAmount;
 
-    // Générer numéro de facture
+    // GÃƒÂ©nÃƒÂ©rer numÃƒÂ©ro de facture
     const invoiceNumber = await (TransportInvoice as any).generateInvoiceNumber(transporteurId);
 
-    // Créer la facture
+    // CrÃƒÂ©er la facture
     const invoice = new TransportInvoice({
       transporteurId,
       invoiceNumber,
@@ -460,7 +460,7 @@ router.post('/invoices', authenticateToken, requireTransporteurPermission(TRANSP
       taxAmount,
       total,
       issueDate: new Date(),
-      dueDate: new Date(dueDate || Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 jours par défaut
+      dueDate: new Date(dueDate || Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 jours par dÃƒÂ©faut
       status: 'draft',
       notes
     });
@@ -470,7 +470,7 @@ router.post('/invoices', authenticateToken, requireTransporteurPermission(TRANSP
     res.status(201).json({ success: true, invoice });
   } catch (error: any) {
     logger.error('Error creating invoice', error);
-    res.status(500).json({ error: 'Erreur lors de la création de la facture', details: error.message });
+    res.status(500).json({ error: 'Erreur lors de la crÃƒÂ©ation de la facture', details: error.message });
   }
 });
 
@@ -499,7 +499,7 @@ router.get('/invoices', authenticateToken, requireTransporteurPermission(TRANSPO
 
 /**
  * POST /api/transporteur/invoices/:id/generate-pdf
- * Générer le PDF d'une facture
+ * GÃƒÂ©nÃƒÂ©rer le PDF d'une facture
  */
 router.post('/invoices/:id/generate-pdf', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.VIEW_ANALYTICS), async (req: AuthRequest, res: Response) => {
   try {
@@ -512,13 +512,13 @@ router.post('/invoices/:id/generate-pdf', authenticateToken, requireTransporteur
 
     const pdfUrl = await generateInvoiceFromDB(invoice);
 
-    // Mettre à jour l'URL du PDF
+    // Mettre ÃƒÂ  jour l'URL du PDF
     await TransportInvoice.findByIdAndUpdate(id, { pdfUrl, status: 'sent' });
 
     res.json({ success: true, pdfUrl });
   } catch (error: any) {
     logger.error('Error generating PDF', error);
-    res.status(500).json({ error: 'Erreur génération PDF', details: error.message });
+    res.status(500).json({ error: 'Erreur gÃƒÂ©nÃƒÂ©ration PDF', details: error.message });
   }
 });
 
@@ -548,7 +548,7 @@ router.get('/export/deliveries', authenticateToken, requireTransporteurPermissio
       .sort({ scheduledDelivery: -1 })
       .lean();
 
-    // Créer workbook Excel
+    // CrÃƒÂ©er workbook Excel
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Livraisons');
 
@@ -557,15 +557,15 @@ router.get('/export/deliveries', authenticateToken, requireTransporteurPermissio
       { header: 'ID', key: 'id', width: 20 },
       { header: 'Date', key: 'date', width: 15 },
       { header: 'Statut', key: 'status', width: 15 },
-      { header: 'Départ', key: 'pickup', width: 30 },
+      { header: 'DÃƒÂ©part', key: 'pickup', width: 30 },
       { header: 'Destination', key: 'delivery', width: 30 },
       { header: 'Distance (km)', key: 'distance', width: 15 },
-      { header: 'Prix (€)', key: 'price', width: 12 },
-      { header: 'Véhicule', key: 'vehicle', width: 15 },
+      { header: 'Prix (Ã¢â€šÂ¬)', key: 'price', width: 12 },
+      { header: 'VÃƒÂ©hicule', key: 'vehicle', width: 15 },
       { header: 'Chauffeur', key: 'driver', width: 20 }
     ];
 
-    // Données
+    // DonnÃƒÂ©es
     deliveries.forEach(d => {
       worksheet.addRow({
         id: d._id.toString(),
@@ -588,7 +588,7 @@ router.get('/export/deliveries', authenticateToken, requireTransporteurPermissio
       fgColor: { argb: 'FF4472C4' }
     };
 
-    // Générer le fichier
+    // GÃƒÂ©nÃƒÂ©rer le fichier
     const filename = `livraisons_${Date.now()}.xlsx`;
     const filepath = path.join(__dirname, '../../uploads/exports', filename);
 
@@ -609,11 +609,11 @@ router.get('/export/deliveries', authenticateToken, requireTransporteurPermissio
   }
 });
 
-// ========== FACTURATION AUTOMATIQUE AVANCÉE ==========
+// ========== FACTURATION AUTOMATIQUE AVANCÃƒâ€°E ==========
 
 /**
  * POST /api/transporteur-tms/invoices/generate-monthly
- * Générer automatiquement toutes les factures du mois
+ * GÃƒÂ©nÃƒÂ©rer automatiquement toutes les factures du mois
  */
 router.post('/invoices/generate-monthly', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.VIEW_ANALYTICS), async (req: AuthRequest, res: Response) => {
   try {
@@ -621,7 +621,7 @@ router.post('/invoices/generate-monthly', authenticateToken, requireTransporteur
     const { month, year } = req.body;
 
     if (!month || !year) {
-      return res.status(400).json({ error: 'Mois et année requis' });
+      return res.status(400).json({ error: 'Mois et annÃƒÂ©e requis' });
     }
 
     const invoices = await autoInvoicingService.generateMonthlyInvoices(
@@ -632,18 +632,18 @@ router.post('/invoices/generate-monthly', authenticateToken, requireTransporteur
 
     res.json({
       success: true,
-      message: `${invoices.length} facture(s) générée(s)`,
+      message: `${invoices.length} facture(s) gÃƒÂ©nÃƒÂ©rÃƒÂ©e(s)`,
       invoices
     });
   } catch (error: any) {
     logger.error('Error generating monthly invoices', error);
-    res.status(500).json({ error: 'Erreur génération factures', details: error.message });
+    res.status(500).json({ error: 'Erreur gÃƒÂ©nÃƒÂ©ration factures', details: error.message });
   }
 });
 
 /**
  * POST /api/transporteur-tms/invoices/mark-overdue
- * Marquer les factures échues comme en retard
+ * Marquer les factures ÃƒÂ©chues comme en retard
  */
 router.post('/invoices/mark-overdue', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.VIEW_ANALYTICS), async (req: AuthRequest, res: Response) => {
   try {
@@ -651,10 +651,10 @@ router.post('/invoices/mark-overdue', authenticateToken, requireTransporteurPerm
 
     res.json({
       success: true,
-      message: `${count} facture(s) marquée(s) en retard`
+      message: `${count} facture(s) marquÃƒÂ©e(s) en retard`
     });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur mise à jour factures', details: error.message });
+    res.status(500).json({ error: 'Erreur mise ÃƒÂ  jour factures', details: error.message });
   }
 });
 
@@ -670,7 +670,7 @@ router.post('/invoices/send-reminders', authenticateToken, requireTransporteurPe
 
     res.json({
       success: true,
-      message: `${reminders.length} relance(s) envoyée(s)`,
+      message: `${reminders.length} relance(s) envoyÃƒÂ©e(s)`,
       reminders
     });
   } catch (error: any) {
@@ -709,7 +709,7 @@ router.get('/export/accounting', authenticateToken, requireTransporteurPermissio
     const { month, year } = req.query;
 
     if (!month || !year) {
-      return res.status(400).json({ error: 'Mois et année requis' });
+      return res.status(400).json({ error: 'Mois et annÃƒÂ©e requis' });
     }
 
     const fileUrl = await autoInvoicingService.exportAccountingReport(
@@ -721,7 +721,7 @@ router.get('/export/accounting', authenticateToken, requireTransporteurPermissio
     res.json({
       success: true,
       fileUrl,
-      message: 'Export comptable généré'
+      message: 'Export comptable gÃƒÂ©nÃƒÂ©rÃƒÂ©'
     });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur export comptable', details: error.message });
@@ -730,7 +730,7 @@ router.get('/export/accounting', authenticateToken, requireTransporteurPermissio
 
 /**
  * PUT /api/transporteur-tms/invoices/:id/mark-paid
- * Marquer une facture comme payée
+ * Marquer une facture comme payÃƒÂ©e
  */
 router.put('/invoices/:id/mark-paid', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.VIEW_ANALYTICS), async (req: AuthRequest, res: Response) => {
   try {
@@ -754,7 +754,7 @@ router.put('/invoices/:id/mark-paid', authenticateToken, requireTransporteurPerm
 
     res.json({ success: true, invoice });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur mise à jour facture', details: error.message });
+    res.status(500).json({ error: 'Erreur mise ÃƒÂ  jour facture', details: error.message });
   }
 });
 
@@ -762,18 +762,18 @@ router.put('/invoices/:id/mark-paid', authenticateToken, requireTransporteurPerm
 
 /**
  * POST /api/transporteur-tms/deliveries
- * Créer une nouvelle livraison
+ * CrÃƒÂ©er une nouvelle livraison
  */
 router.post('/deliveries', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.MANAGE_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
     const transporteurId = req.user.transporteurId || req.user._id;
     const { clientName, clientPhone, pickupAddress, deliveryAddress, priority, scheduledDate, items, notes } = req.body;
 
-    // Générer IDs uniques
+    // GÃƒÂ©nÃƒÂ©rer IDs uniques
     const deliveryId = `DEL${Date.now()}${Math.floor(Math.random() * 1000)}`;
     const orderId = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
-    // Créer la livraison dans Order (pour compatibilité)
+    // CrÃƒÂ©er la livraison dans Order (pour compatibilitÃƒÂ©)
     const Order = require('../models/Order');
     const delivery = await Order.create({
       orderId,
@@ -793,16 +793,16 @@ router.post('/deliveries', authenticateToken, requireTransporteurPermission(TRAN
     res.json({ 
       success: true, 
       delivery,
-      message: 'Livraison créée avec succès'
+      message: 'Livraison crÃƒÂ©ÃƒÂ©e avec succÃƒÂ¨s'
     });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur création livraison', details: error.message });
+    res.status(500).json({ error: 'Erreur crÃƒÂ©ation livraison', details: error.message });
   }
 });
 
 /**
  * PUT /api/transporteur-tms/deliveries/:id
- * Mettre à jour une livraison
+ * Mettre ÃƒÂ  jour une livraison
  */
 router.put('/deliveries/:id', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.MANAGE_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
@@ -821,7 +821,7 @@ router.put('/deliveries/:id', authenticateToken, requireTransporteurPermission(T
 
     res.json({ success: true, delivery });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur mise à jour livraison', details: error.message });
+    res.status(500).json({ error: 'Erreur mise ÃƒÂ  jour livraison', details: error.message });
   }
 });
 
@@ -844,7 +844,7 @@ router.delete('/deliveries/:id', authenticateToken, requireTransporteurPermissio
       return res.status(404).json({ error: 'Livraison introuvable' });
     }
 
-    res.json({ success: true, message: 'Livraison annulée' });
+    res.json({ success: true, message: 'Livraison annulÃƒÂ©e' });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur annulation livraison', details: error.message });
   }
@@ -854,20 +854,20 @@ router.delete('/deliveries/:id', authenticateToken, requireTransporteurPermissio
 
 /**
  * POST /api/transporteur-tms/drivers
- * Créer un nouveau chauffeur
+ * CrÃƒÂ©er un nouveau chauffeur
  */
 router.post('/drivers', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.MANAGE_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
     const { name, email, phone, password, licenseNumber, licenseExpiryDate, vehicleAssigned } = req.body;
     const User = require('../models/User');
 
-    // Vérifier si email existe déjà
+    // VÃƒÂ©rifier si email existe dÃƒÂ©jÃƒÂ 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ error: 'Cet email est déjà utilisé' });
+      return res.status(400).json({ error: 'Cet email est dÃƒÂ©jÃƒÂ  utilisÃƒÂ©' });
     }
 
-    // Créer le chauffeur
+    // CrÃƒÂ©er le chauffeur
     const driver = await User.create({
       name,
       email,
@@ -896,16 +896,16 @@ router.post('/drivers', authenticateToken, requireTransporteurPermission(TRANSPO
         licenseNumber: driver.licenseNumber,
         status: driver.status
       },
-      message: 'Chauffeur créé avec succès'
+      message: 'Chauffeur crÃƒÂ©ÃƒÂ© avec succÃƒÂ¨s'
     });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur création chauffeur', details: error.message });
+    res.status(500).json({ error: 'Erreur crÃƒÂ©ation chauffeur', details: error.message });
   }
 });
 
 /**
  * PUT /api/transporteur-tms/drivers/:id
- * Mettre à jour un chauffeur
+ * Mettre ÃƒÂ  jour un chauffeur
  */
 router.put('/drivers/:id', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.MANAGE_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
@@ -924,27 +924,27 @@ router.put('/drivers/:id', authenticateToken, requireTransporteurPermission(TRAN
 
     res.json({ success: true, driver });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur mise à jour chauffeur', details: error.message });
+    res.status(500).json({ error: 'Erreur mise ÃƒÂ  jour chauffeur', details: error.message });
   }
 });
 
-// ========== CRUD VÉHICULES ==========
+// ========== CRUD VÃƒâ€°HICULES ==========
 
 /**
  * POST /api/transporteur-tms/vehicles
- * Créer un nouveau véhicule
+ * CrÃƒÂ©er un nouveau vÃƒÂ©hicule
  */
 router.post('/vehicles', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.MANAGE_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
     const { registrationNumber, type, capacity, fuelType, consumption, lastMaintenance, nextMaintenance, insurance, features } = req.body;
 
-    // Vérifier si l'immatriculation existe déjà
+    // VÃƒÂ©rifier si l'immatriculation existe dÃƒÂ©jÃƒÂ 
     const existingVehicle = await Vehicule.findOne({ registrationNumber });
     if (existingVehicle) {
-      return res.status(400).json({ error: 'Cette immatriculation existe déjà' });
+      return res.status(400).json({ error: 'Cette immatriculation existe dÃƒÂ©jÃƒÂ ' });
     }
 
-    // Créer le véhicule
+    // CrÃƒÂ©er le vÃƒÂ©hicule
     const vehicle = await Vehicule.create({
       registrationNumber,
       type: type || 'van',
@@ -961,16 +961,16 @@ router.post('/vehicles', authenticateToken, requireTransporteurPermission(TRANSP
     res.json({ 
       success: true, 
       vehicle,
-      message: 'Véhicule créé avec succès'
+      message: 'VÃƒÂ©hicule crÃƒÂ©ÃƒÂ© avec succÃƒÂ¨s'
     });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur création véhicule', details: error.message });
+    res.status(500).json({ error: 'Erreur crÃƒÂ©ation vÃƒÂ©hicule', details: error.message });
   }
 });
 
 /**
  * GET /api/transporteur-tms/vehicles
- * Obtenir la liste des véhicules
+ * Obtenir la liste des vÃƒÂ©hicules
  */
 router.get('/vehicles', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
@@ -978,13 +978,13 @@ router.get('/vehicles', authenticateToken, async (req: AuthRequest, res: Respons
 
     res.json({ success: true, vehicles });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur récupération véhicules', details: error.message });
+    res.status(500).json({ error: 'Erreur rÃƒÂ©cupÃƒÂ©ration vÃƒÂ©hicules', details: error.message });
   }
 });
 
 /**
  * PUT /api/transporteur-tms/vehicles/:id
- * Mettre à jour un véhicule
+ * Mettre ÃƒÂ  jour un vÃƒÂ©hicule
  */
 router.put('/vehicles/:id', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.MANAGE_DELIVERIES), async (req: AuthRequest, res: Response) => {
   try {
@@ -997,12 +997,12 @@ router.put('/vehicles/:id', authenticateToken, requireTransporteurPermission(TRA
     );
 
     if (!vehicle) {
-      return res.status(404).json({ error: 'Véhicule introuvable' });
+      return res.status(404).json({ error: 'VÃƒÂ©hicule introuvable' });
     }
 
     res.json({ success: true, vehicle });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur mise à jour véhicule', details: error.message });
+    res.status(500).json({ error: 'Erreur mise ÃƒÂ  jour vÃƒÂ©hicule', details: error.message });
   }
 });
 
@@ -1014,23 +1014,23 @@ router.put('/vehicles/:id', authenticateToken, requireTransporteurPermission(TRA
  */
 router.get('/documents', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    // Retourne une liste vide pour l'instant - fonctionnalité future
+    // Retourne une liste vide pour l'instant - fonctionnalitÃƒÂ© future
     res.json({ success: true, documents: [] });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur récupération documents', details: error.message });
+    res.status(500).json({ error: 'Erreur rÃƒÂ©cupÃƒÂ©ration documents', details: error.message });
   }
 });
 
 /**
  * GET /api/transporteur-tms/documents/:id
- * Télécharger un document
+ * TÃƒÂ©lÃƒÂ©charger un document
  */
 router.get('/documents/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    // Fonctionnalité de téléchargement à implémenter
-    res.status(404).json({ error: 'Document non trouvé' });
+    // FonctionnalitÃƒÂ© de tÃƒÂ©lÃƒÂ©chargement ÃƒÂ  implÃƒÂ©menter
+    res.status(404).json({ error: 'Document non trouvÃƒÂ©' });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur téléchargement document', details: error.message });
+    res.status(500).json({ error: 'Erreur tÃƒÂ©lÃƒÂ©chargement document', details: error.message });
   }
 });
 
@@ -1040,23 +1040,23 @@ router.get('/documents/:id', authenticateToken, async (req: AuthRequest, res: Re
  */
 router.get('/marketplace', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    // Marketplace - fonctionnalité future
+    // Marketplace - fonctionnalitÃƒÂ© future
     res.json({ success: true, offers: [] });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur récupération marketplace', details: error.message });
+    res.status(500).json({ error: 'Erreur rÃƒÂ©cupÃƒÂ©ration marketplace', details: error.message });
   }
 });
 
 /**
  * GET /api/transporteur-tms/info
- * Informations et actualités
+ * Informations et actualitÃƒÂ©s
  */
 router.get('/info', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    // Actualités et informations - fonctionnalité future
+    // ActualitÃƒÂ©s et informations - fonctionnalitÃƒÂ© future
     res.json({ success: true, news: [] });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur récupération informations', details: error.message });
+    res.status(500).json({ error: 'Erreur rÃƒÂ©cupÃƒÂ©ration informations', details: error.message });
   }
 });
 
@@ -1066,27 +1066,27 @@ router.get('/info', authenticateToken, async (req: AuthRequest, res: Response) =
  */
 router.get('/users', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    // Gestion des utilisateurs transporteur - fonctionnalité future
+    // Gestion des utilisateurs transporteur - fonctionnalitÃƒÂ© future
     res.json({ success: true, users: [] });
   } catch (error: any) {
-    res.status(500).json({ error: 'Erreur récupération utilisateurs', details: error.message });
+    res.status(500).json({ error: 'Erreur rÃƒÂ©cupÃƒÂ©ration utilisateurs', details: error.message });
   }
 });
 
 /**
  * GET /api/transporteur-tms/stats
- * Statistiques globales TMS avec vraies données
+ * Statistiques globales TMS avec vraies donnÃƒÂ©es
  */
 router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    // Charger les vraies données depuis MongoDB
+    // Charger les vraies donnÃƒÂ©es depuis MongoDB
     const [deliveries, vehicles, drivers] = await Promise.all([
       Order.find({}).lean(),
       Vehicule.find({}).lean(),
       User.find({ role: 'driver' }).lean()
     ]);
 
-    // Calculer les statistiques réelles
+    // Calculer les statistiques rÃƒÂ©elles
     const totalDeliveries = deliveries.length;
     const completedDeliveries = deliveries.filter(d => d.status === 'delivered').length;
     const pendingDeliveries = deliveries.filter(d => d.status === 'pending').length;
@@ -1098,10 +1098,10 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response) 
       .reduce((sum, d) => sum + (d.price || 0), 0);
     
     const totalCosts = vehicles.reduce((sum, v) => {
-      // Estimer coûts: consommation + maintenance
-      const kmEstimate = 100; // km moyen par véhicule
-      const fuelCost = (v.consumption || 8) * kmEstimate * 1.8 / 100; // Prix diesel ~1.8€/L
-      return sum + fuelCost + 50; // 50€ maintenance moyenne
+      // Estimer coÃƒÂ»ts: consommation + maintenance
+      const kmEstimate = 100; // km moyen par vÃƒÂ©hicule
+      const fuelCost = (v.consumption || 8) * kmEstimate * 1.8 / 100; // Prix diesel ~1.8Ã¢â€šÂ¬/L
+      return sum + fuelCost + 50; // 50Ã¢â€šÂ¬ maintenance moyenne
     }, 0);
 
     const totalVehicles = vehicles.length;
@@ -1151,7 +1151,7 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response) 
     });
   } catch (error: any) {
     logger.error('Erreur stats TMS', error);
-    res.status(500).json({ error: 'Erreur récupération statistiques', details: error.message });
+    res.status(500).json({ error: 'Erreur rÃƒÂ©cupÃƒÂ©ration statistiques', details: error.message });
   }
 });
 

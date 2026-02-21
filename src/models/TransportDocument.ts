@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface ITransportDocument extends Document {
   transporteurId: mongoose.Types.ObjectId;
   deliveryId?: mongoose.Types.ObjectId;
-  documentNumber: string; // Numéro unique CMR
+  documentNumber: string; // NumÃƒÂ©ro unique CMR
   documentType: 'CMR' | 'Lettre de voiture' | 'Bon de livraison' | 'Manifeste';
   issueDate: Date;
   validUntil: Date;
@@ -21,7 +21,7 @@ export interface ITransportDocument extends Document {
     description: string;
     quantity: number;
     weight: number; // En kg
-    volume: number; // En m³
+    volume: number; // En mÃ‚Â³
     dangerousGoods: boolean;
     specialInstructions?: string;
   };
@@ -161,7 +161,7 @@ const TransportDocumentSchema: Schema = new Schema(
 
 // Index pour recherche rapide
 TransportDocumentSchema.index({ transporteurId: 1, status: 1 });
-// documentNumber déjà indexé via unique: true
+// documentNumber dÃƒÂ©jÃƒÂ  indexÃƒÂ© via unique: true
 TransportDocumentSchema.index({ deliveryId: 1 });
 
 export const TransportDocument = mongoose.model<ITransportDocument>('TransportDocument', TransportDocumentSchema);

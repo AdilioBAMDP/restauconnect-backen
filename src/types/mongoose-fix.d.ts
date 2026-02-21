@@ -1,6 +1,6 @@
 /**
- * Déclaration de types globaux pour résoudre les incompatibilités Mongoose v6
- * Ces types forcent TypeScript à accepter les appels Mongoose standards
+ * DÃƒÂ©claration de types globaux pour rÃƒÂ©soudre les incompatibilitÃƒÂ©s Mongoose v6
+ * Ces types forcent TypeScript ÃƒÂ  accepter les appels Mongoose standards
  */
 
 declare module 'mongoose' {

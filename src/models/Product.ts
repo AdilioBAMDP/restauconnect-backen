@@ -13,9 +13,9 @@ export interface IProduct extends Document {
   imageUrl: string; // URL de l'image principale
   images: string[]; // Tableau d'URLs pour galerie
   
-  // Prix et unités
+  // Prix et unitÃƒÂ©s
   price: number;
-  unit: string; // kg, L, pièce, boîte, etc.
+  unit: string; // kg, L, piÃƒÂ¨ce, boÃƒÂ®te, etc.
   minimumQuantity: number;
   
   // Stock
@@ -23,9 +23,9 @@ export interface IProduct extends Document {
   lowStockThreshold: number;
   
   // Informations produit
-  origin?: string; // Origine géographique
+  origin?: string; // Origine gÃƒÂ©ographique
   certifications?: string[]; // Bio, Label Rouge, AOP, etc.
-  allergens?: string[]; // Allergènes
+  allergens?: string[]; // AllergÃƒÂ¨nes
   nutritionalInfo?: {
     calories?: number;
     proteins?: number;
@@ -38,16 +38,16 @@ export interface IProduct extends Document {
   deliveryConditions?: {
     minimumOrder?: number;
     freeDeliveryThreshold?: number;
-    leadTime?: number; // Délai en heures
+    leadTime?: number; // DÃƒÂ©lai en heures
     deliveryDays?: string[]; // Jours de livraison disponibles
   };
   
-  // Statut et disponibilité
+  // Statut et disponibilitÃƒÂ©
   isActive: boolean;
   isAvailable: boolean;
   isFeatured: boolean; // Produit mis en avant
   
-  // Métadonnées
+  // MÃƒÂ©tadonnÃƒÂ©es
   tags: string[];
   sku?: string; // Code produit
   barcode?: string;
@@ -62,7 +62,7 @@ export interface IProduct extends Document {
   updatedAt: Date;
 }
 
-// Schéma Mongoose
+// SchÃƒÂ©ma Mongoose
 const ProductSchema = new Schema<IProduct>(
   {
     supplierId: {
@@ -86,15 +86,15 @@ const ProductSchema = new Schema<IProduct>(
       type: String,
       required: true,
       enum: [
-        'Fruits & Légumes',
+        'Fruits & LÃƒÂ©gumes',
         'Viandes & Volailles',
         'Poissons & Fruits de Mer',
         'Produits Laitiers',
-        'Boulangerie & Pâtisserie',
-        'Épicerie',
+        'Boulangerie & PÃƒÂ¢tisserie',
+        'Ãƒâ€°picerie',
         'Boissons',
-        'Surgelés',
-        'Équipements',
+        'SurgelÃƒÂ©s',
+        'Ãƒâ€°quipements',
         'Autres'
       ],
       index: true
@@ -115,7 +115,7 @@ const ProductSchema = new Schema<IProduct>(
       default: []
     },
     
-    // Prix et unités
+    // Prix et unitÃƒÂ©s
     price: {
       type: Number,
       required: true,
@@ -124,7 +124,7 @@ const ProductSchema = new Schema<IProduct>(
     unit: {
       type: String,
       required: true,
-      enum: ['kg', 'L', 'pièce', 'boîte', 'sachet', 'lot', 'g', 'mL', 'unité']
+      enum: ['kg', 'L', 'piÃƒÂ¨ce', 'boÃƒÂ®te', 'sachet', 'lot', 'g', 'mL', 'unitÃƒÂ©']
     },
     minimumQuantity: {
       type: Number,
@@ -185,7 +185,7 @@ const ProductSchema = new Schema<IProduct>(
       default: false
     },
     
-    // Métadonnées
+    // MÃƒÂ©tadonnÃƒÂ©es
     tags: {
       type: [String],
       default: []
@@ -223,7 +223,7 @@ const ProductSchema = new Schema<IProduct>(
   }
 );
 
-// Index composé pour recherche optimisée
+// Index composÃƒÂ© pour recherche optimisÃƒÂ©e
 ProductSchema.index({ supplierId: 1, category: 1, isActive: 1 });
 ProductSchema.index({ name: 'text', description: 'text', tags: 'text' });
 
@@ -236,7 +236,7 @@ ProductSchema.virtual('isOutOfStock').get(function() {
   return this.stockQuantity === 0;
 });
 
-// Méthodes d'instance
+// MÃƒÂ©thodes d'instance
 ProductSchema.methods.decrementStock = async function(quantity: number) {
   if (this.stockQuantity < quantity) {
     throw new Error('Stock insuffisant');
@@ -256,7 +256,7 @@ ProductSchema.methods.incrementViews = async function() {
   return this.save();
 };
 
-// Méthodes statiques
+// MÃƒÂ©thodes statiques
 ProductSchema.statics.findBySupplier = function(supplierId: string) {
   return this.find({ supplierId, isActive: true }).sort({ name: 1 });
 };

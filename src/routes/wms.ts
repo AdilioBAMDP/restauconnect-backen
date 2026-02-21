@@ -13,13 +13,13 @@ const router = express.Router();
 
 /**
  * GET /api/wms/dashboard/stats
- * Récupérer les statistiques WMS globales
+ * RÃ©cupÃ©rer les statistiques WMS globales
  */
 router.get('/dashboard/stats', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { user } = req;
     
-    // Filtrer par propriétaire si fournisseur
+    // Filtrer par propriÃ©taire si fournisseur
     const ownerFilter = user.role === 'fournisseur' 
       ? { ownerId: user._id } 
       : {};
@@ -61,12 +61,12 @@ router.get('/dashboard/stats', authenticateToken, async (req: AuthRequest, res: 
       currentQuantity: { $gt: 0 }
     });
 
-    // Mouvements récents (dernières 24h)
+    // Mouvements rÃ©cents (derniÃ¨res 24h)
     const movements24h = await StockMovement.countDocuments({
       movementDate: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
     });
 
-    // Taux d'utilisation moyen des entrepôts
+    // Taux d'utilisation moyen des entrepÃ´ts
     const warehouses = await Warehouse.find(ownerFilter);
     const avgUtilization = warehouses.length > 0
       ? warehouses.reduce((sum, wh) => sum + wh.capacity.utilizationRate, 0) / warehouses.length
@@ -83,7 +83,7 @@ router.get('/dashboard/stats', authenticateToken, async (req: AuthRequest, res: 
         },
         alerts: {
           expiringSoon: expiringBatches,
-          lowStock: 0 // TODO: Implémenter seuil de stock bas
+          lowStock: 0 // TODO: ImplÃ©menter seuil de stock bas
         },
         activity: {
           movements24h,
@@ -102,13 +102,13 @@ router.get('/dashboard/stats', authenticateToken, async (req: AuthRequest, res: 
 
 /**
  * GET /api/wms/warehouses
- * Récupérer tous les entrepôts
+ * RÃ©cupÃ©rer tous les entrepÃ´ts
  */
 router.get('/warehouses', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const { user } = req;
     
-    // Filtrer par propriétaire si fournisseur
+    // Filtrer par propriÃ©taire si fournisseur
     const filter = user.role === 'fournisseur' 
       ? { ownerId: user._id, isActive: true } 
       : { isActive: true };
@@ -120,14 +120,14 @@ router.get('/warehouses', authenticateToken, async (req: AuthRequest, res: Respo
 
     res.json({ success: true, data: warehouses });
   } catch (error: any) {
-    logger.error('Erreur récupération warehouses', error);
+    logger.error('Erreur rÃ©cupÃ©ration warehouses', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 /**
  * GET /api/wms/warehouses/:id
- * Récupérer un entrepôt par ID
+ * RÃ©cupÃ©rer un entrepÃ´t par ID
  */
 router.get('/warehouses/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -138,26 +138,26 @@ router.get('/warehouses/:id', authenticateToken, async (req: AuthRequest, res: R
       .populate('managerId', 'name email');
 
     if (!warehouse) {
-      res.status(404).json({ success: false, error: 'Entrepôt non trouvé' });
+      res.status(404).json({ success: false, error: 'EntrepÃ´t non trouvÃ©' });
       return;
     }
 
-    // Vérifier permissions
+    // VÃ©rifier permissions
     if (user.role === 'fournisseur' && warehouse.ownerId._id.toString() !== user._id.toString()) {
-      res.status(403).json({ success: false, error: 'Accès refusé' });
+      res.status(403).json({ success: false, error: 'AccÃ¨s refusÃ©' });
       return;
     }
 
     res.json({ success: true, data: warehouse });
   } catch (error: any) {
-    logger.error('Erreur récupération warehouse', error);
+    logger.error('Erreur rÃ©cupÃ©ration warehouse', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 /**
  * POST /api/wms/warehouses
- * Créer un nouvel entrepôt
+ * CrÃ©er un nouvel entrepÃ´t
  */
 router.post('/warehouses', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -168,7 +168,7 @@ router.post('/warehouses', authenticateToken, async (req: AuthRequest, res: Resp
     if (!name || !type || !address || !capacity) {
       res.status(400).json({ 
         success: false, 
-        error: 'Nom, type, adresse et capacité requis' 
+        error: 'Nom, type, adresse et capacitÃ© requis' 
       });
       return;
     }
@@ -198,17 +198,17 @@ router.post('/warehouses', authenticateToken, async (req: AuthRequest, res: Resp
     res.status(201).json({ 
       success: true, 
       data: warehouse,
-      message: 'Entrepôt créé avec succès'
+      message: 'EntrepÃ´t crÃ©Ã© avec succÃ¨s'
     });
   } catch (error: any) {
-    logger.error('Erreur création warehouse', error);
+    logger.error('Erreur crÃ©ation warehouse', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 /**
  * PUT /api/wms/warehouses/:id
- * Mettre à jour un entrepôt
+ * Mettre Ã  jour un entrepÃ´t
  */
 router.put('/warehouses/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -219,13 +219,13 @@ router.put('/warehouses/:id', authenticateToken, async (req: AuthRequest, res: R
     const warehouse = await Warehouse.findById(id).exec();
     
     if (!warehouse) {
-      res.status(404).json({ success: false, error: 'Entrepôt non trouvé' });
+      res.status(404).json({ success: false, error: 'EntrepÃ´t non trouvÃ©' });
       return;
     }
 
-    // Vérifier permissions
+    // VÃ©rifier permissions
     if (user.role === 'fournisseur' && warehouse.ownerId.toString() !== user._id.toString()) {
-      res.status(403).json({ success: false, error: 'Accès refusé' });
+      res.status(403).json({ success: false, error: 'AccÃ¨s refusÃ©' });
       return;
     }
 
@@ -235,10 +235,10 @@ router.put('/warehouses/:id', authenticateToken, async (req: AuthRequest, res: R
     res.json({ 
       success: true, 
       data: warehouse,
-      message: 'Entrepôt mis à jour avec succès'
+      message: 'EntrepÃ´t mis Ã  jour avec succÃ¨s'
     });
   } catch (error: any) {
-    logger.error('Erreur mise à jour warehouse', error);
+    logger.error('Erreur mise Ã  jour warehouse', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -247,7 +247,7 @@ router.put('/warehouses/:id', authenticateToken, async (req: AuthRequest, res: R
 
 /**
  * GET /api/wms/batches
- * Récupérer tous les lots
+ * RÃ©cupÃ©rer tous les lots
  */
 router.get('/batches', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
@@ -256,7 +256,7 @@ router.get('/batches', authenticateToken, async (req: AuthRequest, res: Response
 
     const filter: any = {};
 
-    // Filtrer par fournisseur si rôle fournisseur
+    // Filtrer par fournisseur si rÃ´le fournisseur
     if (user.role === 'fournisseur') {
       filter.supplierId = user._id;
     }
@@ -282,14 +282,14 @@ router.get('/batches', authenticateToken, async (req: AuthRequest, res: Response
 
     res.json({ success: true, data: batches });
   } catch (error: any) {
-    logger.error('Erreur récupération batches', error);
+    logger.error('Erreur rÃ©cupÃ©ration batches', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 /**
  * GET /api/wms/batches/alerts/expiring
- * Récupérer les lots arrivant à expiration
+ * RÃ©cupÃ©rer les lots arrivant Ã  expiration
  */
 router.get('/batches/alerts/expiring', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
@@ -301,7 +301,7 @@ router.get('/batches/alerts/expiring', authenticateToken, async (req: AuthReques
       currentQuantity: { $gt: 0 }
     };
 
-    // Filtrer par fournisseur si rôle fournisseur
+    // Filtrer par fournisseur si rÃ´le fournisseur
     if (user.role === 'fournisseur') {
       filter.supplierId = user._id;
     }
@@ -325,14 +325,14 @@ router.get('/batches/alerts/expiring', authenticateToken, async (req: AuthReques
 
     res.json({ success: true, data: batchesWithUrgency });
   } catch (error: any) {
-    logger.error('Erreur récupération batches expirants', error);
+    logger.error('Erreur rÃ©cupÃ©ration batches expirants', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 /**
  * POST /api/wms/batches
- * Créer un nouveau lot
+ * CrÃ©er un nouveau lot
  */
 router.post('/batches', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -352,24 +352,24 @@ router.post('/batches', authenticateToken, async (req: AuthRequest, res: Respons
     if (!productId || !initialQuantity || !unit || !warehouseId || !locationId) {
       res.status(400).json({ 
         success: false, 
-        error: 'Produit, quantité, unité, entrepôt et emplacement requis' 
+        error: 'Produit, quantitÃ©, unitÃ©, entrepÃ´t et emplacement requis' 
       });
       return;
     }
 
-    // Vérifier que l'entrepôt appartient à l'utilisateur (si fournisseur)
+    // VÃ©rifier que l'entrepÃ´t appartient Ã  l'utilisateur (si fournisseur)
     if (user.role === 'fournisseur') {
       const warehouse = await Warehouse.findOne({ _id: warehouseId, ownerId: user._id }).exec();
       if (!warehouse) {
-        res.status(403).json({ success: false, error: 'Accès à cet entrepôt refusé' });
+        res.status(403).json({ success: false, error: 'AccÃ¨s Ã  cet entrepÃ´t refusÃ©' });
         return;
       }
     }
 
-    // Vérifier capacité location
+    // VÃ©rifier capacitÃ© location
     const location = await Location.findById(locationId).exec();
     if (!location) {
-      res.status(404).json({ success: false, error: 'Emplacement non trouvé' });
+      res.status(404).json({ success: false, error: 'Emplacement non trouvÃ©' });
       return;
     }
 
@@ -400,7 +400,7 @@ router.post('/batches', authenticateToken, async (req: AuthRequest, res: Respons
 
     await batch.save();
 
-    // Créer mouvement de réception
+    // CrÃ©er mouvement de rÃ©ception
     const movement = new StockMovement({
       type: MovementType.RECEPTION,
       productId,
@@ -411,7 +411,7 @@ router.post('/batches', authenticateToken, async (req: AuthRequest, res: Respons
       unit,
       userId: user._id,
       movementDate: new Date(),
-      notes: `Réception lot ${batch.batchNumber}`
+      notes: `RÃ©ception lot ${batch.batchNumber}`
     });
 
     await movement.save();
@@ -419,10 +419,10 @@ router.post('/batches', authenticateToken, async (req: AuthRequest, res: Respons
     res.status(201).json({ 
       success: true, 
       data: batch,
-      message: 'Lot créé avec succès'
+      message: 'Lot crÃ©Ã© avec succÃ¨s'
     });
   } catch (error: any) {
-    logger.error('Erreur création batch', error);
+    logger.error('Erreur crÃ©ation batch', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -431,7 +431,7 @@ router.post('/batches', authenticateToken, async (req: AuthRequest, res: Respons
 
 /**
  * GET /api/wms/movements
- * Récupérer les mouvements de stock
+ * RÃ©cupÃ©rer les mouvements de stock
  */
 router.get('/movements', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
@@ -469,14 +469,14 @@ router.get('/movements', authenticateToken, async (req: AuthRequest, res: Respon
 
     res.json({ success: true, data: movements });
   } catch (error: any) {
-    logger.error('Erreur récupération movements', error);
+    logger.error('Erreur rÃ©cupÃ©ration movements', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 /**
  * POST /api/wms/movements
- * Créer un nouveau mouvement
+ * CrÃ©er un nouveau mouvement
  */
 router.post('/movements', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -495,15 +495,15 @@ router.post('/movements', authenticateToken, async (req: AuthRequest, res: Respo
     if (!type || !productId || !batchId || !quantity) {
       res.status(400).json({ 
         success: false, 
-        error: 'Type, produit, lot et quantité requis' 
+        error: 'Type, produit, lot et quantitÃ© requis' 
       });
       return;
     }
 
-    // Récupérer le lot
+    // RÃ©cupÃ©rer le lot
     const batch = await Batch.findById(batchId).populate('storage.warehouseId');
     if (!batch) {
-      res.status(404).json({ success: false, error: 'Lot non trouvé' });
+      res.status(404).json({ success: false, error: 'Lot non trouvÃ©' });
       return;
     }
 
@@ -534,7 +534,7 @@ router.post('/movements', authenticateToken, async (req: AuthRequest, res: Respo
           notes
         });
         
-        // Mettre à jour l'emplacement du lot
+        // Mettre Ã  jour l'emplacement du lot
         batch.storage.locationId = new mongoose.Types.ObjectId(toLocationId);
         await batch.save();
         break;
@@ -577,7 +577,7 @@ router.post('/movements', authenticateToken, async (req: AuthRequest, res: Respo
       default:
         res.status(400).json({ 
           success: false, 
-          error: 'Type de mouvement non supporté' 
+          error: 'Type de mouvement non supportÃ©' 
         });
         return;
     }
@@ -587,10 +587,10 @@ router.post('/movements', authenticateToken, async (req: AuthRequest, res: Respo
     res.status(201).json({ 
       success: true, 
       data: movement,
-      message: 'Mouvement enregistré avec succès'
+      message: 'Mouvement enregistrÃ© avec succÃ¨s'
     });
   } catch (error: any) {
-    logger.error('Erreur création movement', error);
+    logger.error('Erreur crÃ©ation movement', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -599,7 +599,7 @@ router.post('/movements', authenticateToken, async (req: AuthRequest, res: Respo
 
 /**
  * GET /api/wms/locations
- * Récupérer les emplacements
+ * RÃ©cupÃ©rer les emplacements
  */
 router.get('/locations', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -608,7 +608,7 @@ router.get('/locations', authenticateToken, async (req: AuthRequest, res: Respon
     if (!warehouseId) {
       res.status(400).json({ 
         success: false, 
-        error: 'ID entrepôt requis' 
+        error: 'ID entrepÃ´t requis' 
       });
       return;
     }
@@ -620,14 +620,14 @@ router.get('/locations', authenticateToken, async (req: AuthRequest, res: Respon
 
     res.json({ success: true, data: locations });
   } catch (error: any) {
-    logger.error('Erreur récupération locations', error);
+    logger.error('Erreur rÃ©cupÃ©ration locations', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 /**
  * POST /api/wms/locations
- * Créer un nouvel emplacement
+ * CrÃ©er un nouvel emplacement
  */
 router.post('/locations', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -637,7 +637,7 @@ router.post('/locations', authenticateToken, async (req: AuthRequest, res: Respo
     if (!warehouseId || !code || !type || !zone) {
       res.status(400).json({ 
         success: false, 
-        error: 'Entrepôt, code, type et zone requis' 
+        error: 'EntrepÃ´t, code, type et zone requis' 
       });
       return;
     }
@@ -660,10 +660,10 @@ router.post('/locations', authenticateToken, async (req: AuthRequest, res: Respo
     res.status(201).json({ 
       success: true, 
       data: location,
-      message: 'Emplacement créé avec succès'
+      message: 'Emplacement crÃ©Ã© avec succÃ¨s'
     });
   } catch (error: any) {
-    logger.error('Erreur création location', error);
+    logger.error('Erreur crÃ©ation location', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

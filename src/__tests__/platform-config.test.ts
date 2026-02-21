@@ -34,7 +34,7 @@ describe('Platform config API (integration)', () => {
       .send({ value: 123, description: 'integration test' });
 
     if (res.status !== 200) {
-      // Affiche le body de la réponse pour voir le détail de l'erreur
+      // Affiche le body de la rÃƒÂ©ponse pour voir le dÃƒÂ©tail de l'erreur
       // eslint-disable-next-line no-console
       console.error('Test erreur backend:', res.body);
     }

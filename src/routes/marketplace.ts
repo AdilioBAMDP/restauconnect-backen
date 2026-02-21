@@ -50,7 +50,7 @@ router.get('/', optionalAuth, async (req: Request, res: Response) => {
     logger.error('Erreur GET /api/marketplace:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des annonces'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des annonces'
     });
   }
 });
@@ -98,7 +98,7 @@ router.get('/posts', optionalAuth, async (req: Request, res: Response) => {
     logger.error('Erreur GET /api/marketplace/posts:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la r�cup�ration des posts'
+      error: 'Erreur lors de la rÃ¯Â¿Â½cupÃ¯Â¿Â½ration des posts'
     });
   }
 });
@@ -119,7 +119,7 @@ router.post('/posts', authenticateToken, async (req: Request, res: Response) => 
     
     const user = await User.findById(userId).exec();
     if (!user) {
-      return res.status(404).json({ success: false, error: 'Utilisateur non trouv�' });
+      return res.status(404).json({ success: false, error: 'Utilisateur non trouvÃ¯Â¿Â½' });
     }
     
     const newPost = new MarketplacePost({
@@ -149,7 +149,7 @@ router.post('/posts', authenticateToken, async (req: Request, res: Response) => 
     });
   } catch (error) {
     logger.error('Erreur POST /api/marketplace/posts:', error);
-    res.status(500).json({ success: false, error: 'Erreur lors de la cr�ation du post' });
+    res.status(500).json({ success: false, error: 'Erreur lors de la crÃ¯Â¿Â½ation du post' });
   }
 });
 
@@ -160,7 +160,7 @@ router.post('/posts/:id/like', authenticateToken, async (req: Request, res: Resp
     
     const post = await MarketplacePost.findById(id).exec();
     if (!post) {
-      res.status(404).json({ success: false, error: 'Post non trouv�' });
+      res.status(404).json({ success: false, error: 'Post non trouvÃ¯Â¿Â½' });
       return;
     }
     
@@ -189,7 +189,7 @@ router.post('/posts/:id/bookmark', authenticateToken, async (req: Request, res: 
     
     const post = await MarketplacePost.findById(id).exec();
     if (!post) {
-      res.status(404).json({ success: false, error: 'Post non trouv�' });
+      res.status(404).json({ success: false, error: 'Post non trouvÃ¯Â¿Â½' });
       return;
     }
     

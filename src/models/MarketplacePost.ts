@@ -54,7 +54,7 @@ const MarketplacePostSchema = new Schema<IMarketplacePost>(
   }
 );
 
-// Index pour améliorer les performances des requêtes
+// Index pour amÃƒÂ©liorer les performances des requÃƒÂªtes
 MarketplacePostSchema.index({ createdAt: -1 });
 MarketplacePostSchema.index({ 'author.id': 1, createdAt: -1 });
 MarketplacePostSchema.index({ category: 1, createdAt: -1 });

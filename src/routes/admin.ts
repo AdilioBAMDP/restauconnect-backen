@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import mongoose from 'mongoose';
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
@@ -13,23 +13,23 @@ import { logger } from '../utils/logger';
 import { ApiResponse } from '../types';
 import { sendApprovalWithCredentialsEmail } from '../services/emailService';
 
-// console.log('🔥 CHARGEMENT DU MODULE ADMIN.TS');
-// console.log('🔍 User model imported:', typeof User, User);
-// console.log('🔍 User.find:', typeof User.find);
+// console.log('ðŸ”¥ CHARGEMENT DU MODULE ADMIN.TS');
+// console.log('ðŸ” User model imported:', typeof User, User);
+// console.log('ðŸ” User.find:', typeof User.find);
 
 const router = express.Router();
 
 
 
 // ===========================================
-// 👥 GESTION UTILISATEURS
+// ðŸ‘¥ GESTION UTILISATEURS
 // ===========================================
 
 // ===========================================
-// 🔐 RBAC - Gestion des rôles et permissions
+// ðŸ” RBAC - Gestion des rÃ´les et permissions
 // ===========================================
 
-// RBAC: Lister tous les rôles et permissions
+// RBAC: Lister tous les rÃ´les et permissions
 router.get('/rbac/roles', authenticateToken, requirePermission('manage_roles'), (req: AuthRequest, res: Response) => {
   res.json({ success: true, roles: Object.keys(rolePermissions), permissions: rolePermissions });
 });
@@ -40,33 +40,33 @@ router.get('/rbac/permissions', authenticateToken, requirePermission('manage_rol
   res.json({ success: true, permissions: allPerms });
 });
 
-// RBAC: Modifier les permissions d'un rôle (super_admin uniquement)
+// RBAC: Modifier les permissions d'un rÃ´le (super_admin uniquement)
 router.post('/rbac/roles/:role/permissions', authenticateToken, requirePermission('manage_roles'), (req: AuthRequest, res: Response) => {
   const { role } = req.params;
   const { permissions } = req.body;
   if (!rolePermissions[role]) {
-    return res.status(400).json({ success: false, error: 'Rôle inconnu' });
+    return res.status(400).json({ success: false, error: 'RÃ´le inconnu' });
   }
   if (!Array.isArray(permissions)) {
-    return res.status(400).json({ success: false, error: 'permissions doit être un tableau' });
+    return res.status(400).json({ success: false, error: 'permissions doit Ãªtre un tableau' });
   }
-  // Pour la démo, on modifie en mémoire (à persister en base si besoin)
+  // Pour la dÃ©mo, on modifie en mÃ©moire (Ã  persister en base si besoin)
   rolePermissions[role] = permissions;
   res.json({ success: true, role, permissions });
 });
 
 // ===========================================
-// 👥 GESTION UTILISATEURS
+// ðŸ‘¥ GESTION UTILISATEURS
 // ===========================================
 
 // GET /api/admin/users - Liste tous les utilisateurs
 router.get('/users', authenticateToken, requirePermission('manage_users'), async (req: AuthRequest, res: Response) => {
-  // console.log('🚀 HANDLER GET /admin/users APPELÉ');
-  // console.log('🔐 User:', req.user?.email, 'Role:', req.user?.role);
-  // console.log('📊 Query params:', req.query);
+  // console.log('ðŸš€ HANDLER GET /admin/users APPELÃ‰');
+  // console.log('ðŸ” User:', req.user?.email, 'Role:', req.user?.role);
+  // console.log('ðŸ“Š Query params:', req.query);
   
   try {
-    // console.log('✅ Début du traitement...');
+    // console.log('âœ… DÃ©but du traitement...');
     
     const { 
       page = 1, 
@@ -105,25 +105,25 @@ router.get('/users', authenticateToken, requirePermission('manage_users'), async
     // Pagination
     const skip = (Number(page) - 1) * Number(limit);
     
-    // console.log('📊 MongoDB Query:', JSON.stringify(query));
-    // console.log('📊 Sort:', sortOptions, 'Skip:', skip, 'Limit:', limit);
+    // console.log('ðŸ“Š MongoDB Query:', JSON.stringify(query));
+    // console.log('ðŸ“Š Sort:', sortOptions, 'Skip:', skip, 'Limit:', limit);
     
-    // Requête principale
-    // console.log('🔍 Exécution User.find...');
+    // RequÃªte principale
+    // console.log('ðŸ” ExÃ©cution User.find...');
     const users = await User.find(query)
       .select('-password')
       .sort(sortOptions)
       .limit(Number(limit))
       .skip(skip);
-    // console.log(`✅ Users trouvés: ${users.length}`);
+    // console.log(`âœ… Users trouvÃ©s: ${users.length}`);
 
     // Compte total
-    // console.log('🔍 Exécution countDocuments...');
+    // console.log('ðŸ” ExÃ©cution countDocuments...');
     const total = await User.countDocuments(query);
-    // console.log(`✅ Total: ${total}`);
+    // console.log(`âœ… Total: ${total}`);
 
     // Statistiques rapides
-    // console.log('🔍 Exécution stats...');
+    // console.log('ðŸ” ExÃ©cution stats...');
     const stats = {
       total: await User.countDocuments(),
       active: await User.countDocuments({ isActive: { $ne: false } }),
@@ -132,9 +132,9 @@ router.get('/users', authenticateToken, requirePermission('manage_users'), async
         { $group: { _id: '$role', count: { $sum: 1 } } }
       ])
     };
-    // console.log('✅ Stats calculées');
+    // console.log('âœ… Stats calculÃ©es');
 
-    // console.log('📤 Envoi de la réponse...');
+    // console.log('ðŸ“¤ Envoi de la rÃ©ponse...');
     res.json({
       success: true,
       data: {
@@ -148,14 +148,14 @@ router.get('/users', authenticateToken, requirePermission('manage_users'), async
         stats
       }
     } as ApiResponse);
-    // console.log('✅ Réponse envoyée avec succès');
+    // console.log('âœ… RÃ©ponse envoyÃ©e avec succÃ¨s');
 
   } catch (error) {
-    // console.error('❌ ERREUR DANS LE HANDLER:', error);
-    logger.error('Erreur récupération utilisateurs:', error);
+    // console.error('âŒ ERREUR DANS LE HANDLER:', error);
+    logger.error('Erreur rÃ©cupÃ©ration utilisateurs:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur serveur lors de la récupération des utilisateurs'
+      message: 'Erreur serveur lors de la rÃ©cupÃ©ration des utilisateurs'
     } as ApiResponse);
   }
 });
@@ -182,7 +182,7 @@ router.get('/statistics', authenticateToken, requirePermission('manage_users'), 
       mongoose.model('Delivery').countDocuments().catch(() => 0)
     ]);
 
-    // Formater les stats par rôle
+    // Formater les stats par rÃ´le
     const roleStats = usersByRole.reduce((acc: any, item: any) => {
       acc[item._id] = item.count;
       return acc;
@@ -202,18 +202,18 @@ router.get('/statistics', authenticateToken, requirePermission('manage_users'), 
           totalDeliveries
         }
       },
-      message: 'Statistiques plateforme récupérées'
+      message: 'Statistiques plateforme rÃ©cupÃ©rÃ©es'
     } as ApiResponse);
   } catch (error) {
     logger.error('Erreur /admin/statistics:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des statistiques'
     } as ApiResponse);
   }
 });
 
-// POST /api/admin/users - Créer un nouvel utilisateur
+// POST /api/admin/users - CrÃ©er un nouvel utilisateur
 router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const {
@@ -229,11 +229,11 @@ router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, 
       isActive = true
     } = req.body;
 
-    // ✅ VALIDATION STRICTE
+    // âœ… VALIDATION STRICTE
     if (!email || !password || !role) {
       res.status(400).json({
         success: false,
-        error: 'Email, mot de passe et rôle sont requis'
+        error: 'Email, mot de passe et rÃ´le sont requis'
       } as ApiResponse);
       return;
     }
@@ -248,16 +248,16 @@ router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, 
       return;
     }
 
-    // Validation mot de passe (minimum 8 caractères)
+    // Validation mot de passe (minimum 8 caractÃ¨res)
     if (password.length < 8) {
       res.status(400).json({
         success: false,
-        error: 'Le mot de passe doit contenir au moins 8 caractères'
+        error: 'Le mot de passe doit contenir au moins 8 caractÃ¨res'
       } as ApiResponse);
       return;
     }
 
-    // Validation rôle
+    // Validation rÃ´le
     const validRoles = [
       'restaurant', 'artisan', 'supplier', 'candidat', 'community_manager',
       'admin', 'super_admin', 'banker', 'accountant', 'investor',
@@ -266,25 +266,25 @@ router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, 
     if (!validRoles.includes(role)) {
       res.status(400).json({
         success: false,
-        error: `Rôle invalide. Rôles autorisés: ${validRoles.join(', ')}`
+        error: `RÃ´le invalide. RÃ´les autorisÃ©s: ${validRoles.join(', ')}`
       } as ApiResponse);
       return;
     }
 
-    // Vérifier si l'email existe déjà
+    // VÃ©rifier si l'email existe dÃ©jÃ 
     const existingUser = await User.findOne({ email }).exec();
     if (existingUser) {
       res.status(409).json({
         success: false,
-        error: 'Un utilisateur avec cet email existe déjà'
+        error: 'Un utilisateur avec cet email existe dÃ©jÃ '
       } as ApiResponse);
       return;
     }
 
-    // ✅ HASHER LE MOT DE PASSE
+    // âœ… HASHER LE MOT DE PASSE
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // ✅ CRÉER L'UTILISATEUR
+    // âœ… CRÃ‰ER L'UTILISATEUR
     const fullName: string = String((firstName || '') + ' ' + (lastName || '')).trim();
     const userData: any = {
       email,
@@ -296,8 +296,8 @@ router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, 
       phone: phone || '',
       companyName: companyName || '',
       isActive,
-      verified: true, // Auto-vérifié par admin
-      status: 'approved', // Approuvé automatiquement
+      verified: true, // Auto-vÃ©rifiÃ© par admin
+      status: 'approved', // ApprouvÃ© automatiquement
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -310,7 +310,7 @@ router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, 
     const newUser = new User(userData);
     await newUser.save();
 
-    // ✅ AUDIT LOG
+    // âœ… AUDIT LOG
     try {
       await AuditLog.create({
         action: 'user_created',
@@ -327,11 +327,11 @@ router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, 
         }
       });
     } catch (auditError) {
-      logger.error('Erreur création audit log:', auditError);
-      // Ne pas bloquer la création si l'audit log échoue
+      logger.error('Erreur crÃ©ation audit log:', auditError);
+      // Ne pas bloquer la crÃ©ation si l'audit log Ã©choue
     }
 
-    // ✅ ENVOYER EMAIL AVEC IDENTIFIANTS
+    // âœ… ENVOYER EMAIL AVEC IDENTIFIANTS
     try {
       await sendApprovalWithCredentialsEmail(
         newUser.email,
@@ -340,29 +340,29 @@ router.post('/users', authenticateToken, requireAdmin, async (req: AuthRequest, 
         password, // Mot de passe en clair (avant hash)
         newUser.role
       );
-      logger.info(`📧 Email envoyé à ${newUser.email}`);
+      logger.info(`ðŸ“§ Email envoyÃ© Ã  ${newUser.email}`);
     } catch (emailError) {
       logger.error('Erreur envoi email:', emailError);
-      // Ne pas bloquer la création si l'email échoue
+      // Ne pas bloquer la crÃ©ation si l'email Ã©choue
     }
 
     // Retourner sans mot de passe
     const userResponse = newUser.toObject();
     delete (userResponse as any).password;
 
-    logger.info(`✅ Nouvel utilisateur créé par admin ${req.user.email}: ${email} (${role})`);
+    logger.info(`âœ… Nouvel utilisateur crÃ©Ã© par admin ${req.user.email}: ${email} (${role})`);
 
     res.status(201).json({
       success: true,
       data: userResponse,
-      message: `Utilisateur ${email} créé avec succès. Un email avec les identifiants a été envoyé.`
+      message: `Utilisateur ${email} crÃ©Ã© avec succÃ¨s. Un email avec les identifiants a Ã©tÃ© envoyÃ©.`
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur création utilisateur:', error);
+    logger.error('Erreur crÃ©ation utilisateur:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la création de l\'utilisateur'
+      error: 'Erreur lors de la crÃ©ation de l\'utilisateur'
     } as ApiResponse);
   }
 });
@@ -394,17 +394,17 @@ router.put('/users/:id', authenticateToken, requireAdmin, async (req: AuthReques
     if (!userDoc) {
       res.status(404).json({
         success: false,
-        error: 'Utilisateur non trouv�'
+        error: 'Utilisateur non trouvï¿½'
       } as ApiResponse);
       return;
     }
 
-    logger.info(`Utilisateur modifi� par admin: ${userDoc.email}`);
+    logger.info(`Utilisateur modifiï¿½ par admin: ${userDoc.email}`);
 
     res.json({
       success: true,
       data: userDoc,
-      message: 'Utilisateur modifi� avec succ�s'
+      message: 'Utilisateur modifiï¿½ avec succï¿½s'
     } as ApiResponse);
 
   } catch (error) {
@@ -425,12 +425,12 @@ router.delete('/users/:id', authenticateToken, requireAdmin, async (req: AuthReq
     if (!userDoc) {
       res.status(404).json({
         success: false,
-        error: 'Utilisateur non trouv�'
+        error: 'Utilisateur non trouvï¿½'
       } as ApiResponse);
       return;
     }
 
-    // Emp�cher la suppression du dernier admin
+    // Empï¿½cher la suppression du dernier admin
     if (userDoc && userDoc.role === 'admin') {
   const adminCountResult: number = await User.countDocuments({ role: 'admin' }).exec();
   if (adminCountResult <= 1) {
@@ -444,11 +444,11 @@ router.delete('/users/:id', authenticateToken, requireAdmin, async (req: AuthReq
 
   await User.findByIdAndDelete(id);
 
-  logger.info(`Utilisateur supprim� par admin: ${userDoc ? userDoc.email : id}`);
+  logger.info(`Utilisateur supprimï¿½ par admin: ${userDoc ? userDoc.email : id}`);
 
     res.json({
       success: true,
-      message: 'Utilisateur supprim� avec succ�s'
+      message: 'Utilisateur supprimï¿½ avec succï¿½s'
     } as ApiResponse);
 
   } catch (error) {
@@ -460,7 +460,7 @@ router.delete('/users/:id', authenticateToken, requireAdmin, async (req: AuthReq
   }
 });
 
-// PATCH /api/admin/users/:id/toggle-status - Activer/désactiver un utilisateur
+// PATCH /api/admin/users/:id/toggle-status - Activer/dÃ©sactiver un utilisateur
 router.patch('/users/:id/toggle-status', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
@@ -469,7 +469,7 @@ router.patch('/users/:id/toggle-status', authenticateToken, requireAdmin, async 
     if (!userDoc) {
       res.status(404).json({
         success: false,
-        error: 'Utilisateur non trouv�'
+        error: 'Utilisateur non trouvï¿½'
       } as ApiResponse);
       return;
     }
@@ -483,12 +483,12 @@ router.patch('/users/:id/toggle-status', authenticateToken, requireAdmin, async 
       const userResponse = userDoc.toObject();
       delete (userResponse as any).password;
 
-      logger.info(`Statut utilisateur modifi�: ${userDoc.email} -> ${userDoc.isActive ? 'actif' : 'inactif'}`);
+      logger.info(`Statut utilisateur modifiï¿½: ${userDoc.email} -> ${userDoc.isActive ? 'actif' : 'inactif'}`);
 
       res.json({
         success: true,
         data: userResponse,
-        message: `Utilisateur ${userDoc.isActive ? 'activ�' : 'd�sactiv�'} avec succ�s`
+        message: `Utilisateur ${userDoc.isActive ? 'activï¿½' : 'dï¿½sactivï¿½'} avec succï¿½s`
       } as ApiResponse);
     }
 
@@ -502,13 +502,13 @@ router.patch('/users/:id/toggle-status', authenticateToken, requireAdmin, async 
 });
 
 // ===========================================
-// 📊 STATISTIQUES & ANALYTICS
+// ðŸ“Š STATISTIQUES & ANALYTICS
 // ===========================================
 
 // GET /api/admin/transactions - Liste des transactions
 router.get('/transactions', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
-    // Récupérer les commandes qui contiennent les infos de paiement
+    // RÃ©cupÃ©rer les commandes qui contiennent les infos de paiement
     const Order = mongoose.model('Order');
     const User = mongoose.model('User');
     
@@ -555,10 +555,10 @@ router.get('/transactions', authenticateToken, requireAdmin, async (req: AuthReq
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération transactions:', error);
+    logger.error('Erreur rÃ©cupÃ©ration transactions:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des transactions',
+      error: 'Erreur lors de la rÃ©cupÃ©ration des transactions',
       details: error instanceof Error ? error.message : error
     } as ApiResponse);
   }
@@ -580,10 +580,10 @@ router.get('/pending-registrations', authenticateToken, requireAdmin, async (req
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération inscriptions en attente:', error);
+    logger.error('Erreur rÃ©cupÃ©ration inscriptions en attente:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des inscriptions en attente'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des inscriptions en attente'
     } as ApiResponse);
   }
 });
@@ -604,10 +604,10 @@ router.get('/registration-stats', authenticateToken, requireAdmin, async (req: A
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération stats inscriptions:', error);
+    logger.error('Erreur rÃ©cupÃ©ration stats inscriptions:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des statistiques'
     } as ApiResponse);
   }
 });
@@ -618,7 +618,7 @@ router.put('/approve-registration/:id', authenticateToken, requireAdmin, async (
     const { id } = req.params;
     const { comments } = req.body;
 
-    // Générer un mot de passe provisoire (8 caractères: lettres + chiffres)
+    // GÃ©nÃ©rer un mot de passe provisoire (8 caractÃ¨res: lettres + chiffres)
     const generateTemporaryPassword = () => {
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
       let password = '';
@@ -648,7 +648,7 @@ router.put('/approve-registration/:id', authenticateToken, requireAdmin, async (
     if (!userDoc) {
       res.status(404).json({
         success: false,
-        error: 'Utilisateur non trouvé'
+        error: 'Utilisateur non trouvÃ©'
       } as ApiResponse);
       return;
     }
@@ -662,21 +662,21 @@ router.put('/approve-registration/:id', authenticateToken, requireAdmin, async (
         temporaryPassword,
         userDoc.role
       );
-      logger.info(`✉️ Email de validation envoyé à ${userDoc.email} avec MDP provisoire`);
+      logger.info(`âœ‰ï¸ Email de validation envoyÃ© Ã  ${userDoc.email} avec MDP provisoire`);
     } catch (emailError) {
-      logger.error('❌ Erreur envoi email:', emailError);
-      // On continue même si l'email échoue
+      logger.error('âŒ Erreur envoi email:', emailError);
+      // On continue mÃªme si l'email Ã©choue
     }
 
-    logger.info(`Inscription approuvée par admin: ${userDoc.email}${comments ? ` - ${comments}` : ''}`);
+    logger.info(`Inscription approuvÃ©e par admin: ${userDoc.email}${comments ? ` - ${comments}` : ''}`);
 
     res.json({
       success: true,
       data: {
         user: userDoc,
-        temporaryPassword: temporaryPassword // Retourner aussi dans la réponse pour l'admin
+        temporaryPassword: temporaryPassword // Retourner aussi dans la rÃ©ponse pour l'admin
       },
-      message: 'Inscription approuvée avec succès. Email envoyé à l\'utilisateur.'
+      message: 'Inscription approuvÃ©e avec succÃ¨s. Email envoyÃ© Ã  l\'utilisateur.'
     } as ApiResponse);
 
   } catch (error) {
@@ -700,7 +700,7 @@ router.post('/approve-registration', authenticateToken, requireAdmin, async (req
       } as ApiResponse);
     }
 
-    // Générer un mot de passe provisoire (8 caractères: lettres + chiffres)
+    // GÃ©nÃ©rer un mot de passe provisoire (8 caractÃ¨res: lettres + chiffres)
     const generateTemporaryPassword = () => {
       const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
       let password = '';
@@ -729,7 +729,7 @@ router.post('/approve-registration', authenticateToken, requireAdmin, async (req
     if (!userDoc) {
       return res.status(404).json({
         success: false,
-        error: 'Utilisateur non trouvé'
+        error: 'Utilisateur non trouvÃ©'
       } as ApiResponse);
     }
 
@@ -742,22 +742,22 @@ router.post('/approve-registration', authenticateToken, requireAdmin, async (req
         temporaryPassword,
         userDoc.role
       );
-      logger.info(`✉️ Email de validation envoyé à ${userDoc.email} avec MDP provisoire`);
+      logger.info(`âœ‰ï¸ Email de validation envoyÃ© Ã  ${userDoc.email} avec MDP provisoire`);
     } catch (emailError) {
-      logger.error('❌ Erreur envoi email:', emailError);
-      // On continue même si l'email échoue
+      logger.error('âŒ Erreur envoi email:', emailError);
+      // On continue mÃªme si l'email Ã©choue
     }
 
     res.json({
       success: true,
-      message: 'Inscription approuvée et email envoyé',
+      message: 'Inscription approuvÃ©e et email envoyÃ©',
       data: {
         user: userDoc,
         temporaryPassword: temporaryPassword // Pour l'admin
       }
     } as ApiResponse);
   } catch (error) {
-    // console.error('❌ Erreur approve registration:', error);
+    // console.error('âŒ Erreur approve registration:', error);
     res.status(500).json({
       success: false,
       error: 'Erreur lors de l\'approbation'
@@ -786,17 +786,17 @@ router.put('/reject-registration/:id', authenticateToken, requireAdmin, async (r
     if (!userDoc) {
       res.status(404).json({
         success: false,
-        error: 'Utilisateur non trouvé'
+        error: 'Utilisateur non trouvÃ©'
       } as ApiResponse);
       return;
     }
 
-    logger.info(`Inscription rejetée par admin: ${userDoc.email} - Raison: ${reason || 'Non spécifiée'}${comments ? ` - ${comments}` : ''}`);
+    logger.info(`Inscription rejetÃ©e par admin: ${userDoc.email} - Raison: ${reason || 'Non spÃ©cifiÃ©e'}${comments ? ` - ${comments}` : ''}`);
 
     res.json({
       success: true,
       data: userDoc,
-      message: 'Inscription rejetée'
+      message: 'Inscription rejetÃ©e'
     } as ApiResponse);
 
   } catch (error) {
@@ -835,17 +835,17 @@ router.post('/reject-registration', authenticateToken, requireAdmin, async (req:
     if (!userDoc) {
       return res.status(404).json({
         success: false,
-        error: 'Utilisateur non trouvé'
+        error: 'Utilisateur non trouvÃ©'
       } as ApiResponse);
     }
 
     res.json({
       success: true,
-      message: 'Inscription rejetée',
+      message: 'Inscription rejetÃ©e',
       data: userDoc
     } as ApiResponse);
   } catch (error) {
-    // console.error('❌ Erreur reject registration:', error);
+    // console.error('âŒ Erreur reject registration:', error);
     res.status(500).json({
       success: false,
       error: 'Erreur lors du rejet'
@@ -853,7 +853,7 @@ router.post('/reject-registration', authenticateToken, requireAdmin, async (req:
   }
 });
 
-// GET /api/admin/stats - Statistiques générales
+// GET /api/admin/stats - Statistiques gÃ©nÃ©rales
 router.get('/stats', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const now = new Date();
@@ -914,20 +914,20 @@ router.get('/stats', authenticateToken, requireAdmin, async (req: AuthRequest, r
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération stats:', error);
+    logger.error('Erreur rÃ©cupÃ©ration stats:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des statistiques'
     } as ApiResponse);
   }
 });
 
-// GET /api/admin/top-commission-generators - Top générateurs de commissions
+// GET /api/admin/top-commission-generators - Top gÃ©nÃ©rateurs de commissions
 router.get('/top-commission-generators', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { period = 'month', limit = 10 } = req.query;
     
-    // TODO: Implémenter avec vos modèles Transaction/Order
+    // TODO: ImplÃ©menter avec vos modÃ¨les Transaction/Order
     const topUsers = [
       {
         userId: '1',
@@ -945,10 +945,10 @@ router.get('/top-commission-generators', authenticateToken, requireAdmin, async 
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération top commissions:', error);
+    logger.error('Erreur rÃ©cupÃ©ration top commissions:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des données'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des donnÃ©es'
     } as ApiResponse);
   }
 });
@@ -977,7 +977,7 @@ router.get('/platform-wallet', authenticateToken, requireAdmin, async (req: Auth
       sum + (order.pricing?.platformFee || 0), 0
     );
     
-    // Orders avec paiement confirmé
+    // Orders avec paiement confirmÃ©
     const paidOrders = orders.filter((o: any) => o.payment?.status === 'paid' || o.status === 'completed');
     const paidCommissions = paidOrders.reduce((sum: number, order: any) => 
       sum + (order.pricing?.platformFee || 0), 0
@@ -986,7 +986,7 @@ router.get('/platform-wallet', authenticateToken, requireAdmin, async (req: Auth
     const lastOrder = await Order.findOne().sort({ createdAt: -1 }).lean();
 
     const walletData = {
-      balance: paidCommissions, // Seulement les commissions payées
+      balance: paidCommissions, // Seulement les commissions payÃ©es
       pendingBalance: totalCommissions - paidCommissions, // Commissions en attente
       totalCommissionsCollected: totalCommissions, // Toutes les commissions
       monthlyRevenue: monthlyCommissions,
@@ -1002,10 +1002,10 @@ router.get('/platform-wallet', authenticateToken, requireAdmin, async (req: Auth
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération wallet:', error);
+    logger.error('Erreur rÃ©cupÃ©ration wallet:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération du portefeuille'
+      error: 'Erreur lors de la rÃ©cupÃ©ration du portefeuille'
     } as ApiResponse);
   }
 });
@@ -1023,12 +1023,12 @@ router.post('/company-transfer', authenticateToken, requireAdmin, async (req: Au
       return;
     }
 
-    // TODO: Implémenter la logique de transfert réelle
-    logger.info(`Transfert entreprise initié: ${amount}€ - ${description || 'Sans description'}`);
+    // TODO: ImplÃ©menter la logique de transfert rÃ©elle
+    logger.info(`Transfert entreprise initiÃ©: ${amount}â‚¬ - ${description || 'Sans description'}`);
 
     res.json({
       success: true,
-      message: `Transfert de ${amount}€ effectué avec succès`,
+      message: `Transfert de ${amount}â‚¬ effectuÃ© avec succÃ¨s`,
       data: {
         amount,
         description,
@@ -1048,7 +1048,7 @@ router.post('/company-transfer', authenticateToken, requireAdmin, async (req: Au
 // GET /api/admin/commission-rates - Taux de commission
 router.get('/commission-rates', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
-    // TODO: Implémenter avec votre système de configuration
+    // TODO: ImplÃ©menter avec votre systÃ¨me de configuration
     const rates = {
       restaurant: 0.15, // 15%
       driver: 0.10, // 10%
@@ -1061,19 +1061,19 @@ router.get('/commission-rates', authenticateToken, requireAdmin, async (req: Aut
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération taux:', error);
+    logger.error('Erreur rÃ©cupÃ©ration taux:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des taux'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des taux'
     } as ApiResponse);
   }
 });
 
 // ===========================================
-// ⚙️ CONFIGURATION SYSTÈME
+// âš™ï¸ CONFIGURATION SYSTÃˆME
 // ===========================================
 
-// GET /api/admin/config - Configuration système
+// GET /api/admin/config - Configuration systÃ¨me
 router.get('/config', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const config = {
@@ -1100,15 +1100,15 @@ router.get('/config', authenticateToken, requireAdmin, async (req: AuthRequest, 
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur configuration système:', error);
+    logger.error('Erreur configuration systÃ¨me:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération de la configuration'
+      error: 'Erreur lors de la rÃ©cupÃ©ration de la configuration'
     } as ApiResponse);
   }
 });
 
-// POST /api/admin/actions/reset-password - Réinitialiser mot de passe utilisateur
+// POST /api/admin/actions/reset-password - RÃ©initialiser mot de passe utilisateur
 router.post('/actions/reset-password', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { userId, newPassword } = req.body;
@@ -1137,34 +1137,34 @@ router.post('/actions/reset-password', authenticateToken, requireAdmin, async (r
     if (!userDoc) {
       res.status(404).json({
         success: false,
-        error: 'Utilisateur non trouv�'
+        error: 'Utilisateur non trouvï¿½'
       } as ApiResponse);
       return;
     }
 
-  logger.info(`Mot de passe r�initialis� par admin pour: ${userDoc ? userDoc.email : userId}`);
+  logger.info(`Mot de passe rï¿½initialisï¿½ par admin pour: ${userDoc ? userDoc.email : userId}`);
 
     res.json({
       success: true,
-      message: 'Mot de passe r�initialis� avec succ�s'
+      message: 'Mot de passe rï¿½initialisï¿½ avec succï¿½s'
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur réinitialisation mot de passe:', error);
+    logger.error('Erreur rÃ©initialisation mot de passe:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la réinitialisation du mot de passe'
+      error: 'Erreur lors de la rÃ©initialisation du mot de passe'
     } as ApiResponse);
   }
 });
 
 // ==========================================
-// 🛡️ MODÉRATION - Endpoints stubs
+// ðŸ›¡ï¸ MODÃ‰RATION - Endpoints stubs
 // ==========================================
 
 router.get('/moderation/messages', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
-    // Récupérer tous les messages pour modération
+    // RÃ©cupÃ©rer tous les messages pour modÃ©ration
     const messages = await Message.find()
       .sort({ createdAt: -1 })
       .limit(100)
@@ -1179,7 +1179,7 @@ router.get('/moderation/messages', authenticateToken, requireAdmin, async (req: 
     logger.error('Erreur get moderation messages:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des messages à modérer',
+      error: 'Erreur lors de la rÃ©cupÃ©ration des messages Ã  modÃ©rer',
       details: error instanceof Error ? error.message : error
     } as ApiResponse);
   }
@@ -1187,7 +1187,7 @@ router.get('/moderation/messages', authenticateToken, requireAdmin, async (req: 
 
 router.get('/moderation/offers', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
-    // Récupérer toutes les offres pour modération
+    // RÃ©cupÃ©rer toutes les offres pour modÃ©ration
     const offers = await Offer.find()
       .sort({ createdAt: -1 })
       .limit(100)
@@ -1202,7 +1202,7 @@ router.get('/moderation/offers', authenticateToken, requireAdmin, async (req: Au
     logger.error('Erreur get moderation offers:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des offres à modérer',
+      error: 'Erreur lors de la rÃ©cupÃ©ration des offres Ã  modÃ©rer',
       details: error instanceof Error ? error.message : error
     } as ApiResponse);
   }
@@ -1210,7 +1210,7 @@ router.get('/moderation/offers', authenticateToken, requireAdmin, async (req: Au
 
 router.get('/moderation/reviews', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
-    // Récupérer tous les avis pour modération
+    // RÃ©cupÃ©rer tous les avis pour modÃ©ration
     const reviews = await Review.find()
       .sort({ createdAt: -1 })
       .limit(100)
@@ -1225,14 +1225,14 @@ router.get('/moderation/reviews', authenticateToken, requireAdmin, async (req: A
     logger.error('Erreur get moderation reviews:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des avis à modérer',
+      error: 'Erreur lors de la rÃ©cupÃ©ration des avis Ã  modÃ©rer',
       details: error instanceof Error ? error.message : error
     } as ApiResponse);
   }
 });
 
 // ==========================================
-// 📋 APPLICATIONS/CANDIDATURES - Endpoints stubs
+// ðŸ“‹ APPLICATIONS/CANDIDATURES - Endpoints stubs
 // ==========================================
 
 router.get('/applications', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
@@ -1263,10 +1263,10 @@ router.get('/applications', authenticateToken, requireAdmin, async (req: AuthReq
       message: total === 0 ? 'Aucune candidature pour le moment' : undefined
     });
   } catch (error) {
-    // console.error('❌ Erreur get applications:', error);
+    // console.error('âŒ Erreur get applications:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des candidatures'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des candidatures'
     } as ApiResponse);
   }
 });
@@ -1295,16 +1295,16 @@ router.get('/applications/stats', authenticateToken, requireAdmin, async (req: A
       }, {})
     });
   } catch (error) {
-    // console.error('❌ Erreur get applications stats:', error);
+    // console.error('âŒ Erreur get applications stats:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des statistiques'
     } as ApiResponse);
   }
 });
 
 // ===========================================
-// 📊 AUDIT LOGS - Consultation des logs d'actions admin
+// ðŸ“Š AUDIT LOGS - Consultation des logs d'actions admin
 // ===========================================
 
 // GET /api/admin/audit-logs - Liste des logs d'audit
@@ -1357,15 +1357,15 @@ router.get('/audit-logs', authenticateToken, requireAdmin, async (req: AuthReque
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération audit logs:', error);
+    logger.error('Erreur rÃ©cupÃ©ration audit logs:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des logs'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des logs'
     } as ApiResponse);
   }
 });
 
-// GET /api/admin/audit-logs/user/:userId - Logs d'un utilisateur spécifique
+// GET /api/admin/audit-logs/user/:userId - Logs d'un utilisateur spÃ©cifique
 router.get('/audit-logs/user/:userId', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { userId } = req.params;
@@ -1386,10 +1386,10 @@ router.get('/audit-logs/user/:userId', authenticateToken, requireAdmin, async (r
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur récupération logs utilisateur:', error);
+    logger.error('Erreur rÃ©cupÃ©ration logs utilisateur:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des logs'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des logs'
     } as ApiResponse);
   }
 });
@@ -1440,7 +1440,7 @@ router.get('/audit-logs/stats', authenticateToken, requireAdmin, async (req: Aut
     logger.error('Erreur stats audit logs:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des statistiques'
     } as ApiResponse);
   }
 });

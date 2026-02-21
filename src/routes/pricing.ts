@@ -4,10 +4,10 @@
  * Endpoints:
  * POST   /api/pricing/calculate      - Calculer un prix de transport
  * GET    /api/pricing/grids          - Lister les grilles tarifaires
- * POST   /api/pricing/grids          - Créer une grille tarifaire
+ * POST   /api/pricing/grids          - CrÃƒÂ©er une grille tarifaire
  * PUT    /api/pricing/grids/:id      - Modifier une grille
- * DELETE /api/pricing/grids/:id      - Désactiver une grille
- * POST   /api/pricing/quote          - Générer un devis PDF
+ * DELETE /api/pricing/grids/:id      - DÃƒÂ©sactiver une grille
+ * POST   /api/pricing/quote          - GÃƒÂ©nÃƒÂ©rer un devis PDF
  */
 
 import express, { Request, Response } from 'express';
@@ -20,24 +20,24 @@ const router = express.Router();
 
 /**
  * POST /api/pricing/calculate
- * Calcule le prix d'un transport selon les paramètres
+ * Calcule le prix d'un transport selon les paramÃƒÂ¨tres
  */
 router.post('/calculate', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     const params: IPricingCalculation = req.body;
     
-    // Validation des paramètres obligatoires
+    // Validation des paramÃƒÂ¨tres obligatoires
     if (!params.weight || !params.volume || !params.distance || !params.vehicleType || !params.zone) {
       return res.status(400).json({ 
         success: false, 
-        error: 'Paramètres manquants: weight, volume, distance, vehicleType, zone sont requis' 
+        error: 'ParamÃƒÂ¨tres manquants: weight, volume, distance, vehicleType, zone sont requis' 
       });
     }
 
     // Calcul du prix
     const result = await PricingCalculator.calculatePrice(params, req.body.gridId);
 
-    logger.info(`Calcul tarif effectué par ${req.user?.email}: ${result.totalTTC}€`);
+    logger.info(`Calcul tarif effectuÃƒÂ© par ${req.user?.email}: ${result.totalTTC}Ã¢â€šÂ¬`);
 
     res.json({
       success: true,
@@ -55,7 +55,7 @@ router.post('/calculate', authenticateToken, async (req: AuthRequest, res: Respo
 
 /**
  * GET /api/pricing/grids
- * Liste toutes les grilles tarifaires (filtrées selon permissions)
+ * Liste toutes les grilles tarifaires (filtrÃƒÂ©es selon permissions)
  */
 router.get('/grids', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
@@ -68,11 +68,11 @@ router.get('/grids', authenticateToken, async (req: AuthRequest, res: Response) 
         { isGlobal: true }
       ];
     } else if (req.user?.role !== 'admin') {
-      // Les autres rôles voient seulement la grille globale
+      // Les autres rÃƒÂ´les voient seulement la grille globale
       query.isGlobal = true;
     }
 
-    // Filtre actif uniquement si demandé
+    // Filtre actif uniquement si demandÃƒÂ©
     if (req.query.active === 'true') {
       query.active = true;
     }
@@ -88,7 +88,7 @@ router.get('/grids', authenticateToken, async (req: AuthRequest, res: Response) 
     });
 
   } catch (error: any) {
-    logger.error('Erreur récupération grilles:', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration grilles:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -98,7 +98,7 @@ router.get('/grids', authenticateToken, async (req: AuthRequest, res: Response) 
 
 /**
  * GET /api/pricing/grids/:id
- * Récupère une grille tarifaire spécifique
+ * RÃƒÂ©cupÃƒÂ¨re une grille tarifaire spÃƒÂ©cifique
  */
 router.get('/grids/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
@@ -113,12 +113,12 @@ router.get('/grids/:id', authenticateToken, async (req: AuthRequest, res: Respon
       });
     }
 
-    // Vérifier les permissions
+    // VÃƒÂ©rifier les permissions
     if (!grid.isGlobal && req.user?.role !== 'admin') {
       if (grid.transporterId && grid.transporterId.toString() !== req.user?._id.toString()) {
         return res.status(403).json({
           success: false,
-          error: 'Accès refusé'
+          error: 'AccÃƒÂ¨s refusÃƒÂ©'
         });
       }
     }
@@ -129,7 +129,7 @@ router.get('/grids/:id', authenticateToken, async (req: AuthRequest, res: Respon
     });
 
   } catch (error: any) {
-    logger.error('Erreur récupération grille:', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration grille:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -139,16 +139,16 @@ router.get('/grids/:id', authenticateToken, async (req: AuthRequest, res: Respon
 
 /**
  * POST /api/pricing/grids
- * Crée une nouvelle grille tarifaire
- * Réservé: admin (grille globale) ou transporteur (grille personnelle)
+ * CrÃƒÂ©e une nouvelle grille tarifaire
+ * RÃƒÂ©servÃƒÂ©: admin (grille globale) ou transporteur (grille personnelle)
  */
 router.post('/grids', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    // Vérifier les permissions
+    // VÃƒÂ©rifier les permissions
     if (req.user?.role !== 'admin' && req.user?.role !== 'transporteur' && req.user?.role !== 'carrier') {
       return res.status(403).json({
         success: false,
-        error: 'Seuls les admins et transporteurs peuvent créer des grilles tarifaires'
+        error: 'Seuls les admins et transporteurs peuvent crÃƒÂ©er des grilles tarifaires'
       });
     }
 
@@ -164,7 +164,7 @@ router.post('/grids', authenticateToken, async (req: AuthRequest, res: Response)
     const grid = new PricingGrid(gridData);
     await grid.save();
 
-    logger.info(`Grille tarifaire créée: ${grid.name} par ${req.user.email}`);
+    logger.info(`Grille tarifaire crÃƒÂ©ÃƒÂ©e: ${grid.name} par ${req.user.email}`);
 
     res.status(201).json({
       success: true,
@@ -172,7 +172,7 @@ router.post('/grids', authenticateToken, async (req: AuthRequest, res: Response)
     });
 
   } catch (error: any) {
-    logger.error('Erreur création grille:', error);
+    logger.error('Erreur crÃƒÂ©ation grille:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -195,7 +195,7 @@ router.put('/grids/:id', authenticateToken, async (req: AuthRequest, res: Respon
       });
     }
 
-    // Vérifier les permissions
+    // VÃƒÂ©rifier les permissions
     if (req.user?.role !== 'admin') {
       if (grid.transporterId && grid.transporterId.toString() !== req.user?._id.toString()) {
         return res.status(403).json({
@@ -205,7 +205,7 @@ router.put('/grids/:id', authenticateToken, async (req: AuthRequest, res: Respon
       }
     }
 
-    // Mise à jour (on ne permet pas de changer createdBy, transporterId si pas admin)
+    // Mise ÃƒÂ  jour (on ne permet pas de changer createdBy, transporterId si pas admin)
     const allowedFields = req.user.role === 'admin' 
       ? req.body 
       : { ...req.body, createdBy: grid.createdBy, transporterId: grid.transporterId, isGlobal: grid.isGlobal };
@@ -213,7 +213,7 @@ router.put('/grids/:id', authenticateToken, async (req: AuthRequest, res: Respon
     Object.assign(grid, allowedFields);
     await grid.save();
 
-    logger.info(`Grille tarifaire modifiée: ${grid.name} par ${req.user?.email}`);
+    logger.info(`Grille tarifaire modifiÃƒÂ©e: ${grid.name} par ${req.user?.email}`);
 
     res.json({
       success: true,
@@ -231,7 +231,7 @@ router.put('/grids/:id', authenticateToken, async (req: AuthRequest, res: Respon
 
 /**
  * DELETE /api/pricing/grids/:id
- * Désactive (soft delete) une grille tarifaire
+ * DÃƒÂ©sactive (soft delete) une grille tarifaire
  */
 router.delete('/grids/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
@@ -244,7 +244,7 @@ router.delete('/grids/:id', authenticateToken, async (req: AuthRequest, res: Res
       });
     }
 
-    // Vérifier les permissions
+    // VÃƒÂ©rifier les permissions
     if (req.user?.role !== 'admin') {
       if (grid.transporterId && grid.transporterId.toString() !== req.user?._id.toString()) {
         return res.status(403).json({
@@ -258,11 +258,11 @@ router.delete('/grids/:id', authenticateToken, async (req: AuthRequest, res: Res
     grid.active = false;
     await grid.save();
 
-    logger.info(`Grille tarifaire désactivée: ${grid.name} par ${req.user?.email}`);
+    logger.info(`Grille tarifaire dÃƒÂ©sactivÃƒÂ©e: ${grid.name} par ${req.user?.email}`);
 
     res.json({
       success: true,
-      message: 'Grille tarifaire désactivée'
+      message: 'Grille tarifaire dÃƒÂ©sactivÃƒÂ©e'
     });
 
   } catch (error: any) {
@@ -276,7 +276,7 @@ router.delete('/grids/:id', authenticateToken, async (req: AuthRequest, res: Res
 
 /**
  * POST /api/pricing/quote
- * Génère un devis PDF conforme aux normes
+ * GÃƒÂ©nÃƒÂ¨re un devis PDF conforme aux normes
  */
 router.post('/quote', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
@@ -285,14 +285,14 @@ router.post('/quote', authenticateToken, async (req: AuthRequest, res: Response)
     if (!params || !clientInfo || !transporterInfo) {
       return res.status(400).json({
         success: false,
-        error: 'Paramètres manquants: params, clientInfo, transporterInfo requis'
+        error: 'ParamÃƒÂ¨tres manquants: params, clientInfo, transporterInfo requis'
       });
     }
 
     // Calcul du prix
     const pricingResult = await PricingCalculator.calculatePrice(params);
 
-    // Génération du devis PDF
+    // GÃƒÂ©nÃƒÂ©ration du devis PDF
     const pdfPath = await PricingCalculator.generateQuote(
       params,
       pricingResult,
@@ -300,7 +300,7 @@ router.post('/quote', authenticateToken, async (req: AuthRequest, res: Response)
       transporterInfo
     );
 
-    logger.info(`Devis généré: ${pdfPath} par ${req.user?.email}`);
+    logger.info(`Devis gÃƒÂ©nÃƒÂ©rÃƒÂ©: ${pdfPath} par ${req.user?.email}`);
 
     res.json({
       success: true,
@@ -312,7 +312,7 @@ router.post('/quote', authenticateToken, async (req: AuthRequest, res: Response)
     });
 
   } catch (error: any) {
-    logger.error('Erreur génération devis:', error);
+    logger.error('Erreur gÃƒÂ©nÃƒÂ©ration devis:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -322,45 +322,45 @@ router.post('/quote', authenticateToken, async (req: AuthRequest, res: Response)
 
 /**
  * POST /api/pricing/grids/init-default
- * Initialise la grille tarifaire par défaut (admin seulement)
+ * Initialise la grille tarifaire par dÃƒÂ©faut (admin seulement)
  */
 router.post('/grids/init-default', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (req.user?.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        error: 'Réservé aux administrateurs'
+        error: 'RÃƒÂ©servÃƒÂ© aux administrateurs'
       });
     }
 
-    // Vérifier si une grille globale existe déjà
+    // VÃƒÂ©rifier si une grille globale existe dÃƒÂ©jÃƒÂ 
     const existingGrid = await PricingGrid.findOne({ isGlobal: true, active: true });
     
     if (existingGrid) {
       return res.status(400).json({
         success: false,
-        error: 'Une grille globale active existe déjà',
+        error: 'Une grille globale active existe dÃƒÂ©jÃƒÂ ',
         data: existingGrid
       });
     }
 
-    // Créer la grille par défaut
+    // CrÃƒÂ©er la grille par dÃƒÂ©faut
     const defaultGrid = new PricingGrid({
       name: 'Grille Tarifaire Standard 2025',
       active: true,
       isGlobal: true,
       createdBy: req.user._id,
       validFrom: new Date(),
-      // Les valeurs par défaut sont déjà dans le schéma
+      // Les valeurs par dÃƒÂ©faut sont dÃƒÂ©jÃƒÂ  dans le schÃƒÂ©ma
     });
 
     await defaultGrid.save();
 
-    logger.info(`Grille tarifaire par défaut initialisée par ${req.user.email}`);
+    logger.info(`Grille tarifaire par dÃƒÂ©faut initialisÃƒÂ©e par ${req.user.email}`);
 
     res.status(201).json({
       success: true,
-      message: 'Grille tarifaire par défaut créée',
+      message: 'Grille tarifaire par dÃƒÂ©faut crÃƒÂ©ÃƒÂ©e',
       data: defaultGrid
     });
 

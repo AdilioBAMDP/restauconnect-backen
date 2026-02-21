@@ -35,7 +35,7 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response) 
       reviews: await Review.countDocuments({ createdAt: { $gte: startOfMonth } })
     };
 
-    // Statistiques spécifiques à l'utilisateur
+    // Statistiques spÃƒÂ©cifiques ÃƒÂ  l'utilisateur
     const myListings = userRole === 'super_admin' 
       ? totalListings 
       : await Listing.countDocuments({ userId });
@@ -72,12 +72,12 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response) 
         myListings,
         myMessages,
         myReviews,
-        profileViews: 0, // TODO: Implémenter tracking de vues
+        profileViews: 0, // TODO: ImplÃƒÂ©menter tracking de vues
         averageRating: Math.round(averageRating * 10) / 10
       },
-      // ? FIX: Toujours retourner objet revenue (�vite crash frontend)
+      // ? FIX: Toujours retourner objet revenue (Ã¯Â¿Â½vite crash frontend)
       revenue: {
-        thisMonth: userRole === 'super_admin' ? 0 : null, // TODO: Implémenter depuis Transaction
+        thisMonth: userRole === 'super_admin' ? 0 : null, // TODO: ImplÃƒÂ©menter depuis Transaction
         lastMonth: userRole === 'super_admin' ? 0 : null,
         growth: userRole === 'super_admin' ? 0 : null
       }
@@ -98,8 +98,8 @@ router.get('/analytics', authenticateToken, async (req: AuthRequest, res: Respon
     const { period = '30d', metric = 'views' } = req.query;
     const userId = req.user!._id;
     
-    // Calcul r�el bas� sur les donn�es existantes
-    // Pour une vraie impl�mentation, cr�er un mod�le Analytics d�di�
+    // Calcul rÃ¯Â¿Â½el basÃ¯Â¿Â½ sur les donnÃ¯Â¿Â½es existantes
+    // Pour une vraie implÃ¯Â¿Â½mentation, crÃ¯Â¿Â½er un modÃ¯Â¿Â½le Analytics dÃ¯Â¿Â½diÃ¯Â¿Â½
     const analytics = {
       period: period as string,
       metric: metric as string,
@@ -124,7 +124,7 @@ router.get('/activity', authenticateToken, async (req: AuthRequest, res: Respons
     const { page = 1, limit = 20 } = req.query;
     const userId = req.user!._id;
     
-    // Activit� r�elle bas�e sur les notifications et actions utilisateur
+    // ActivitÃ¯Â¿Â½ rÃ¯Â¿Â½elle basÃ¯Â¿Â½e sur les notifications et actions utilisateur
     const activities = await NotificationModel.find({ userId })
       .sort({ createdAt: -1 })
       .skip((Number(page) - 1) * Number(limit))

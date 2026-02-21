@@ -1,14 +1,14 @@
 /**
- * 💳 STRIPE CONNECT ROUTES
+ * Ã°Å¸â€™Â³ STRIPE CONNECT ROUTES
  * Gestion des comptes Stripe Connect pour tous les prestataires
  * (fournisseurs, livreurs, transporteurs, artisans, community managers)
  * 
  * Flux:
  * 1. Fournisseur clique "Activer paiements"
- * 2. POST /onboarding → Crée compte Express + lien onboarding
- * 3. Stripe redirige vers /refresh après onboarding
- * 4. GET /status → Vérifie si onboarding terminé
- * 5. GET /dashboard → Accès tableau de bord Stripe fournisseur
+ * 2. POST /onboarding Ã¢â€ â€™ CrÃƒÂ©e compte Express + lien onboarding
+ * 3. Stripe redirige vers /refresh aprÃƒÂ¨s onboarding
+ * 4. GET /status Ã¢â€ â€™ VÃƒÂ©rifie si onboarding terminÃƒÂ©
+ * 5. GET /dashboard Ã¢â€ â€™ AccÃƒÂ¨s tableau de bord Stripe fournisseur
  * 
  * Railway fix: Force rebuild
  */
@@ -21,10 +21,10 @@ import { logger } from '../utils/logger';
 
 const router = express.Router();
 
-// Initialiser Stripe avec la clé secrète
+// Initialiser Stripe avec la clÃƒÂ© secrÃƒÂ¨te
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 if (!stripeSecretKey || stripeSecretKey.startsWith('sk_test_51QG')) {
-  logger.error('❌ STRIPE_SECRET_KEY non configurée ou invalide pour Stripe Connect !');
+  logger.error('Ã¢ÂÅ’ STRIPE_SECRET_KEY non configurÃƒÂ©e ou invalide pour Stripe Connect !');
 }
 const stripe = new Stripe(stripeSecretKey || 'sk_test_votre_cle_secrete', {
   apiVersion: '2025-10-29.clover' as any
@@ -34,9 +34,9 @@ const FRONTEND_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 
 /**
  * POST /api/stripe-connect/onboarding
- * Créer un compte Stripe Connect Express pour tous les prestataires
+ * CrÃƒÂ©er un compte Stripe Connect Express pour tous les prestataires
  * (fournisseurs, livreurs, transporteurs, artisans, community managers)
- * et générer le lien d'onboarding
+ * et gÃƒÂ©nÃƒÂ©rer le lien d'onboarding
  */
 router.post('/onboarding', authenticateToken, requireRole(['supplier', 'fournisseur', 'driver', 'transporteur', 'artisan', 'community_manager']), async (req: Request, res: Response): Promise<any> => {
   try {
@@ -44,14 +44,14 @@ router.post('/onboarding', authenticateToken, requireRole(['supplier', 'fourniss
     const userDoc = await User.findById(userId);
 
     if (!userDoc) {
-      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      return res.status(404).json({ error: 'Utilisateur non trouvÃƒÂ©' });
     }
 
     let accountId = userDoc.stripeAccountId;
 
-    // Si le compte n'existe pas encore, le créer
+    // Si le compte n'existe pas encore, le crÃƒÂ©er
     if (!accountId) {
-      logger.info(`Création compte Stripe Connect pour fournisseur ${userDoc.email}`);
+      logger.info(`CrÃƒÂ©ation compte Stripe Connect pour fournisseur ${userDoc.email}`);
       
       const account = await stripe.accounts.create({
         type: 'express',
@@ -73,10 +73,10 @@ router.post('/onboarding', authenticateToken, requireRole(['supplier', 'fourniss
       userDoc.stripeAccountId = accountId;
       await userDoc.save();
 
-      logger.info(`✅ Compte Stripe Connect créé: ${accountId}`);
+      logger.info(`Ã¢Å“â€¦ Compte Stripe Connect crÃƒÂ©ÃƒÂ©: ${accountId}`);
     }
 
-    // Générer le lien d'onboarding
+    // GÃƒÂ©nÃƒÂ©rer le lien d'onboarding
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
       refresh_url: `${FRONTEND_URL}/supplier/stripe/refresh`,
@@ -91,9 +91,9 @@ router.post('/onboarding', authenticateToken, requireRole(['supplier', 'fourniss
     });
 
   } catch (error) {
-    logger.error('❌ Erreur création onboarding Stripe Connect:', error);
+    logger.error('Ã¢ÂÅ’ Erreur crÃƒÂ©ation onboarding Stripe Connect:', error);
     return res.status(500).json({ 
-      error: 'Erreur lors de la création du compte Stripe',
+      error: 'Erreur lors de la crÃƒÂ©ation du compte Stripe',
       details: (error as any).message
     });
   }
@@ -101,7 +101,7 @@ router.post('/onboarding', authenticateToken, requireRole(['supplier', 'fourniss
 
 /**
  * GET /api/stripe-connect/status
- * Vérifier le statut d'onboarding du fournisseur
+ * VÃƒÂ©rifier le statut d'onboarding du fournisseur
  */
 router.get('/status', authenticateToken, requireRole(['supplier', 'fournisseur', 'driver', 'transporteur', 'artisan', 'community_manager']), async (req: Request, res: Response): Promise<any> => {
   try {
@@ -109,7 +109,7 @@ router.get('/status', authenticateToken, requireRole(['supplier', 'fournisseur',
     const userDoc = await User.findById(userId);
 
     if (!userDoc) {
-      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+      return res.status(404).json({ error: 'Utilisateur non trouvÃƒÂ©' });
     }
 
     if (!userDoc.stripeAccountId) {
@@ -121,10 +121,10 @@ router.get('/status', authenticateToken, requireRole(['supplier', 'fournisseur',
       });
     }
 
-    // Récupérer les détails du compte Stripe
+    // RÃƒÂ©cupÃƒÂ©rer les dÃƒÂ©tails du compte Stripe
     const account = await stripe.accounts.retrieve(userDoc.stripeAccountId);
 
-    // Mettre à jour les champs locaux
+    // Mettre ÃƒÂ  jour les champs locaux
     userDoc.stripeDetailsSubmitted = account.details_submitted || false;
     userDoc.stripeChargesEnabled = account.charges_enabled || false;
     userDoc.stripePayoutsEnabled = account.payouts_enabled || false;
@@ -145,9 +145,9 @@ router.get('/status', authenticateToken, requireRole(['supplier', 'fournisseur',
     });
 
   } catch (error) {
-    logger.error('❌ Erreur vérification statut Stripe Connect:', error);
+    logger.error('Ã¢ÂÅ’ Erreur vÃƒÂ©rification statut Stripe Connect:', error);
     return res.status(500).json({ 
-      error: 'Erreur lors de la vérification du statut',
+      error: 'Erreur lors de la vÃƒÂ©rification du statut',
       details: (error as any).message
     });
   }
@@ -155,7 +155,7 @@ router.get('/status', authenticateToken, requireRole(['supplier', 'fournisseur',
 
 /**
  * POST /api/stripe-connect/refresh
- * Régénérer un lien d'onboarding si l'ancien a expiré
+ * RÃƒÂ©gÃƒÂ©nÃƒÂ©rer un lien d'onboarding si l'ancien a expirÃƒÂ©
  */
 router.post('/refresh', authenticateToken, requireRole(['supplier', 'fournisseur']), async (req: Request, res: Response): Promise<any> => {
   try {
@@ -163,7 +163,7 @@ router.post('/refresh', authenticateToken, requireRole(['supplier', 'fournisseur
     const userDoc = await User.findById(userId);
 
     if (!userDoc || !userDoc.stripeAccountId) {
-      return res.status(404).json({ error: 'Compte Stripe non trouvé' });
+      return res.status(404).json({ error: 'Compte Stripe non trouvÃƒÂ©' });
     }
 
     const accountLink = await stripe.accountLinks.create({
@@ -179,7 +179,7 @@ router.post('/refresh', authenticateToken, requireRole(['supplier', 'fournisseur
     });
 
   } catch (error) {
-    logger.error('❌ Erreur refresh onboarding:', error);
+    logger.error('Ã¢ÂÅ’ Erreur refresh onboarding:', error);
     return res.status(500).json({ 
       error: 'Erreur lors du refresh du lien',
       details: (error as any).message
@@ -189,7 +189,7 @@ router.post('/refresh', authenticateToken, requireRole(['supplier', 'fournisseur
 
 /**
  * GET /api/stripe-connect/dashboard
- * Générer un lien vers le tableau de bord Stripe Express du fournisseur
+ * GÃƒÂ©nÃƒÂ©rer un lien vers le tableau de bord Stripe Express du fournisseur
  */
 router.get('/dashboard', authenticateToken, requireRole(['supplier', 'fournisseur', 'driver', 'transporteur', 'artisan', 'community_manager']), async (req: Request, res: Response): Promise<any> => {
   try {
@@ -197,14 +197,14 @@ router.get('/dashboard', authenticateToken, requireRole(['supplier', 'fournisseu
     const userDoc = await User.findById(userId);
 
     if (!userDoc || !userDoc.stripeAccountId) {
-      return res.status(404).json({ error: 'Compte Stripe non configuré' });
+      return res.status(404).json({ error: 'Compte Stripe non configurÃƒÂ©' });
     }
 
     if (!userDoc.stripeOnboardingComplete) {
-      return res.status(400).json({ error: 'Onboarding non terminé' });
+      return res.status(400).json({ error: 'Onboarding non terminÃƒÂ©' });
     }
 
-    // Générer login link (valide 5 minutes)
+    // GÃƒÂ©nÃƒÂ©rer login link (valide 5 minutes)
     const loginLink = await stripe.accounts.createLoginLink(userDoc.stripeAccountId);
 
     res.json({
@@ -213,9 +213,9 @@ router.get('/dashboard', authenticateToken, requireRole(['supplier', 'fournisseu
     });
 
   } catch (error) {
-    logger.error('❌ Erreur génération dashboard link:', error);
+    logger.error('Ã¢ÂÅ’ Erreur gÃƒÂ©nÃƒÂ©ration dashboard link:', error);
     return res.status(500).json({ 
-      error: 'Erreur lors de la génération du lien dashboard',
+      error: 'Erreur lors de la gÃƒÂ©nÃƒÂ©ration du lien dashboard',
       details: (error as any).message
     });
   }
@@ -223,7 +223,7 @@ router.get('/dashboard', authenticateToken, requireRole(['supplier', 'fournisseu
 
 /**
  * GET /api/stripe-connect/balance
- * Récupérer le solde du compte Stripe Connect du fournisseur
+ * RÃƒÂ©cupÃƒÂ©rer le solde du compte Stripe Connect du fournisseur
  */
 router.get('/balance', authenticateToken, requireRole(['supplier', 'fournisseur', 'driver', 'transporteur', 'artisan', 'community_manager']), async (req: Request, res: Response): Promise<any> => {
   try {
@@ -231,7 +231,7 @@ router.get('/balance', authenticateToken, requireRole(['supplier', 'fournisseur'
     const userDoc = await User.findById(userId);
 
     if (!userDoc || !userDoc.stripeAccountId) {
-      return res.status(404).json({ error: 'Compte Stripe non configuré' });
+      return res.status(404).json({ error: 'Compte Stripe non configurÃƒÂ©' });
     }
 
     const balance = await stripe.balance.retrieve({
@@ -251,9 +251,9 @@ router.get('/balance', authenticateToken, requireRole(['supplier', 'fournisseur'
     });
 
   } catch (error) {
-    logger.error('❌ Erreur récupération balance:', error);
+    logger.error('Ã¢ÂÅ’ Erreur rÃƒÂ©cupÃƒÂ©ration balance:', error);
     return res.status(500).json({ 
-      error: 'Erreur lors de la récupération du solde',
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration du solde',
       details: (error as any).message
     });
   }
@@ -261,7 +261,7 @@ router.get('/balance', authenticateToken, requireRole(['supplier', 'fournisseur'
 
 /**
  * GET /api/stripe-connect/transactions
- * Récupérer l'historique des transactions du fournisseur
+ * RÃƒÂ©cupÃƒÂ©rer l'historique des transactions du fournisseur
  */
 router.get('/transactions', authenticateToken, requireRole(['supplier', 'fournisseur', 'driver', 'transporteur', 'artisan', 'community_manager']), async (req: Request, res: Response): Promise<any> => {
   try {
@@ -269,12 +269,12 @@ router.get('/transactions', authenticateToken, requireRole(['supplier', 'fournis
     const userDoc = await User.findById(userId);
 
     if (!userDoc || !userDoc.stripeAccountId) {
-      return res.status(404).json({ error: 'Compte Stripe non configuré' });
+      return res.status(404).json({ error: 'Compte Stripe non configurÃƒÂ©' });
     }
 
     const limit = parseInt(req.query.limit as string) || 20;
 
-    // Récupérer les transfers (paiements reçus)
+    // RÃƒÂ©cupÃƒÂ©rer les transfers (paiements reÃƒÂ§us)
     const transfers = await stripe.transfers.list(
       { 
         destination: userDoc.stripeAccountId,
@@ -297,9 +297,9 @@ router.get('/transactions', authenticateToken, requireRole(['supplier', 'fournis
     });
 
   } catch (error) {
-    logger.error('❌ Erreur récupération transactions:', error);
+    logger.error('Ã¢ÂÅ’ Erreur rÃƒÂ©cupÃƒÂ©ration transactions:', error);
     return res.status(500).json({ 
-      error: 'Erreur lors de la récupération des transactions',
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des transactions',
       details: (error as any).message
     });
   }

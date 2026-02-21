@@ -1,4 +1,4 @@
-﻿import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 // Interface TypeScript
 export interface IJobApplication extends Document {
@@ -44,7 +44,7 @@ export interface IJobApplication extends Document {
   updatedAt: Date;
 }
 
-// SchÃ©ma Mongoose
+// SchÃƒÂ©ma Mongoose
 const JobApplicationSchema = new Schema<IJobApplication>({
   jobOfferId: {
     type: Schema.Types.ObjectId,
@@ -123,7 +123,7 @@ JobApplicationSchema.index({ status: 1, createdAt: -1 });
 JobApplicationSchema.index({ jobOfferId: 1, status: 1 });
 JobApplicationSchema.index({ candidateId: 1, createdAt: -1 });
 
-// Index unique pour Ã©viter candidatures multiples
+// Index unique pour ÃƒÂ©viter candidatures multiples
 JobApplicationSchema.index({ jobOfferId: 1, candidateId: 1 }, { unique: true });
 
 export default mongoose.model<IJobApplication>('JobApplication', JobApplicationSchema);

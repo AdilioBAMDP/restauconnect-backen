@@ -1,7 +1,7 @@
-﻿/**
+/**
  * MIDDLEWARE UPLOAD PHOTOS - Upload et compression d'images pour les offres
  * 
- * Fonctionnalités :
+ * FonctionnalitÃ©s :
  * - Upload multiple (max 5 photos)
  * - Compression automatique avec Sharp
  * - Validation format (images uniquement)
@@ -15,11 +15,11 @@ import fs from 'fs';
 import sharp from 'sharp';
 import { Request, Response, NextFunction } from 'express';
 
-// Créer le dossier uploads/offers s'il n'existe pas
+// CrÃ©er le dossier uploads/offers s'il n'existe pas
 const uploadsDir = path.join(__dirname, '../../uploads/offers');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
-  // console.log('📁 Dossier uploads/offers créé');
+  // console.log('ðŸ“ Dossier uploads/offers crÃ©Ã©');
 }
 
 // Configuration du stockage temporaire (avant compression)
@@ -41,7 +41,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
   if (allowedMimes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Format non supporté. Utilisez JPG, PNG ou WEBP.'));
+    cb(new Error('Format non supportÃ©. Utilisez JPG, PNG ou WEBP.'));
   }
 };
 
@@ -56,7 +56,7 @@ export const upload = multer({
 });
 
 /**
- * Middleware de compression des images uploadées
+ * Middleware de compression des images uploadÃ©es
  * Convertit en JPEG, redimensionne et compresse
  */
 export const compressImages = async (req: Request, res: Response, next: NextFunction) => {
@@ -91,9 +91,9 @@ export const compressImages = async (req: Request, res: Response, next: NextFunc
         // Ajouter l'URL relative
         compressedFiles.push(`/uploads/offers/${compressedFilename}`);
 
-        // console.log(`✅ Photo compressée: ${compressedFilename}`);
+        // console.log(`âœ… Photo compressÃ©e: ${compressedFilename}`);
       } catch (error) {
-        // console.error(`❌ Erreur compression ${file.filename}:`, error);
+        // console.error(`âŒ Erreur compression ${file.filename}:`, error);
         // Supprimer le temp file en cas d'erreur
         if (fs.existsSync(tempPath)) {
           fs.unlinkSync(tempPath);
@@ -101,12 +101,12 @@ export const compressImages = async (req: Request, res: Response, next: NextFunc
       }
     }
 
-    // Ajouter les URLs au body de la requête
+    // Ajouter les URLs au body de la requÃªte
     (req as any).compressedPhotos = compressedFiles;
 
     next();
   } catch (error: any) {
-    // console.error('❌ Erreur middleware compression:', error);
+    // console.error('âŒ Erreur middleware compression:', error);
     res.status(500).json({
       success: false,
       error: 'Erreur lors de la compression des images'
@@ -115,7 +115,7 @@ export const compressImages = async (req: Request, res: Response, next: NextFunc
 };
 
 /**
- * Middleware combiné : upload + compression
+ * Middleware combinÃ© : upload + compression
  */
 export const uploadOfferPhotos = [
   upload.array('photos', 5),

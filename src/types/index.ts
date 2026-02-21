@@ -1,5 +1,5 @@
-﻿/**
- * 13 RÔLES UTILISATEURS - Synchronisé avec frontend et models
+/**
+ * 13 RÃ”LES UTILISATEURS - SynchronisÃ© avec frontend et models
  * - Business: restaurant, artisan, supplier (fournisseur)
  * - Workforce: candidat, driver (livreur)
  * - Finance: banker, accountant, investor, auditor
@@ -50,6 +50,13 @@ export interface User {
   createdAt?: Date;
   updatedAt?: Date;
   lastActive?: Date;
+  // Champs Stripe Connect
+  stripeAccountId?: string | null;
+  stripeOnboardingComplete?: boolean;
+  stripeBankAccountVerified?: boolean;
+  stripeDetailsSubmitted?: boolean;
+  stripeChargesEnabled?: boolean;
+  stripePayoutsEnabled?: boolean;
 }
 
 export interface UserProfile {

@@ -1,4 +1,4 @@
-﻿import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 // Interface TypeScript
 export interface IAccountingDocument extends Document {
@@ -13,7 +13,7 @@ export interface IAccountingDocument extends Document {
   updatedAt: Date;
 }
 
-// Schéma Mongoose
+// SchÃ©ma Mongoose
 const AccountingDocumentSchema = new Schema<IAccountingDocument>({
   clientId: {
     type: Schema.Types.ObjectId,

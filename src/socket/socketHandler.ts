@@ -1,11 +1,11 @@
 /**
- * SOCKET.IO HANDLER - Gestion WebSocket temps réel
+ * SOCKET.IO HANDLER - Gestion WebSocket temps rÃƒÂ©el
  * 
- * Ce module gère :
- * - Connexion/déconnexion des utilisateurs
- * - Notifications temps réel (offres urgentes, réponses, quotes)
- * - Messages chat en temps réel
- * - Mise à jour statut offres
+ * Ce module gÃƒÂ¨re :
+ * - Connexion/dÃƒÂ©connexion des utilisateurs
+ * - Notifications temps rÃƒÂ©el (offres urgentes, rÃƒÂ©ponses, quotes)
+ * - Messages chat en temps rÃƒÂ©el
+ * - Mise ÃƒÂ  jour statut offres
  * - Presence tracking (utilisateurs en ligne)
  * - Rooms par utilisateur et par conversation
  */
@@ -18,13 +18,13 @@ import Conversation from '../models/Conversation';
 import Offer from '../models/Offer';
 import { logger } from '../utils/logger';
 
-// Interface pour le socket authentifié
+// Interface pour le socket authentifiÃƒÂ©
 interface AuthenticatedSocket extends Socket {
   userId?: string;
   userRole?: string;
 }
 
-// Store des utilisateurs connectés
+// Store des utilisateurs connectÃƒÂ©s
 const connectedUsers = new Map<string, string>(); // userId -> socketId
 
 export class SocketHandler {
@@ -44,7 +44,7 @@ export class SocketHandler {
     this.setupMiddleware();
     this.setupEventHandlers();
 
-    logger.info('✅ Socket.io initialisé avec succès');
+    logger.info('Ã¢Å“â€¦ Socket.io initialisÃƒÂ© avec succÃƒÂ¨s');
   }
 
   /**
@@ -59,17 +59,17 @@ export class SocketHandler {
           return next(new Error('Authentication error: No token provided'));
         }
 
-        // Vérifier le token JWT
+        // VÃƒÂ©rifier le token JWT
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
         
         socket.userId = decoded.userId;
         socket.userRole = decoded.role;
 
-        logger.info(`🔐 Socket authentifié: User ${socket.userId} (${socket.userRole})`);
+        logger.info(`Ã°Å¸â€Â Socket authentifiÃƒÂ©: User ${socket.userId} (${socket.userRole})`);
         next();
 
       } catch (error) {
-        logger.error('❌ Erreur authentification socket:', error);
+        logger.error('Ã¢ÂÅ’ Erreur authentification socket:', error);
         next(new Error('Authentication error: Invalid token'));
       }
     });
@@ -80,7 +80,7 @@ export class SocketHandler {
    */
   private setupEventHandlers() {
     this.io.on('connection', (socket: AuthenticatedSocket) => {
-      logger.info(`🔌 Client connecté: ${socket.id} (User: ${socket.userId})`);
+      logger.info(`Ã°Å¸â€Å’ Client connectÃƒÂ©: ${socket.id} (User: ${socket.userId})`);
 
       // Rejoindre la room personnelle de l'utilisateur
       if (socket.userId) {
@@ -101,12 +101,12 @@ export class SocketHandler {
       // Event: Rejoindre une conversation
       socket.on('join-conversation', async (conversationId: string) => {
         try {
-          // Vérifier que l'utilisateur est participant
+          // VÃƒÂ©rifier que l'utilisateur est participant
           const conversation = await Conversation.findById(conversationId).exec();
           
           if (conversation && socket.userId && conversation.isParticipant(socket.userId)) {
             socket.join(`conversation-${conversationId}`);
-            logger.info(`💬 User ${socket.userId} a rejoint conversation ${conversationId}`);
+            logger.info(`Ã°Å¸â€™Â¬ User ${socket.userId} a rejoint conversation ${conversationId}`);
 
             socket.emit('conversation-joined', {
               conversationId,
@@ -114,13 +114,13 @@ export class SocketHandler {
             });
           } else {
             socket.emit('error', {
-              message: 'Vous n\'êtes pas participant de cette conversation'
+              message: 'Vous n\'ÃƒÂªtes pas participant de cette conversation'
             });
           }
         } catch (error) {
-          logger.error('❌ Erreur join conversation:', error);
+          logger.error('Ã¢ÂÅ’ Erreur join conversation:', error);
           socket.emit('error', {
-            message: 'Erreur lors de la connexion à la conversation'
+            message: 'Erreur lors de la connexion ÃƒÂ  la conversation'
           });
         }
       });
@@ -128,7 +128,7 @@ export class SocketHandler {
       // Event: Quitter une conversation
       socket.on('leave-conversation', (conversationId: string) => {
         socket.leave(`conversation-${conversationId}`);
-        logger.info(`👋 User ${socket.userId} a quitté conversation ${conversationId}`);
+        logger.info(`Ã°Å¸â€˜â€¹ User ${socket.userId} a quittÃƒÂ© conversation ${conversationId}`);
       });
 
       // Event: Envoyer un message chat
@@ -147,17 +147,17 @@ export class SocketHandler {
           }
 
           if (!conversation.isParticipant(socket.userId)) {
-            socket.emit('error', { message: 'Non autorisé' });
+            socket.emit('error', { message: 'Non autorisÃƒÂ©' });
             return;
           }
 
           // Ajouter le message
           await conversation.addMessage(socket.userId, content);
 
-          // Récupérer le message créé
+          // RÃƒÂ©cupÃƒÂ©rer le message crÃƒÂ©ÃƒÂ©
           const lastMessage = conversation.messages[conversation.messages.length - 1];
 
-          // Envoyer à tous les participants de la conversation
+          // Envoyer ÃƒÂ  tous les participants de la conversation
           this.io.to(`conversation-${conversationId}`).emit('new-message', {
             conversationId,
             message: lastMessage,
@@ -177,7 +177,7 @@ export class SocketHandler {
               timestamp: new Date()
             });
 
-            // Créer notification persistante
+            // CrÃƒÂ©er notification persistante
             const notification = new Notification({
               userId: otherParticipant,
               userRole: socket.userRole || 'restaurant',
@@ -196,10 +196,10 @@ export class SocketHandler {
             await notification.save();
           }
 
-          logger.info(`📨 Message envoyé dans conversation ${conversationId}`);
+          logger.info(`Ã°Å¸â€œÂ¨ Message envoyÃƒÂ© dans conversation ${conversationId}`);
 
         } catch (error) {
-          logger.error('❌ Erreur envoi message:', error);
+          logger.error('Ã¢ÂÅ’ Erreur envoi message:', error);
           socket.emit('error', {
             message: 'Erreur lors de l\'envoi du message'
           });
@@ -219,11 +219,11 @@ export class SocketHandler {
               success: true
             });
 
-            // Mettre à jour le compteur non lues
+            // Mettre ÃƒÂ  jour le compteur non lues
             this.sendUnreadCount(socket.userId);
           }
         } catch (error) {
-          logger.error('❌ Erreur mark conversation read:', error);
+          logger.error('Ã¢ÂÅ’ Erreur mark conversation read:', error);
         }
       });
 
@@ -231,8 +231,8 @@ export class SocketHandler {
       socket.on('driver-online', (userId: string) => {
         const roomName = `driver-${userId}`;
         socket.join(roomName);
-        logger.info(`🚚 Driver ${userId} en ligne, room rejointe: ${roomName}`);
-        logger.info(`📡 Socket ${socket.id} dans room ${roomName}`);
+        logger.info(`Ã°Å¸Å¡Å¡ Driver ${userId} en ligne, room rejointe: ${roomName}`);
+        logger.info(`Ã°Å¸â€œÂ¡ Socket ${socket.id} dans room ${roomName}`);
         
         socket.emit('driver-room-joined', { 
           success: true, 
@@ -241,10 +241,10 @@ export class SocketHandler {
         });
       });
       
-      // Event: Join room générique (utilisé par PWA)
+      // Event: Join room gÃƒÂ©nÃƒÂ©rique (utilisÃƒÂ© par PWA)
       socket.on('join-room', (roomName: string) => {
         socket.join(roomName);
-        logger.info(`🚪 Socket ${socket.id} a rejoint room: ${roomName}`);
+        logger.info(`Ã°Å¸Å¡Âª Socket ${socket.id} a rejoint room: ${roomName}`);
         
         socket.emit('room-joined', { 
           success: true, 
@@ -252,16 +252,16 @@ export class SocketHandler {
         });
       });
 
-      // Event: Rejoindre la room d'une offre (pour suivre les mises à jour)
+      // Event: Rejoindre la room d'une offre (pour suivre les mises ÃƒÂ  jour)
       socket.on('watch-offer', (offerId: string) => {
         socket.join(`offer-${offerId}`);
-        logger.info(`👁️ User ${socket.userId} surveille l'offre ${offerId}`);
+        logger.info(`Ã°Å¸â€˜ÂÃ¯Â¸Â User ${socket.userId} surveille l'offre ${offerId}`);
       });
 
-      // Event: Arrêter de surveiller une offre
+      // Event: ArrÃƒÂªter de surveiller une offre
       socket.on('unwatch-offer', (offerId: string) => {
         socket.leave(`offer-${offerId}`);
-        logger.info(`👋 User ${socket.userId} ne surveille plus l'offre ${offerId}`);
+        logger.info(`Ã°Å¸â€˜â€¹ User ${socket.userId} ne surveille plus l'offre ${offerId}`);
       });
 
       // Event: Marquer une notification comme lue
@@ -279,11 +279,11 @@ export class SocketHandler {
               success: true
             });
 
-            // Mettre à jour le compteur non lues
+            // Mettre ÃƒÂ  jour le compteur non lues
             this.sendUnreadCount(socket.userId!);
           }
         } catch (error) {
-          logger.error('❌ Erreur mark notification read:', error);
+          logger.error('Ã¢ÂÅ’ Erreur mark notification read:', error);
         }
       });
 
@@ -300,15 +300,15 @@ export class SocketHandler {
               success: true
             });
 
-            // Mettre à jour le compteur non lues
+            // Mettre ÃƒÂ  jour le compteur non lues
             this.sendUnreadCount(socket.userId);
           }
         } catch (error) {
-          logger.error('❌ Erreur mark all notifications read:', error);
+          logger.error('Ã¢ÂÅ’ Erreur mark all notifications read:', error);
         }
       });
 
-      // ==================== ÉVÉNEMENTS TMS (LIVRAISONS) ====================
+      // ==================== Ãƒâ€°VÃƒâ€°NEMENTS TMS (LIVRAISONS) ====================
 
       // Event: Driver accepte une livraison
       socket.on('accept-delivery', async (data: {
@@ -318,9 +318,9 @@ export class SocketHandler {
         try {
           const { deliveryId, driverId } = data;
           
-          logger.info(`🚚 Driver ${driverId} accepte livraison ${deliveryId}`);
+          logger.info(`Ã°Å¸Å¡Å¡ Driver ${driverId} accepte livraison ${deliveryId}`);
 
-          // Importer le modèle Delivery dynamiquement
+          // Importer le modÃƒÂ¨le Delivery dynamiquement
           const Delivery = require('../models/Delivery').default;
           const delivery = await Delivery.findById(deliveryId).exec();
 
@@ -332,7 +332,7 @@ export class SocketHandler {
             return;
           }
 
-          // Vérifier que la livraison est disponible
+          // VÃƒÂ©rifier que la livraison est disponible
           if (delivery.status !== 'pending') {
             socket.emit('delivery-accept-error', {
               success: false,
@@ -348,11 +348,11 @@ export class SocketHandler {
           delivery.assignedAt = new Date();
           await delivery.save();
 
-          // Populate pour renvoyer les données complètes
+          // Populate pour renvoyer les donnÃƒÂ©es complÃƒÂ¨tes
           await delivery.populate('requesterId', 'name phone email avatar');
           await delivery.populate('supplierId', 'name phone email location');
 
-          logger.info(`✅ Livraison ${deliveryId} assignée au driver ${driverId}`);
+          logger.info(`Ã¢Å“â€¦ Livraison ${deliveryId} assignÃƒÂ©e au driver ${driverId}`);
 
           // Confirmer au driver
           socket.emit('delivery-accepted', {
@@ -365,7 +365,7 @@ export class SocketHandler {
             deliveryId,
             driverId,
             delivery,
-            message: 'Un chauffeur a été assigné à votre livraison'
+            message: 'Un chauffeur a ÃƒÂ©tÃƒÂ© assignÃƒÂ© ÃƒÂ  votre livraison'
           });
 
           // Notifier le client
@@ -374,12 +374,12 @@ export class SocketHandler {
               deliveryId,
               driverId,
               delivery,
-              message: 'Votre chauffeur est en route pour récupérer votre commande'
+              message: 'Votre chauffeur est en route pour rÃƒÂ©cupÃƒÂ©rer votre commande'
             });
           }
 
         } catch (error) {
-          logger.error('❌ Erreur accept-delivery:', error);
+          logger.error('Ã¢ÂÅ’ Erreur accept-delivery:', error);
           socket.emit('delivery-accept-error', {
             success: false,
             error: 'Erreur serveur lors de l\'acceptation'
@@ -387,9 +387,9 @@ export class SocketHandler {
         }
       });
 
-      // ==================== ÉVÉNEMENTS PROPOSITIONS (NOUVEAU SYSTÈME) ====================
+      // ==================== Ãƒâ€°VÃƒâ€°NEMENTS PROPOSITIONS (NOUVEAU SYSTÃƒË†ME) ====================
 
-      // Event: Driver accepte une PROPOSITION (nouveau système avec timeout)
+      // Event: Driver accepte une PROPOSITION (nouveau systÃƒÂ¨me avec timeout)
       socket.on('accept-delivery-proposal', async (data: {
         proposalId: string;
         driverId: string;
@@ -397,7 +397,7 @@ export class SocketHandler {
         try {
           const { proposalId, driverId } = data;
           
-          logger.info(`✅ Driver ${driverId} accepte PROPOSITION ${proposalId}`);
+          logger.info(`Ã¢Å“â€¦ Driver ${driverId} accepte PROPOSITION ${proposalId}`);
 
           // Importer le service de matching
           const deliveryMatchingService = require('../services/deliveryMatchingService').default;
@@ -405,13 +405,13 @@ export class SocketHandler {
           // Accepter la proposition
           const proposal = await deliveryMatchingService.acceptProposal(proposalId, driverId);
 
-          // Récupérer la livraison assignée
+          // RÃƒÂ©cupÃƒÂ©rer la livraison assignÃƒÂ©e
           const Delivery = require('../models/Delivery').default;
           const delivery = await Delivery.findById(proposal.deliveryId).exec()
             .populate('requesterId', 'name phone email avatar')
             .populate('supplierId', 'name phone email location');
 
-          logger.info(`🚀 Livraison ${proposal.deliveryId} assignée au driver ${driverId} via proposition`);
+          logger.info(`Ã°Å¸Å¡â‚¬ Livraison ${proposal.deliveryId} assignÃƒÂ©e au driver ${driverId} via proposition`);
 
           // Confirmer au driver
           socket.emit('proposal-accepted', {
@@ -427,7 +427,7 @@ export class SocketHandler {
               deliveryId: delivery._id,
               driverId,
               delivery,
-              message: 'Un chauffeur a été assigné à votre livraison'
+              message: 'Un chauffeur a ÃƒÂ©tÃƒÂ© assignÃƒÂ© ÃƒÂ  votre livraison'
             });
           }
 
@@ -437,12 +437,12 @@ export class SocketHandler {
               deliveryId: delivery._id,
               driverId,
               delivery,
-              message: 'Votre chauffeur est en route pour récupérer votre commande'
+              message: 'Votre chauffeur est en route pour rÃƒÂ©cupÃƒÂ©rer votre commande'
             });
           }
 
         } catch (error: any) {
-          logger.error('❌ Erreur accept-delivery-proposal:', error);
+          logger.error('Ã¢ÂÅ’ Erreur accept-delivery-proposal:', error);
           socket.emit('proposal-accept-error', {
             success: false,
             error: error.message || 'Erreur lors de l\'acceptation de la proposition'
@@ -450,7 +450,7 @@ export class SocketHandler {
         }
       });
 
-      // Event: Driver refuse une PROPOSITION (nouveau système)
+      // Event: Driver refuse une PROPOSITION (nouveau systÃƒÂ¨me)
       socket.on('reject-delivery-proposal', async (data: {
         proposalId: string;
         driverId: string;
@@ -459,7 +459,7 @@ export class SocketHandler {
         try {
           const { proposalId, driverId, reason } = data;
           
-          logger.info(`🚫 Driver ${driverId} refuse PROPOSITION ${proposalId}. Raison: ${reason || 'other'}`);
+          logger.info(`Ã°Å¸Å¡Â« Driver ${driverId} refuse PROPOSITION ${proposalId}. Raison: ${reason || 'other'}`);
 
           // Importer le service de matching
           const deliveryMatchingService = require('../services/deliveryMatchingService').default;
@@ -471,7 +471,7 @@ export class SocketHandler {
             reason || 'other'
           );
 
-          logger.info(`📊 Proposition ${proposalId} refusée en ${proposal.responseTime}ms`);
+          logger.info(`Ã°Å¸â€œÅ  Proposition ${proposalId} refusÃƒÂ©e en ${proposal.responseTime}ms`);
 
           // Confirmer au driver
           socket.emit('proposal-rejected', {
@@ -482,10 +482,10 @@ export class SocketHandler {
           });
 
           // L'algorithme continuera automatiquement avec le prochain driver
-          // grâce au système waitForDriverResponse() qui vérifie le statut
+          // grÃƒÂ¢ce au systÃƒÂ¨me waitForDriverResponse() qui vÃƒÂ©rifie le statut
 
         } catch (error: any) {
-          logger.error('❌ Erreur reject-delivery-proposal:', error);
+          logger.error('Ã¢ÂÅ’ Erreur reject-delivery-proposal:', error);
           socket.emit('proposal-reject-error', {
             success: false,
             error: error.message || 'Erreur lors du refus de la proposition'
@@ -493,7 +493,7 @@ export class SocketHandler {
         }
       });
 
-      // ==================== FIN ÉVÉNEMENTS PROPOSITIONS ====================
+      // ==================== FIN Ãƒâ€°VÃƒâ€°NEMENTS PROPOSITIONS ====================
 
       // Event: Driver refuse une livraison
       socket.on('refuse-delivery', async (data: {
@@ -504,7 +504,7 @@ export class SocketHandler {
         try {
           const { deliveryId, driverId, reason } = data;
           
-          logger.info(`🚫 Driver ${driverId} refuse livraison ${deliveryId}. Raison: ${reason || 'Non spécifiée'}`);
+          logger.info(`Ã°Å¸Å¡Â« Driver ${driverId} refuse livraison ${deliveryId}. Raison: ${reason || 'Non spÃƒÂ©cifiÃƒÂ©e'}`);
 
           // Log le refus pour analytics
           const Delivery = require('../models/Delivery').default;
@@ -517,7 +517,7 @@ export class SocketHandler {
             }
             delivery.refusedBy.push({
               driverId,
-              reason: reason || 'Non spécifié',
+              reason: reason || 'Non spÃƒÂ©cifiÃƒÂ©',
               timestamp: new Date()
             });
             await delivery.save();
@@ -528,14 +528,14 @@ export class SocketHandler {
             deliveryId
           });
 
-          logger.info(`✅ Refus de livraison ${deliveryId} enregistré`);
+          logger.info(`Ã¢Å“â€¦ Refus de livraison ${deliveryId} enregistrÃƒÂ©`);
 
         } catch (error) {
-          logger.error('❌ Erreur refuse-delivery:', error);
+          logger.error('Ã¢ÂÅ’ Erreur refuse-delivery:', error);
         }
       });
 
-      // Event: Mise à jour de la position GPS du driver
+      // Event: Mise ÃƒÂ  jour de la position GPS du driver
       socket.on('update-location', async (data: {
         driverId: string;
         latitude: number;
@@ -546,7 +546,7 @@ export class SocketHandler {
         try {
           const { driverId, latitude, longitude, heading, speed } = data;
 
-          // Mettre à jour la position du driver dans la DB
+          // Mettre ÃƒÂ  jour la position du driver dans la DB
           const Driver = require('../models/Driver').default;
           await Driver.findOneAndUpdate(
             { userId: driverId },
@@ -561,7 +561,7 @@ export class SocketHandler {
             }
           );
 
-          // Émettre la position aux clients qui suivent ce driver
+          // Ãƒâ€°mettre la position aux clients qui suivent ce driver
           this.io.emit('driver-location-update', {
             driverId,
             location: { latitude, longitude },
@@ -571,11 +571,11 @@ export class SocketHandler {
           });
 
         } catch (error) {
-          logger.error('❌ Erreur update-location:', error);
+          logger.error('Ã¢ÂÅ’ Erreur update-location:', error);
         }
       });
 
-      // Event: Pickup complété
+      // Event: Pickup complÃƒÂ©tÃƒÂ©
       socket.on('pickup-completed', async (data: {
         deliveryId: string;
         driverId: string;
@@ -585,7 +585,7 @@ export class SocketHandler {
         try {
           const { deliveryId, driverId, timestamp, photo } = data;
 
-          logger.info(`📦 Pickup complété pour livraison ${deliveryId} par driver ${driverId}`);
+          logger.info(`Ã°Å¸â€œÂ¦ Pickup complÃƒÂ©tÃƒÂ© pour livraison ${deliveryId} par driver ${driverId}`);
 
           const Delivery = require('../models/Delivery').default;
           const delivery = await Delivery.findById(deliveryId).exec();
@@ -598,7 +598,7 @@ export class SocketHandler {
             return;
           }
 
-          // Mettre à jour le statut
+          // Mettre ÃƒÂ  jour le statut
           delivery.status = 'picked_up';
           delivery.pickedUpAt = timestamp || new Date();
           if (photo) {
@@ -608,7 +608,7 @@ export class SocketHandler {
 
           await delivery.populate('requesterId supplierId');
 
-          logger.info(`✅ Pickup ${deliveryId} enregistré`);
+          logger.info(`Ã¢Å“â€¦ Pickup ${deliveryId} enregistrÃƒÂ©`);
 
           // Confirmer au driver
           socket.emit('pickup-confirmed', {
@@ -620,7 +620,7 @@ export class SocketHandler {
           this.io.to(delivery.supplierId.toString()).emit('delivery-picked-up', {
             deliveryId,
             driverId,
-            message: 'Le chauffeur a récupéré la commande'
+            message: 'Le chauffeur a rÃƒÂ©cupÃƒÂ©rÃƒÂ© la commande'
           });
 
           // Notifier le client
@@ -633,7 +633,7 @@ export class SocketHandler {
           }
 
         } catch (error) {
-          logger.error('❌ Erreur pickup-completed:', error);
+          logger.error('Ã¢ÂÅ’ Erreur pickup-completed:', error);
           socket.emit('pickup-error', {
             success: false,
             error: 'Erreur lors de l\'enregistrement du pickup'
@@ -641,7 +641,7 @@ export class SocketHandler {
         }
       });
 
-      // Event: Livraison complétée
+      // Event: Livraison complÃƒÂ©tÃƒÂ©e
       socket.on('delivery-completed', async (data: {
         deliveryId: string;
         driverId: string;
@@ -652,7 +652,7 @@ export class SocketHandler {
         try {
           const { deliveryId, driverId, timestamp, signature, photo } = data;
 
-          logger.info(`✅ Livraison complétée ${deliveryId} par driver ${driverId}`);
+          logger.info(`Ã¢Å“â€¦ Livraison complÃƒÂ©tÃƒÂ©e ${deliveryId} par driver ${driverId}`);
 
           const Delivery = require('../models/Delivery').default;
           const delivery = await Delivery.findById(deliveryId).exec();
@@ -665,7 +665,7 @@ export class SocketHandler {
             return;
           }
 
-          // Mettre à jour le statut
+          // Mettre ÃƒÂ  jour le statut
           delivery.status = 'delivered';
           delivery.deliveredAt = timestamp || new Date();
           if (signature) {
@@ -678,7 +678,7 @@ export class SocketHandler {
 
           await delivery.populate('requesterId supplierId');
 
-          logger.info(`🎉 Livraison ${deliveryId} terminée avec succès`);
+          logger.info(`Ã°Å¸Å½â€° Livraison ${deliveryId} terminÃƒÂ©e avec succÃƒÂ¨s`);
 
           // Confirmer au driver
           socket.emit('delivery-confirmed', {
@@ -690,7 +690,7 @@ export class SocketHandler {
           this.io.to(delivery.supplierId.toString()).emit('delivery-completed', {
             deliveryId,
             driverId,
-            message: 'La livraison a été effectuée avec succès'
+            message: 'La livraison a ÃƒÂ©tÃƒÂ© effectuÃƒÂ©e avec succÃƒÂ¨s'
           });
 
           // Notifier le client
@@ -698,12 +698,12 @@ export class SocketHandler {
             this.io.to(delivery.requesterId.toString()).emit('delivery-received', {
               deliveryId,
               driverId,
-              message: 'Votre commande a été livrée ! Bon appétit 🍽️'
+              message: 'Votre commande a ÃƒÂ©tÃƒÂ© livrÃƒÂ©e ! Bon appÃƒÂ©tit Ã°Å¸ÂÂ½Ã¯Â¸Â'
             });
           }
 
         } catch (error) {
-          logger.error('❌ Erreur delivery-completed:', error);
+          logger.error('Ã¢ÂÅ’ Erreur delivery-completed:', error);
           socket.emit('delivery-error', {
             success: false,
             error: 'Erreur lors de l\'enregistrement de la livraison'
@@ -711,9 +711,9 @@ export class SocketHandler {
         }
       });
 
-      // ==================== ÉVÉNEMENTS PROPOSITIONS DELIVERY ====================
+      // ==================== Ãƒâ€°VÃƒâ€°NEMENTS PROPOSITIONS DELIVERY ====================
 
-      // Event: Driver accepte une proposition (nouveau système)
+      // Event: Driver accepte une proposition (nouveau systÃƒÂ¨me)
       socket.on('accept-delivery-proposal', async (data: {
         proposalId: string;
         driverId: string;
@@ -721,7 +721,7 @@ export class SocketHandler {
         try {
           const { proposalId, driverId } = data;
           
-          logger.info(`✅ Driver ${driverId} accepte proposition ${proposalId}`);
+          logger.info(`Ã¢Å“â€¦ Driver ${driverId} accepte proposition ${proposalId}`);
 
           // Importer le service
           const deliveryMatchingService = require('../services/deliveryMatchingService').default;
@@ -732,13 +732,13 @@ export class SocketHandler {
           socket.emit('proposal-accepted', {
             success: true,
             proposal,
-            message: 'Proposition acceptée ! La livraison vous est assignée.'
+            message: 'Proposition acceptÃƒÂ©e ! La livraison vous est assignÃƒÂ©e.'
           });
 
-          logger.info(`🎉 Proposition ${proposalId} acceptée par driver ${driverId}`);
+          logger.info(`Ã°Å¸Å½â€° Proposition ${proposalId} acceptÃƒÂ©e par driver ${driverId}`);
 
         } catch (error: any) {
-          logger.error('❌ Erreur accept-delivery-proposal:', error);
+          logger.error('Ã¢ÂÅ’ Erreur accept-delivery-proposal:', error);
           socket.emit('proposal-accept-error', {
             success: false,
             error: error.message || 'Erreur lors de l\'acceptation'
@@ -746,7 +746,7 @@ export class SocketHandler {
         }
       });
 
-      // Event: Driver refuse une proposition (nouveau système)
+      // Event: Driver refuse une proposition (nouveau systÃƒÂ¨me)
       socket.on('reject-delivery-proposal', async (data: {
         proposalId: string;
         driverId: string;
@@ -755,7 +755,7 @@ export class SocketHandler {
         try {
           const { proposalId, driverId, reason } = data;
           
-          logger.info(`🚫 Driver ${driverId} refuse proposition ${proposalId}. Raison: ${reason || 'other'}`);
+          logger.info(`Ã°Å¸Å¡Â« Driver ${driverId} refuse proposition ${proposalId}. Raison: ${reason || 'other'}`);
 
           // Importer le service
           const deliveryMatchingService = require('../services/deliveryMatchingService').default;
@@ -770,13 +770,13 @@ export class SocketHandler {
           socket.emit('proposal-rejected', {
             success: true,
             proposal,
-            message: 'Proposition refusée. Nous cherchons un autre chauffeur.'
+            message: 'Proposition refusÃƒÂ©e. Nous cherchons un autre chauffeur.'
           });
 
-          logger.info(`✅ Proposition ${proposalId} refusée par driver ${driverId}`);
+          logger.info(`Ã¢Å“â€¦ Proposition ${proposalId} refusÃƒÂ©e par driver ${driverId}`);
 
         } catch (error: any) {
-          logger.error('❌ Erreur reject-delivery-proposal:', error);
+          logger.error('Ã¢ÂÅ’ Erreur reject-delivery-proposal:', error);
           socket.emit('proposal-reject-error', {
             success: false,
             error: error.message || 'Erreur lors du refus'
@@ -784,11 +784,11 @@ export class SocketHandler {
         }
       });
 
-      // ==================== FIN ÉVÉNEMENTS PROPOSITIONS ====================
+      // ==================== FIN Ãƒâ€°VÃƒâ€°NEMENTS PROPOSITIONS ====================
 
-      // ==================== FIN ÉVÉNEMENTS TMS ====================
+      // ==================== FIN Ãƒâ€°VÃƒâ€°NEMENTS TMS ====================
 
-      // Event: Déconnexion
+      // Event: DÃƒÂ©connexion
       socket.on('disconnect', () => {
         if (socket.userId) {
           connectedUsers.delete(socket.userId);
@@ -799,30 +799,30 @@ export class SocketHandler {
             timestamp: new Date()
           });
 
-          logger.info(`🔌 Client déconnecté: ${socket.id} (User: ${socket.userId})`);
+          logger.info(`Ã°Å¸â€Å’ Client dÃƒÂ©connectÃƒÂ©: ${socket.id} (User: ${socket.userId})`);
         }
       });
     });
   }
 
   /**
-   * Envoyer une notification à un utilisateur spécifique
+   * Envoyer une notification ÃƒÂ  un utilisateur spÃƒÂ©cifique
    */
   public async sendNotification(userId: string, notification: any) {
     try {
       this.io.to(userId).emit('notification', notification);
-      logger.info(`🔔 Notification envoyée à user ${userId}`);
+      logger.info(`Ã°Å¸â€â€ Notification envoyÃƒÂ©e ÃƒÂ  user ${userId}`);
 
-      // Mettre à jour le compteur non lues
+      // Mettre ÃƒÂ  jour le compteur non lues
       this.sendUnreadCount(userId);
 
     } catch (error) {
-      logger.error('❌ Erreur envoi notification:', error);
+      logger.error('Ã¢ÂÅ’ Erreur envoi notification:', error);
     }
   }
 
   /**
-   * Envoyer des notifications en masse à plusieurs utilisateurs
+   * Envoyer des notifications en masse ÃƒÂ  plusieurs utilisateurs
    */
   public async sendBulkNotifications(userIds: string[], notification: any) {
     try {
@@ -830,15 +830,15 @@ export class SocketHandler {
         this.io.to(userId).emit('notification', notification);
       });
 
-      logger.info(`🔔 Notifications en masse envoyées à ${userIds.length} utilisateurs`);
+      logger.info(`Ã°Å¸â€â€ Notifications en masse envoyÃƒÂ©es ÃƒÂ  ${userIds.length} utilisateurs`);
 
     } catch (error) {
-      logger.error('❌ Erreur envoi notifications masse:', error);
+      logger.error('Ã¢ÂÅ’ Erreur envoi notifications masse:', error);
     }
   }
 
   /**
-   * Notifier une mise à jour d'offre
+   * Notifier une mise ÃƒÂ  jour d'offre
    */
   public notifyOfferUpdate(offerId: string, update: any) {
     try {
@@ -848,15 +848,15 @@ export class SocketHandler {
         timestamp: new Date()
       });
 
-      logger.info(`📢 Mise à jour offre ${offerId} notifiée`);
+      logger.info(`Ã°Å¸â€œÂ¢ Mise ÃƒÂ  jour offre ${offerId} notifiÃƒÂ©e`);
 
     } catch (error) {
-      logger.error('❌ Erreur notification offer update:', error);
+      logger.error('Ã¢ÂÅ’ Erreur notification offer update:', error);
     }
   }
 
   /**
-   * Envoyer le compteur de notifications non lues à un utilisateur
+   * Envoyer le compteur de notifications non lues ÃƒÂ  un utilisateur
    */
   private async sendUnreadCount(userId: string) {
     try {
@@ -872,12 +872,12 @@ export class SocketHandler {
       });
 
     } catch (error) {
-      logger.error('❌ Erreur envoi unread count:', error);
+      logger.error('Ã¢ÂÅ’ Erreur envoi unread count:', error);
     }
   }
 
   /**
-   * Vérifier si un utilisateur est en ligne
+   * VÃƒÂ©rifier si un utilisateur est en ligne
    */
   public isUserOnline(userId: string): boolean {
     return connectedUsers.has(userId);
@@ -891,14 +891,14 @@ export class SocketHandler {
   }
 
   /**
-   * Obtenir le nombre d'utilisateurs connectés
+   * Obtenir le nombre d'utilisateurs connectÃƒÂ©s
    */
   public getOnlineUsersCount(): number {
     return connectedUsers.size;
   }
 
   /**
-   * Obtenir la liste des utilisateurs connectés
+   * Obtenir la liste des utilisateurs connectÃƒÂ©s
    */
   public getOnlineUsers(): string[] {
     return Array.from(connectedUsers.keys());

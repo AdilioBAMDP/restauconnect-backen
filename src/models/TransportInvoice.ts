@@ -9,7 +9,7 @@ export interface ITransportInvoice extends Document {
   deliveryIds: mongoose.Types.ObjectId[];
   routeId?: mongoose.Types.ObjectId;
   
-  // Détails financiers
+  // DÃƒÂ©tails financiers
   items: {
     deliveryId: mongoose.Types.ObjectId;
     description: string;
@@ -141,11 +141,11 @@ const TransportInvoiceSchema = new Schema<ITransportInvoice>({
   timestamps: true
 });
 
-// Index composés
+// Index composÃƒÂ©s
 TransportInvoiceSchema.index({ transporteurId: 1, status: 1 });
 TransportInvoiceSchema.index({ clientId: 1, issueDate: -1 });
 
-// Méthode pour générer numéro de facture automatique
+// MÃƒÂ©thode pour gÃƒÂ©nÃƒÂ©rer numÃƒÂ©ro de facture automatique
 TransportInvoiceSchema.statics.generateInvoiceNumber = async function(transporteurId: string): Promise<string> {
   const year = new Date().getFullYear();
   const month = String(new Date().getMonth() + 1).padStart(2, '0');

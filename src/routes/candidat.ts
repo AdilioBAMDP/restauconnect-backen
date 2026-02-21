@@ -1,4 +1,4 @@
-﻿import express, { Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import JobOffer from '../models/JobOffer';
 import JobApplication from '../models/JobApplication';
 import { User } from '../models/User';
@@ -6,10 +6,10 @@ import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
-// Middleware pour v�rifier r�le candidat
+// Middleware pour vï¿½rifier rï¿½le candidat
 const requireCandidatRole = (req: any, res: Response, next: Function) => {
   if (req.user?.role !== 'candidat' && req.user?.role !== 'super_admin') {
-    res.status(403).json({ error: 'Acc�s r�serv� aux candidats' });
+    res.status(403).json({ error: 'Accï¿½s rï¿½servï¿½ aux candidats' });
     return;
   }
   next();
@@ -70,7 +70,7 @@ router.get('/jobs', authenticateToken, requireCandidatRole, async (req: any, res
   } catch (error: any) {
     // console.error('Error fetching job offers:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des offres',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des offres',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -78,7 +78,7 @@ router.get('/jobs', authenticateToken, requireCandidatRole, async (req: any, res
 
 /**
  * GET /api/candidat/jobs/:id
- * D�tails d'une offre d'emploi
+ * Dï¿½tails d'une offre d'emploi
  */
 router.get('/jobs/:id', authenticateToken, requireCandidatRole, async (req: any, res: Response) => {
   try {
@@ -93,7 +93,7 @@ router.get('/jobs/:id', authenticateToken, requireCandidatRole, async (req: any,
       return;
     }
 
-    // V�rifier si le candidat a d�j� postul�
+    // Vï¿½rifier si le candidat a dï¿½jï¿½ postulï¿½
     const existingApplication = await JobApplication.findOne({ 
       jobOfferId: id, 
       candidateId 
@@ -108,7 +108,7 @@ router.get('/jobs/:id', authenticateToken, requireCandidatRole, async (req: any,
   } catch (error: any) {
     // console.error('Error fetching job details:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration de l\'offre',
+      error: 'Erreur lors de la rï¿½cupï¿½ration de l\'offre',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -116,7 +116,7 @@ router.get('/jobs/:id', authenticateToken, requireCandidatRole, async (req: any,
 
 /**
  * POST /api/candidat/apply
- * Postuler � une offre d'emploi
+ * Postuler ï¿½ une offre d'emploi
  */
 router.post('/apply', authenticateToken, requireCandidatRole, async (req: any, res: Response) => {
   try {
@@ -143,25 +143,25 @@ router.post('/apply', authenticateToken, requireCandidatRole, async (req: any, r
       return;
     }
 
-    // V�rifier que l'offre existe et est active
+    // Vï¿½rifier que l'offre existe et est active
     const job = await JobOffer.findById(jobOfferId).exec();
     if (!job || !job.isActive || job.expiresAt < new Date()) {
       res.status(400).json({ error: 'Offre d\'emploi non disponible' });
       return;
     }
 
-    // V�rifier que le candidat n'a pas d�j� postul�
+    // Vï¿½rifier que le candidat n'a pas dï¿½jï¿½ postulï¿½
     const existingApplication = await JobApplication.findOne({ 
       jobOfferId, 
       candidateId 
     });
     
     if (existingApplication) {
-      res.status(400).json({ error: 'Vous avez d�j� postul� pour cette offre' });
+      res.status(400).json({ error: 'Vous avez dï¿½jï¿½ postulï¿½ pour cette offre' });
       return;
     }
 
-    // Cr�er la candidature
+    // Crï¿½er la candidature
     const application = new JobApplication({
       jobOfferId,
       candidateId,
@@ -184,14 +184,14 @@ router.post('/apply', authenticateToken, requireCandidatRole, async (req: any, r
 
     await application.save();
 
-    // Mettre � jour le compteur de candidatures
+    // Mettre ï¿½ jour le compteur de candidatures
     await JobOffer.findByIdAndUpdate(jobOfferId, {
       $inc: { applicationsCount: 1 }
     });
 
     res.status(201).json({
       success: true,
-      message: 'Candidature envoy�e avec succ�s',
+      message: 'Candidature envoyï¿½e avec succï¿½s',
       application: {
         id: application._id,
         status: application.status,
@@ -260,7 +260,7 @@ router.get('/applications', authenticateToken, requireCandidatRole, async (req: 
   } catch (error: any) {
     // console.error('Error fetching applications:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des candidatures',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des candidatures',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -268,7 +268,7 @@ router.get('/applications', authenticateToken, requireCandidatRole, async (req: 
 
 /**
  * GET /api/candidat/applications/:id
- * D�tails d'une candidature
+ * Dï¿½tails d'une candidature
  */
 router.get('/applications/:id', authenticateToken, requireCandidatRole, async (req: any, res: Response) => {
   try {
@@ -300,7 +300,7 @@ router.get('/applications/:id', authenticateToken, requireCandidatRole, async (r
   } catch (error: any) {
     // console.error('Error fetching application details:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration de la candidature',
+      error: 'Erreur lors de la rï¿½cupï¿½ration de la candidature',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -308,7 +308,7 @@ router.get('/applications/:id', authenticateToken, requireCandidatRole, async (r
 
 /**
  * PUT /api/candidat/profile
- * Mettre � jour le profil candidat
+ * Mettre ï¿½ jour le profil candidat
  */
 router.put('/profile', authenticateToken, requireCandidatRole, async (req: any, res: Response) => {
   try {
@@ -325,7 +325,7 @@ router.put('/profile', authenticateToken, requireCandidatRole, async (req: any, 
       preferredLocations
     } = req.body;
 
-    // Mettre � jour le profil utilisateur
+    // Mettre ï¿½ jour le profil utilisateur
     const updatedProfile = {
       'profile.specialties': skills || [],
       'profile.certifications': certifications || [],
@@ -344,13 +344,13 @@ router.put('/profile', authenticateToken, requireCandidatRole, async (req: any, 
 
     res.json({
       success: true,
-      message: 'Profil mis � jour avec succ�s',
+      message: 'Profil mis ï¿½ jour avec succï¿½s',
       user
     });
   } catch (error: any) {
     // console.error('Error updating profile:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la mise � jour du profil',
+      error: 'Erreur lors de la mise ï¿½ jour du profil',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -358,20 +358,20 @@ router.put('/profile', authenticateToken, requireCandidatRole, async (req: any, 
 
 /**
  * GET /api/candidat/recommendations
- * Recommandations d'emploi bas�es sur le profil
+ * Recommandations d'emploi basï¿½es sur le profil
  */
 router.get('/recommendations', authenticateToken, requireCandidatRole, async (req: any, res: Response) => {
   try {
     const candidate = req.user;
     const { limit = 10 } = req.query;
 
-    // Crit�res bas�s sur le profil candidat
+    // Critï¿½res basï¿½s sur le profil candidat
     const filter: any = { 
       isActive: true, 
       expiresAt: { $gt: new Date() }
     };
 
-    // Filtrer par sp�cialit�s/comp�tences
+    // Filtrer par spï¿½cialitï¿½s/compï¿½tences
     if (candidate.profile?.specialties?.length > 0) {
       filter.$or = [
         { requirements: { $in: candidate.profile.specialties } },
@@ -398,7 +398,7 @@ router.get('/recommendations', authenticateToken, requireCandidatRole, async (re
   } catch (error: any) {
     // console.error('Error fetching recommendations:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des recommandations',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des recommandations',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }

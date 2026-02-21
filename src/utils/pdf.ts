@@ -1,5 +1,5 @@
 // backend/src/utils/pdf.ts
-// Génération d'exports PDF pour les modules critiques
+// GÃƒÂ©nÃƒÂ©ration d'exports PDF pour les modules critiques
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
 import path from 'path';

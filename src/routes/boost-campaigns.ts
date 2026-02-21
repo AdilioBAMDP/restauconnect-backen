@@ -22,14 +22,14 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
   }
 });
 
-// Créer une campagne de boost
+// CrÃƒÂ©er une campagne de boost
 router.post('/', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const campaignData = req.body;
     
     res.json({
       success: true,
-      message: 'Campagne créée avec succès',
+      message: 'Campagne crÃƒÂ©ÃƒÂ©e avec succÃƒÂ¨s',
       data: {
         _id: 'new-campaign-id',
         ...campaignData,

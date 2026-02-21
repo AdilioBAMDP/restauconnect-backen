@@ -1,4 +1,4 @@
-﻿import multer from 'multer';
+import multer from 'multer';
 import path from 'path';
 import fs from 'fs/promises';
 import crypto from 'crypto';
@@ -68,7 +68,7 @@ export const uploadAny = multer({
   }
 });
 
-// Utilitaires pour le traitement d'images (version simplifiÃ©e)
+// Utilitaires pour le traitement d'images (version simplifiÃƒÂ©e)
 export class ImageProcessor {
   static async resizeImage(
     inputPath: string,
@@ -77,7 +77,7 @@ export class ImageProcessor {
     height?: number,
     quality = 90
   ): Promise<void> {
-    // Version simplifiÃ©e - copier le fichier original
+    // Version simplifiÃƒÂ©e - copier le fichier original
     // Dans une vraie application, utiliser sharp ou une autre librairie
     await fs.copyFile(inputPath, outputPath);
   }
@@ -87,7 +87,7 @@ export class ImageProcessor {
     outputPath: string,
     size = 200
   ): Promise<void> {
-    // Version simplifiÃ©e - copier le fichier original
+    // Version simplifiÃƒÂ©e - copier le fichier original
     await fs.copyFile(inputPath, outputPath);
   }
 
@@ -101,7 +101,7 @@ export class ImageProcessor {
     const ext = path.extname(filePath).toLowerCase();
     
     return {
-      width: 0, // NÃ©cessiterait sharp pour obtenir les vraies dimensions
+      width: 0, // NÃƒÂ©cessiterait sharp pour obtenir les vraies dimensions
       height: 0,
       format: ext.replace('.', ''),
       size: stats.size
@@ -114,7 +114,7 @@ export class ImageProcessor {
     maxWidth = 1920,
     quality = 85
   ): Promise<void> {
-    // Version simplifiÃ©e - copier le fichier original
+    // Version simplifiÃƒÂ©e - copier le fichier original
     await fs.copyFile(inputPath, outputPath);
   }
 }
@@ -138,10 +138,10 @@ export class FileManager {
     const filename = crypto.randomUUID() + path.extname(file.originalname);
     const filePath = path.join(categoryDir, filename);
     
-    // DÃ©placer le fichier vers le bon dossier
+    // DÃƒÂ©placer le fichier vers le bon dossier
     await fs.rename(file.path, filePath);
     
-    // Si c'est une image, crÃ©er des versions optimisÃ©es
+    // Si c'est une image, crÃƒÂ©er des versions optimisÃƒÂ©es
     if (file.mimetype.startsWith('image/')) {
       const thumbnailPath = path.join(categoryDir, 'thumb_' + filename);
       await ImageProcessor.createThumbnail(filePath, thumbnailPath);
@@ -166,7 +166,7 @@ export class FileManager {
     try {
       await fs.unlink(filePath);
       
-      // Supprimer aussi les versions optimisÃ©es si elles existent
+      // Supprimer aussi les versions optimisÃƒÂ©es si elles existent
       const dir = path.dirname(filePath);
       const filename = path.basename(filePath);
       

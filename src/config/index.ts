@@ -1,4 +1,4 @@
-﻿import dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import { logger } from '../utils/logger';
 
 // Load environment variables
@@ -18,17 +18,17 @@ export const config = {
   jwt: {
     secret: process.env.JWT_SECRET || (() => {
       if (process.env.NODE_ENV === 'production') {
-        throw new Error('❌ FATAL: JWT_SECRET is required in production. Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
+        throw new Error('âŒ FATAL: JWT_SECRET is required in production. Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
       }
-      logger.warn('⚠️ WARNING: Using default JWT_SECRET in development. DO NOT use in production!');
+      logger.warn('âš ï¸ WARNING: Using default JWT_SECRET in development. DO NOT use in production!');
       return 'dev-only-jwt-secret-change-for-production';
     })(),
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     refreshSecret: process.env.JWT_REFRESH_SECRET || (() => {
       if (process.env.NODE_ENV === 'production') {
-        throw new Error('❌ FATAL: JWT_REFRESH_SECRET is required in production. Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
+        throw new Error('âŒ FATAL: JWT_REFRESH_SECRET is required in production. Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
       }
-      logger.warn('⚠️ WARNING: Using default JWT_REFRESH_SECRET in development. DO NOT use in production!');
+      logger.warn('âš ï¸ WARNING: Using default JWT_REFRESH_SECRET in development. DO NOT use in production!');
       return 'dev-only-refresh-secret-change-for-production';
     })(),
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '30d'
@@ -64,29 +64,30 @@ export const config = {
   },
   
   cors: {
-    origin: (process.env.CORS_ORIGIN || process.env.CORS_ORIGINS)?.split(',').map(o => o.trim()) || [
-      'http://localhost:3000', 
-      `${process.env.WEB_URL || "http://localhost:5173"}`, 
-      `${process.env.WEB_URL || "http://localhost:5174"}`, 
-      'http://localhost:5175', 
-      'http://localhost:5176', 
-      'http://localhost:5177',
-      'http://127.0.0.1:8080',
-      'http://localhost:8080',
-      'http://localhost:8082',
-      'http://localhost:8083',
-      'http://localhost:8084',
-      'http://localhost:8085',
-      'http://localhost:8086',
-      `${process.env.PWA_URL || "http://localhost:8087"}`,  // ✅ PWA sur différents ports
-      'http://localhost:8088',
-      'http://localhost:8089',
-      'http://localhost:8090',  // ✅ PWA Driver port
-      'http://192.168.1.47:8080',
-      'http://192.168.1.47:8087',
-      'http://192.168.1.47:8090',  // ✅ PWA Driver LAN
-      'https://pendente-skintight-shona.ngrok-free.dev'  // ✅ URL ngrok
-    ],
+      origin: (process.env.CORS_ORIGIN || process.env.CORS_ORIGINS)?.split(',').map(o => o.trim()) || [
+        'https://restauconnect-frontend.vercel.app', // âœ… Vercel frontend
+        'http://localhost:3000', 
+        `${process.env.WEB_URL || "http://localhost:5173"}`, 
+        `${process.env.WEB_URL || "http://localhost:5174"}`, 
+        'http://localhost:5175', 
+        'http://localhost:5176', 
+        'http://localhost:5177',
+        'http://127.0.0.1:8080',
+        'http://localhost:8080',
+        'http://localhost:8082',
+        'http://localhost:8083',
+        'http://localhost:8084',
+        'http://localhost:8085',
+        'http://localhost:8086',
+        `${process.env.PWA_URL || "http://localhost:8087"}`,  // âœ… PWA sur diffÃ©rents ports
+        'http://localhost:8088',
+        'http://localhost:8089',
+        'http://localhost:8090',  // âœ… PWA Driver port
+        'http://192.168.1.47:8080',
+        'http://192.168.1.47:8087',
+        'http://192.168.1.47:8090',  // âœ… PWA Driver LAN
+        'https://pendente-skintight-shona.ngrok-free.dev'  // âœ… URL ngrok
+      ],
     credentials: true
   },
   
@@ -111,14 +112,14 @@ export const config = {
     bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS || '12', 10),
     sessionSecret: process.env.SESSION_SECRET || (() => {
       if (process.env.NODE_ENV === 'production') {
-        throw new Error('❌ FATAL: SESSION_SECRET is required in production. Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
+        throw new Error('âŒ FATAL: SESSION_SECRET is required in production. Generate one with: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
       }
-      logger.warn('⚠️ WARNING: Using default SESSION_SECRET in development. DO NOT use in production!');
+      logger.warn('âš ï¸ WARNING: Using default SESSION_SECRET in development. DO NOT use in production!');
       return 'dev-only-session-secret-change-for-production';
     })(),
     csrfSecret: process.env.CSRF_SECRET || (() => {
       if (process.env.NODE_ENV === 'production') {
-        throw new Error('❌ FATAL: CSRF_SECRET is required in production.');
+        throw new Error('âŒ FATAL: CSRF_SECRET is required in production.');
       }
       return 'dev-only-csrf-secret';
     })()

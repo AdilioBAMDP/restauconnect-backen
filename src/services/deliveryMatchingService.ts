@@ -1,4 +1,4 @@
-﻿import { Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { logger } from '../utils/logger';
 
 // Import models (TypeScript compatible)
@@ -8,29 +8,29 @@ import { User } from '../models/User';
 
 /**
  * Service d'assignation automatique des livreurs
- * Algorithme de matching basÃ© sur la proximitÃ© et la disponibilitÃ©
+ * Algorithme de matching basÃƒÂ© sur la proximitÃƒÂ© et la disponibilitÃƒÂ©
  */
 class DeliveryMatchingService {
   
   private proposalTimeoutMs: number = 15000; // 15 secondes
-  private maxDriversToPropose: number = 10; // Maximum de livreurs Ã  contacter
+  private maxDriversToPropose: number = 10; // Maximum de livreurs ÃƒÂ  contacter
   private searchRadiusKm: number = 10; // Rayon de recherche initial (10 km)
   private testMode: boolean = process.env.TEST_MODE === 'true'; // Mode test: ignore la distance
   
   /**
-   * Trouver les livreurs disponibles Ã  proximitÃ©
-   * @param pickupCoordinates - CoordonnÃ©es du point de collecte [longitude, latitude]
+   * Trouver les livreurs disponibles ÃƒÂ  proximitÃƒÂ©
+   * @param pickupCoordinates - CoordonnÃƒÂ©es du point de collecte [longitude, latitude]
    * @param radiusKm - Rayon de recherche en km
-   * @returns Liste de livreurs disponibles triÃ©s par distance
+   * @returns Liste de livreurs disponibles triÃƒÂ©s par distance
    */
   async findNearbyAvailableDrivers(
     pickupCoordinates: [number, number],
     radiusKm: number = this.searchRadiusKm
   ): Promise<any[]> {
     try {
-      // ðŸ§ª MODE TEST: Ignorer complÃ¨tement la distance gÃ©ographique
+      // Ã°Å¸Â§Âª MODE TEST: Ignorer complÃƒÂ¨tement la distance gÃƒÂ©ographique
       if (this.testMode) {
-        logger.warn('ðŸ§ª MODE TEST ACTIF: Recherche de TOUS les livreurs disponibles (distance ignorÃ©e)');
+        logger.warn('Ã°Å¸Â§Âª MODE TEST ACTIF: Recherche de TOUS les livreurs disponibles (distance ignorÃƒÂ©e)');
         
         const testDrivers = await User.find({
           role: 'driver',
@@ -43,7 +43,7 @@ class DeliveryMatchingService {
         .limit(this.maxDriversToPropose)
         .lean();
 
-        logger.warn(`ðŸ§ª MODE TEST: ${testDrivers.length} livreur(s) trouvÃ©(s) (distance=0 fictive)`);
+        logger.warn(`Ã°Å¸Â§Âª MODE TEST: ${testDrivers.length} livreur(s) trouvÃƒÂ©(s) (distance=0 fictive)`);
         
         return testDrivers.map((driver: any) => ({
           ...driver,
@@ -51,13 +51,13 @@ class DeliveryMatchingService {
         }));
       }
 
-      // âœ… MODE PRODUCTION: Recherche gÃ©ographique normale
+      // Ã¢Å“â€¦ MODE PRODUCTION: Recherche gÃƒÂ©ographique normale
       logger.info('Recherche livreurs disponibles', {
         coordinates: pickupCoordinates,
         radiusKm
       });
 
-      // RequÃªte MongoDB avec $geoNear pour trouver les livreurs les plus proches
+      // RequÃƒÂªte MongoDB avec $geoNear pour trouver les livreurs les plus proches
       const drivers = await User.aggregate([
         {
           $geoNear: {
@@ -65,14 +65,14 @@ class DeliveryMatchingService {
               type: 'Point',
               coordinates: pickupCoordinates
             },
-            distanceField: 'distance', // Distance en mÃ¨tres
-            maxDistance: radiusKm * 1000, // Convertir km en mÃ¨tres
+            distanceField: 'distance', // Distance en mÃƒÂ¨tres
+            maxDistance: radiusKm * 1000, // Convertir km en mÃƒÂ¨tres
             spherical: true,
             query: {
               role: 'driver',
               isOnline: true, // Seulement les livreurs en ligne
               isAvailable: true, // Seulement les livreurs disponibles
-              isVerified: true // Seulement les livreurs vÃ©rifiÃ©s
+              isVerified: true // Seulement les livreurs vÃƒÂ©rifiÃƒÂ©s
             }
           }
         },
@@ -89,7 +89,7 @@ class DeliveryMatchingService {
             email: 1,
             phone: 1,
             location: 1,
-            distance: 1, // Distance en mÃ¨tres
+            distance: 1, // Distance en mÃƒÂ¨tres
             vehicleType: 1,
             rating: 1,
             completedDeliveries: 1
@@ -103,7 +103,7 @@ class DeliveryMatchingService {
         }
       ]);
 
-      logger.info(`${drivers.length} livreur(s) trouvÃ©(s) dans un rayon de ${radiusKm} km`);
+      logger.info(`${drivers.length} livreur(s) trouvÃƒÂ©(s) dans un rayon de ${radiusKm} km`);
 
       return drivers;
 
@@ -114,13 +114,13 @@ class DeliveryMatchingService {
   }
 
   /**
-   * Proposer la livraison aux livreurs un par un (algorithme sÃ©quentiel)
-   * @param delivery - Objet Delivery Ã  assigner
-   * @returns Livraison assignÃ©e ou null si aucun livreur n'accepte
+   * Proposer la livraison aux livreurs un par un (algorithme sÃƒÂ©quentiel)
+   * @param delivery - Objet Delivery ÃƒÂ  assigner
+   * @returns Livraison assignÃƒÂ©e ou null si aucun livreur n'accepte
    */
   async proposeDeliveryToDrivers(delivery: any): Promise<any> {
     try {
-      logger.info('DÃ©but processus assignation automatique', {
+      logger.info('DÃƒÂ©but processus assignation automatique', {
         deliveryId: delivery._id,
         pickupAddress: delivery.pickupAddress
       });
@@ -132,12 +132,12 @@ class DeliveryMatchingService {
       );
 
       if (drivers.length === 0) {
-        logger.warn('Aucun livreur disponible trouvÃ©', {
+        logger.warn('Aucun livreur disponible trouvÃƒÂ©', {
           deliveryId: delivery._id,
           radiusKm: this.searchRadiusKm
         });
 
-        // Marquer la livraison comme non assignÃ©e
+        // Marquer la livraison comme non assignÃƒÂ©e
         delivery.status = 'pending';
         await delivery.save();
 
@@ -156,7 +156,7 @@ class DeliveryMatchingService {
           distance: `${distanceKm} km`
         });
 
-        // CrÃ©er une proposition
+        // CrÃƒÂ©er une proposition
         const proposal = await this.createProposal(delivery._id, driver._id.toString(), driver.distance, i + 1);
 
         // Envoyer notification au livreur via Socket.io
@@ -176,12 +176,12 @@ class DeliveryMatchingService {
           });
         }
 
-        // Attendre la rÃ©ponse du livreur (15 secondes)
+        // Attendre la rÃƒÂ©ponse du livreur (15 secondes)
         const accepted = await this.waitForDriverResponse(proposal._id);
 
         if (accepted) {
-          // Le livreur a acceptÃ© !
-          logger.info('Livreur a acceptÃ© la proposition', {
+          // Le livreur a acceptÃƒÂ© !
+          logger.info('Livreur a acceptÃƒÂ© la proposition', {
             driverId: driver._id,
             deliveryId: delivery._id
           });
@@ -191,8 +191,8 @@ class DeliveryMatchingService {
 
           return delivery;
         } else {
-          // Le livreur a refusÃ© ou timeout â†’ Continuer avec le suivant
-          logger.info('Livreur n\'a pas acceptÃ©, passage au suivant', {
+          // Le livreur a refusÃƒÂ© ou timeout Ã¢â€ â€™ Continuer avec le suivant
+          logger.info('Livreur n\'a pas acceptÃƒÂ©, passage au suivant', {
             driverId: driver._id,
             deliveryId: delivery._id,
             rank: i + 1
@@ -200,8 +200,8 @@ class DeliveryMatchingService {
         }
       }
 
-      // Aucun livreur n'a acceptÃ©
-      logger.warn('Aucun livreur n\'a acceptÃ© la livraison', {
+      // Aucun livreur n'a acceptÃƒÂ©
+      logger.warn('Aucun livreur n\'a acceptÃƒÂ© la livraison', {
         deliveryId: delivery._id,
         driversContacted: drivers.length
       });
@@ -219,11 +219,11 @@ class DeliveryMatchingService {
   }
 
   /**
-   * CrÃ©er une proposition de livraison
+   * CrÃƒÂ©er une proposition de livraison
    * @param deliveryId - ID de la livraison
    * @param driverId - ID du livreur
-   * @param distance - Distance en mÃ¨tres
-   * @param rank - Rang de la proposition (1er, 2Ã¨me, etc.)
+   * @param distance - Distance en mÃƒÂ¨tres
+   * @param rank - Rang de la proposition (1er, 2ÃƒÂ¨me, etc.)
    */
   private async createProposal(
     deliveryId: Types.ObjectId,
@@ -232,25 +232,25 @@ class DeliveryMatchingService {
     rank: number
   ): Promise<any> {
     try {
-      // 📍 RÉCUPÉRER LES INFORMATIONS DE LA LIVRAISON
+      // ðŸ“ RÃ‰CUPÃ‰RER LES INFORMATIONS DE LA LIVRAISON
       const delivery = await DeliveryModel.findById(deliveryId)
         .populate('requesterId', 'name firstName lastName email')
         .populate('supplierId', 'name firstName lastName email')
         .populate('orderId', 'orderNumber pricing customerName customerPhone items');
 
       if (!delivery) {
-        throw new Error('Livraison non trouvée');
+        throw new Error('Livraison non trouvÃ©e');
       }
 
-      // 🧮 CALCULS DES ESTIMATIONS
+      // ðŸ§® CALCULS DES ESTIMATIONS
       const distanceKm = distance / 1000;
       const estimatedDuration = Math.ceil(distanceKm * 3); // 3 min par km
       const estimatedEarnings = this.calculateEarnings(distance, delivery.pricing?.totalCost || 5);
-      const matchingScore = Math.max(0, 100 - (distanceKm * 2) - (rank * 5)); // Score basé sur distance et rang
+      const matchingScore = Math.max(0, 100 - (distanceKm * 2) - (rank * 5)); // Score basÃ© sur distance et rang
 
       const expiresAt = new Date(Date.now() + this.proposalTimeoutMs);
 
-      // 🏗️ CONSTRUIRE LE PROPOSAL AVEC TOUS LES CHAMPS REQUIS
+      // ðŸ—ï¸ CONSTRUIRE LE PROPOSAL AVEC TOUS LES CHAMPS REQUIS
       const proposal = new DeliveryProposal({
         deliveryId,
         driverId,
@@ -262,7 +262,7 @@ class DeliveryMatchingService {
         estimatedDuration,
         estimatedDistance: distanceKm,
         
-        // 📍 PICKUP LOCATION
+        // ðŸ“ PICKUP LOCATION
         pickupLocation: {
           latitude: delivery.pickupAddress?.latitude || 48.8566,
           longitude: delivery.pickupAddress?.longitude || 2.3522,
@@ -271,7 +271,7 @@ class DeliveryMatchingService {
           contactPhone: delivery.pickupAddress?.contactPhone || '0123456789'
         },
         
-        // 📍 DELIVERY LOCATION  
+        // ðŸ“ DELIVERY LOCATION  
         deliveryLocation: {
           latitude: delivery.deliveryAddress?.latitude || 48.8766,
           longitude: delivery.deliveryAddress?.longitude || 2.3722,
@@ -280,14 +280,14 @@ class DeliveryMatchingService {
           contactPhone: delivery.deliveryAddress?.contactPhone || '0123456789'
         },
         
-        // 👤 CUSTOMER INFO
+        // ðŸ‘¤ CUSTOMER INFO
         customerInfo: {
           name: delivery.customerName || 'Client',
           phone: delivery.customerPhone || '0123456789',
           notes: delivery.specialInstructions
         },
         
-        // 📦 ORDER INFO
+        // ðŸ“¦ ORDER INFO
         orderInfo: {
           orderNumber: (delivery as any).orderId?.orderNumber || `ORDER-${Date.now()}`,
           restaurantName: (delivery as any).requesterId?.name || 'Restaurant',
@@ -305,7 +305,7 @@ class DeliveryMatchingService {
         notificationSent: false,
         viewedByDriver: false,
         
-        // 📊 METADATA
+        // ðŸ“Š METADATA
         metadata: {
           algorithmVersion: '1.0',
           matchingFactors: {
@@ -318,17 +318,17 @@ class DeliveryMatchingService {
           source: 'automatic'
         },
         
-        // 📅 TIMELINE
+        // ðŸ“… TIMELINE
         timeline: [{
           status: 'pending',
           timestamp: new Date(),
-          note: `Proposition créée pour livreur (rang ${rank})`
+          note: `Proposition crÃ©Ã©e pour livreur (rang ${rank})`
         }]
       });
 
       await proposal.save();
 
-      logger.info('Proposition créée avec tous les champs requis', {
+      logger.info('Proposition crÃ©Ã©e avec tous les champs requis', {
         proposalId: proposal._id,
         deliveryId,
         driverId,
@@ -341,19 +341,19 @@ class DeliveryMatchingService {
       return proposal;
 
     } catch (error) {
-      logger.error('Erreur crÃ©ation proposition', error);
+      logger.error('Erreur crÃƒÂ©ation proposition', error);
       throw error;
     }
   }
 
   /**
-   * Attendre la rÃ©ponse du livreur (Promise avec timeout)
+   * Attendre la rÃƒÂ©ponse du livreur (Promise avec timeout)
    * @param proposalId - ID de la proposition
-   * @returns true si acceptÃ©, false si refusÃ©/expirÃ©
+   * @returns true si acceptÃƒÂ©, false si refusÃƒÂ©/expirÃƒÂ©
    */
   private async waitForDriverResponse(proposalId: Types.ObjectId): Promise<boolean> {
     return new Promise((resolve) => {
-      const checkInterval = 500; // VÃ©rifier toutes les 500ms
+      const checkInterval = 500; // VÃƒÂ©rifier toutes les 500ms
       const maxChecks = this.proposalTimeoutMs / checkInterval; // 15000 / 500 = 30 checks
       let checks = 0;
 
@@ -369,14 +369,14 @@ class DeliveryMatchingService {
             return;
           }
 
-          // Le livreur a acceptÃ©
+          // Le livreur a acceptÃƒÂ©
           if (proposal.status === 'accepted') {
             clearInterval(intervalId);
             resolve(true);
             return;
           }
 
-          // Le livreur a refusÃ©
+          // Le livreur a refusÃƒÂ©
           if (proposal.status === 'declined') {
             clearInterval(intervalId);
             resolve(false);
@@ -387,11 +387,11 @@ class DeliveryMatchingService {
           if (checks >= maxChecks) {
             clearInterval(intervalId);
 
-            // Marquer comme expirÃ©
+            // Marquer comme expirÃƒÂ©
             proposal.status = 'expired';
             await proposal.save();
 
-            logger.info('Proposition expirÃ©e (timeout)', {
+            logger.info('Proposition expirÃƒÂ©e (timeout)', {
               proposalId,
               driverId: proposal.driverId
             });
@@ -400,7 +400,7 @@ class DeliveryMatchingService {
           }
 
         } catch (error) {
-          logger.error('Erreur vÃ©rification rÃ©ponse livreur', error);
+          logger.error('Erreur vÃƒÂ©rification rÃƒÂ©ponse livreur', error);
           clearInterval(intervalId);
           resolve(false);
         }
@@ -410,31 +410,31 @@ class DeliveryMatchingService {
   }
 
   /**
-   * Accepter une proposition (appelÃ© par le livreur via Socket.io)
+   * Accepter une proposition (appelÃƒÂ© par le livreur via Socket.io)
    * @param proposalId - ID de la proposition
-   * @param driverId - ID du livreur (vÃ©rification sÃ©curitÃ©)
+   * @param driverId - ID du livreur (vÃƒÂ©rification sÃƒÂ©curitÃƒÂ©)
    */
   async acceptProposal(proposalId: string, driverId: string): Promise<any> {
     try {
       const proposal = await DeliveryProposal.findById(proposalId);
 
       if (!proposal) {
-        throw new Error('Proposition non trouvÃ©e');
+        throw new Error('Proposition non trouvÃƒÂ©e');
       }
 
       if (proposal.driverId.toString() !== driverId) {
-        throw new Error('Livreur non autorisÃ© Ã  accepter cette proposition');
+        throw new Error('Livreur non autorisÃƒÂ© ÃƒÂ  accepter cette proposition');
       }
 
       if (proposal.status !== 'pending') {
-        throw new Error(`Proposition dÃ©jÃ  ${proposal.status}`);
+        throw new Error(`Proposition dÃƒÂ©jÃƒÂ  ${proposal.status}`);
       }
 
-      // VÃ©rifier si pas expirÃ©e
+      // VÃƒÂ©rifier si pas expirÃƒÂ©e
       if (new Date() > proposal.expiresAt) {
         proposal.status = 'expired';
         await proposal.save();
-        throw new Error('Proposition expirÃ©e');
+        throw new Error('Proposition expirÃƒÂ©e');
       }
 
       // Accepter la proposition
@@ -442,7 +442,7 @@ class DeliveryMatchingService {
       proposal.acceptedAt = new Date();
       await proposal.save();
 
-      logger.info('Proposition acceptÃ©e par livreur', {
+      logger.info('Proposition acceptÃƒÂ©e par livreur', {
         proposalId,
         driverId,
         responseTime: (proposal.acceptedAt ? proposal.acceptedAt.getTime() - proposal.proposedAt.getTime() : null)
@@ -470,7 +470,7 @@ class DeliveryMatchingService {
   }
 
   /**
-   * Refuser une proposition (appelÃ© par le livreur via Socket.io)
+   * Refuser une proposition (appelÃƒÂ© par le livreur via Socket.io)
    * @param proposalId - ID de la proposition
    * @param driverId - ID du livreur
    * @param reason - Raison du refus
@@ -484,15 +484,15 @@ class DeliveryMatchingService {
       const proposal = await DeliveryProposal.findById(proposalId);
 
       if (!proposal) {
-        throw new Error('Proposition non trouvÃ©e');
+        throw new Error('Proposition non trouvÃƒÂ©e');
       }
 
       if (proposal.driverId.toString() !== driverId) {
-        throw new Error('Livreur non autorisÃ© Ã  refuser cette proposition');
+        throw new Error('Livreur non autorisÃƒÂ© ÃƒÂ  refuser cette proposition');
       }
 
       if (proposal.status !== 'pending') {
-        throw new Error(`Proposition dÃ©jÃ  ${proposal.status}`);
+        throw new Error(`Proposition dÃƒÂ©jÃƒÂ  ${proposal.status}`);
       }
 
       // Refuser la proposition
@@ -500,7 +500,7 @@ class DeliveryMatchingService {
       proposal.declinedAt = new Date();
       await proposal.save();
 
-      logger.info('Proposition refusÃ©e par livreur', {
+      logger.info('Proposition refusÃƒÂ©e par livreur', {
         proposalId,
         driverId,
         reason,
@@ -516,7 +516,7 @@ class DeliveryMatchingService {
   }
 
   /**
-   * Assigner une livraison Ã  un livreur
+   * Assigner une livraison ÃƒÂ  un livreur
    * @param deliveryId - ID de la livraison
    * @param driverId - ID du livreur
    */
@@ -525,20 +525,20 @@ class DeliveryMatchingService {
     driverId: Types.ObjectId
   ): Promise<any> {
     try {
-      // Mettre à jour la livraison
+      // Mettre Ã  jour la livraison
       const delivery = await DeliveryModel.findById(deliveryId);
       delivery.driverId = driverId;
       delivery.status = 'assigned';
       delivery.assignedAt = new Date();
       await delivery.save();
 
-      // Mettre Ã  jour le livreur
+      // Mettre ÃƒÂ  jour le livreur
       await User.findByIdAndUpdate(driverId, {
         currentDelivery: deliveryId,
         isAvailable: false
       });
 
-      logger.info('Livraison assignÃ©e au livreur', {
+      logger.info('Livraison assignÃƒÂ©e au livreur', {
         deliveryId,
         driverId
       });
@@ -573,27 +573,27 @@ class DeliveryMatchingService {
   }
 
   /**
-   * Calculer les gains estimÃ©s pour le livreur
-   * @param distanceMeters - Distance en mÃ¨tres
+   * Calculer les gains estimÃƒÂ©s pour le livreur
+   * @param distanceMeters - Distance en mÃƒÂ¨tres
    * @param baseFee - Frais de livraison de base
-   * @returns Gains estimÃ©s en euros
+   * @returns Gains estimÃƒÂ©s en euros
    */
   private calculateEarnings(distanceMeters: number, baseFee: number = 5): number {
     const distanceKm = distanceMeters / 1000;
-    const distanceBonus = distanceKm * 0.5; // 0.50â‚¬ par km
+    const distanceBonus = distanceKm * 0.5; // 0.50Ã¢â€šÂ¬ par km
     return parseFloat((baseFee + distanceBonus).toFixed(2));
   }
 
   /**
    * Job cron pour expirer les propositions en attente
-   * Ã€ exÃ©cuter toutes les 5 secondes
+   * Ãƒâ‚¬ exÃƒÂ©cuter toutes les 5 secondes
    */
   async expirePendingProposals(): Promise<void> {
     try {
       const result = await DeliveryProposal.expirePendingProposals();
       
       if (result.modifiedCount > 0) {
-        logger.info(`${result.modifiedCount} proposition(s) expirÃ©e(s)`);
+        logger.info(`${result.modifiedCount} proposition(s) expirÃƒÂ©e(s)`);
       }
 
     } catch (error) {
@@ -602,8 +602,8 @@ class DeliveryMatchingService {
   }
 
   /**
-   * Job cron pour rÃ©essayer les livraisons non assignÃ©es
-   * Ã€ exÃ©cuter toutes les minutes
+   * Job cron pour rÃƒÂ©essayer les livraisons non assignÃƒÂ©es
+   * Ãƒâ‚¬ exÃƒÂ©cuter toutes les minutes
    */
   async retryUnassignedDeliveries(): Promise<void> {
     try {
@@ -612,28 +612,28 @@ class DeliveryMatchingService {
         createdAt: { $gte: new Date(Date.now() - 60 * 60 * 1000) } // Moins d'1h
       });
 
-      logger.info(`${unassignedDeliveries.length} livraison(s) non assignÃ©e(s) Ã  rÃ©essayer`);
+      logger.info(`${unassignedDeliveries.length} livraison(s) non assignÃƒÂ©e(s) ÃƒÂ  rÃƒÂ©essayer`);
 
       for (const delivery of unassignedDeliveries) {
         await this.proposeDeliveryToDrivers(delivery);
       }
 
     } catch (error) {
-      logger.error('Erreur rÃ©essai livraisons non assignÃ©es', error);
+      logger.error('Erreur rÃƒÂ©essai livraisons non assignÃƒÂ©es', error);
     }
   }
 
   /**
    * Obtenir les statistiques d'un livreur
    * @param driverId - ID du livreur
-   * @param days - Nombre de jours Ã  analyser
+   * @param days - Nombre de jours ÃƒÂ  analyser
    */
   async getDriverStats(driverId: string, days: number = 30): Promise<any> {
     try {
       const stats = await DeliveryProposal.getDriverStats(driverId, days);
       return stats;
     } catch (error) {
-      logger.error('Erreur rÃ©cupÃ©ration stats livreur', error);
+      logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration stats livreur', error);
       throw error;
     }
   }

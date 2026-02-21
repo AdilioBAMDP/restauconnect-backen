@@ -6,8 +6,8 @@ const router = express.Router();
 
 /**
  * POST /api/seed/announcements
- * Endpoint temporaire pour créer des annonces de test
- * À SUPPRIMER en production après utilisation
+ * Endpoint temporaire pour crÃƒÂ©er des annonces de test
+ * Ãƒâ‚¬ SUPPRIMER en production aprÃƒÂ¨s utilisation
  */
 router.post('/announcements', async (req: Request, res: Response) => {
   try {
@@ -22,11 +22,11 @@ router.post('/announcements', async (req: Request, res: Response) => {
     // Supprimer les anciennes annonces
     await db.collection('globalannouncements').deleteMany({});
 
-    // Créer 10 annonces de test
+    // CrÃƒÂ©er 10 annonces de test
     const announcements = [
       {
-        title: '🎉 Nouvelle fonctionnalité : Suivi en temps réel',
-        content: 'Suivez vos livraisons en temps réel avec notre nouveau système de tracking GPS !',
+        title: 'Ã°Å¸Å½â€° Nouvelle fonctionnalitÃƒÂ© : Suivi en temps rÃƒÂ©el',
+        content: 'Suivez vos livraisons en temps rÃƒÂ©el avec notre nouveau systÃƒÂ¨me de tracking GPS !',
         type: 'success',
         priority: 'high',
         status: 'active',
@@ -40,8 +40,8 @@ router.post('/announcements', async (req: Request, res: Response) => {
         contactCount: 0
       },
       {
-        title: '⚠️ Maintenance programmée le 20 janvier',
-        content: 'Une maintenance système est prévue le 20 janvier de 2h à 4h du matin.',
+        title: 'Ã¢Å¡Â Ã¯Â¸Â Maintenance programmÃƒÂ©e le 20 janvier',
+        content: 'Une maintenance systÃƒÂ¨me est prÃƒÂ©vue le 20 janvier de 2h ÃƒÂ  4h du matin.',
         type: 'warning',
         priority: 'urgent',
         status: 'active',
@@ -55,8 +55,8 @@ router.post('/announcements', async (req: Request, res: Response) => {
         contactCount: 3
       },
       {
-        title: '💰 Promotion : -15% sur les premières commandes',
-        content: 'Profitez de 15% de réduction sur vos 3 premières commandes !',
+        title: 'Ã°Å¸â€™Â° Promotion : -15% sur les premiÃƒÂ¨res commandes',
+        content: 'Profitez de 15% de rÃƒÂ©duction sur vos 3 premiÃƒÂ¨res commandes !',
         type: 'promo',
         priority: 'high',
         status: 'active',
@@ -70,13 +70,13 @@ router.post('/announcements', async (req: Request, res: Response) => {
         contactCount: 12
       },
       {
-        title: '📦 Nouveaux produits disponibles',
-        content: 'Découvrez notre nouvelle gamme de produits bio et locaux !',
+        title: 'Ã°Å¸â€œÂ¦ Nouveaux produits disponibles',
+        content: 'DÃƒÂ©couvrez notre nouvelle gamme de produits bio et locaux !',
         type: 'info',
         priority: 'normal',
         status: 'active',
         targetAudience: ['restaurant', 'fournisseur'],
-        createdBy: { id: '507f1f77bcf86cd799439011', name: 'Équipe Produits', role: 'admin' },
+        createdBy: { id: '507f1f77bcf86cd799439011', name: 'Ãƒâ€°quipe Produits', role: 'admin' },
         createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
         updatedAt: new Date(),
         expiresAt: new Date(Date.now() + 23 * 24 * 60 * 60 * 1000),
@@ -85,8 +85,8 @@ router.post('/announcements', async (req: Request, res: Response) => {
         contactCount: 8
       },
       {
-        title: '🚚 Nouveaux transporteurs certifiés',
-        content: '5 nouveaux transporteurs certifiés ont rejoint le réseau RestauConnect.',
+        title: 'Ã°Å¸Å¡Å¡ Nouveaux transporteurs certifiÃƒÂ©s',
+        content: '5 nouveaux transporteurs certifiÃƒÂ©s ont rejoint le rÃƒÂ©seau RestauConnect.',
         type: 'success',
         priority: 'normal',
         status: 'active',
@@ -100,13 +100,13 @@ router.post('/announcements', async (req: Request, res: Response) => {
         contactCount: 5
       },
       {
-        title: '📱 Application mobile disponible',
-        content: 'Téléchargez l\'application mobile RestauConnect sur iOS et Android !',
+        title: 'Ã°Å¸â€œÂ± Application mobile disponible',
+        content: 'TÃƒÂ©lÃƒÂ©chargez l\'application mobile RestauConnect sur iOS et Android !',
         type: 'info',
         priority: 'high',
         status: 'active',
         targetAudience: ['restaurant', 'livreur'],
-        createdBy: { id: '507f1f77bcf86cd799439011', name: 'Équipe Mobile', role: 'admin' },
+        createdBy: { id: '507f1f77bcf86cd799439011', name: 'Ãƒâ€°quipe Mobile', role: 'admin' },
         createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
         updatedAt: new Date(),
         viewCount: 312,
@@ -114,8 +114,8 @@ router.post('/announcements', async (req: Request, res: Response) => {
         contactCount: 23
       },
       {
-        title: '🎓 Formation gratuite : Optimiser vos commandes',
-        content: 'Participez à notre webinaire gratuit le 25 janvier.',
+        title: 'Ã°Å¸Å½â€œ Formation gratuite : Optimiser vos commandes',
+        content: 'Participez ÃƒÂ  notre webinaire gratuit le 25 janvier.',
         type: 'info',
         priority: 'normal',
         status: 'active',
@@ -129,8 +129,8 @@ router.post('/announcements', async (req: Request, res: Response) => {
         contactCount: 18
       },
       {
-        title: '⭐ Nouveaux avis et notations',
-        content: 'Le système d\'avis et de notations est maintenant disponible !',
+        title: 'Ã¢Â­Â Nouveaux avis et notations',
+        content: 'Le systÃƒÂ¨me d\'avis et de notations est maintenant disponible !',
         type: 'success',
         priority: 'normal',
         status: 'active',
@@ -144,8 +144,8 @@ router.post('/announcements', async (req: Request, res: Response) => {
         contactCount: 2
       },
       {
-        title: '💳 Nouveaux modes de paiement',
-        content: 'Payez désormais avec Apple Pay, Google Pay et PayPal !',
+        title: 'Ã°Å¸â€™Â³ Nouveaux modes de paiement',
+        content: 'Payez dÃƒÂ©sormais avec Apple Pay, Google Pay et PayPal !',
         type: 'info',
         priority: 'normal',
         status: 'active',
@@ -158,8 +158,8 @@ router.post('/announcements', async (req: Request, res: Response) => {
         contactCount: 9
       },
       {
-        title: '🌟 RestauConnect fête ses 1000 utilisateurs !',
-        content: 'Merci à toute la communauté ! Profitez de cadeaux exclusifs tout le mois.',
+        title: 'Ã°Å¸Å’Å¸ RestauConnect fÃƒÂªte ses 1000 utilisateurs !',
+        content: 'Merci ÃƒÂ  toute la communautÃƒÂ© ! Profitez de cadeaux exclusifs tout le mois.',
         type: 'success',
         priority: 'high',
         status: 'active',
@@ -178,15 +178,15 @@ router.post('/announcements', async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: `${result.insertedCount} annonces créées avec succès`,
+      message: `${result.insertedCount} annonces crÃƒÂ©ÃƒÂ©es avec succÃƒÂ¨s`,
       count: result.insertedCount
     });
 
   } catch (error: any) {
-    console.error('❌ Erreur seed announcements:', error);
+    console.error('Ã¢ÂÅ’ Erreur seed announcements:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur lors de la création des annonces',
+      message: 'Erreur lors de la crÃƒÂ©ation des annonces',
       error: error.message
     });
   }

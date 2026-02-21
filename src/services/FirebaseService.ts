@@ -1,4 +1,4 @@
-﻿import admin from 'firebase-admin';
+import admin from 'firebase-admin';
 import path from 'path';
 import fs from 'fs';
 import { logger } from '../utils/logger';
@@ -28,7 +28,7 @@ class FirebaseService {
    */
   initialize() {
     if (this.initialized) {
-      logger.firebase('Firebase dÃ©jÃ  initialisÃ©');
+      logger.firebase('Firebase dÃƒÂ©jÃƒÂ  initialisÃƒÂ©');
       return;
     }
 
@@ -39,9 +39,9 @@ class FirebaseService {
         '../config/firebase-service-account.json'
       );
 
-      // VÃ©rifier si le fichier existe
+      // VÃƒÂ©rifier si le fichier existe
       if (!fs.existsSync(serviceAccountPath)) {
-        logger.warn('Firebase service account non trouvÃ©. Push notifications dÃ©sactivÃ©es.');
+        logger.warn('Firebase service account non trouvÃƒÂ©. Push notifications dÃƒÂ©sactivÃƒÂ©es.');
         logger.warn('Pour activer: Ajouter backend/src/config/firebase-service-account.json');
         return;
       }
@@ -55,28 +55,28 @@ class FirebaseService {
       });
 
       this.initialized = true;
-      logger.firebase('Firebase Admin SDK initialisÃ©');
+      logger.firebase('Firebase Admin SDK initialisÃƒÂ©');
     } catch (error) {
       logger.error('Erreur initialisation Firebase', error);
     }
   }
 
   /**
-   * VÃ©rifier si Firebase est initialisÃ©
+   * VÃƒÂ©rifier si Firebase est initialisÃƒÂ©
    */
   isInitialized(): boolean {
     return this.initialized;
   }
 
   /**
-   * Envoyer une notification Ã  un utilisateur spÃ©cifique
+   * Envoyer une notification ÃƒÂ  un utilisateur spÃƒÂ©cifique
    */
   async sendToUser(
     userToken: string,
     notification: PushNotification
   ): Promise<boolean> {
     if (!this.initialized) {
-      logger.warn('Firebase non initialisÃ©. Notification ignorÃ©e.');
+      logger.warn('Firebase non initialisÃƒÂ©. Notification ignorÃƒÂ©e.');
       return false;
     }
 
@@ -92,7 +92,7 @@ class FirebaseService {
       };
 
       const response = await admin.messaging().send(message);
-      logger.firebase('Notification envoyÃ©e', { response });
+      logger.firebase('Notification envoyÃƒÂ©e', { response });
       return true;
     } catch (error: any) {
       logger.error('Erreur envoi notification', error);
@@ -100,7 +100,7 @@ class FirebaseService {
       // Si le token est invalide, le retirer de la base
       if (error.code === 'messaging/invalid-registration-token' ||
           error.code === 'messaging/registration-token-not-registered') {
-        logger.warn('Token invalide, devrait Ãªtre supprimÃ© de la DB');
+        logger.warn('Token invalide, devrait ÃƒÂªtre supprimÃƒÂ© de la DB');
       }
       
       return false;
@@ -108,14 +108,14 @@ class FirebaseService {
   }
 
   /**
-   * Envoyer une notification Ã  plusieurs utilisateurs
+   * Envoyer une notification ÃƒÂ  plusieurs utilisateurs
    */
   async sendToMultiple(
     userTokens: string[],
     notification: PushNotification
   ): Promise<{ success: number; failure: number }> {
     if (!this.initialized) {
-      logger.warn('Firebase non initialisÃ©. Notifications ignorÃ©es.');
+      logger.warn('Firebase non initialisÃƒÂ©. Notifications ignorÃƒÂ©es.');
       return { success: 0, failure: userTokens.length };
     }
 
@@ -136,12 +136,12 @@ class FirebaseService {
 
       const response = await admin.messaging().sendEachForMulticast(message);
       
-      logger.firebase(`Notifications envoyÃ©es: ${response.successCount}/${userTokens.length}`);
+      logger.firebase(`Notifications envoyÃƒÂ©es: ${response.successCount}/${userTokens.length}`);
       
       if (response.failureCount > 0) {
         response.responses.forEach((resp, idx) => {
           if (!resp.success) {
-            logger.error(`Ã‰chec token ${idx}`, resp.error);
+            logger.error(`Ãƒâ€°chec token ${idx}`, resp.error);
           }
         });
       }
@@ -157,14 +157,14 @@ class FirebaseService {
   }
 
   /**
-   * Envoyer notification Ã  un topic
+   * Envoyer notification ÃƒÂ  un topic
    */
   async sendToTopic(
     topic: string,
     notification: PushNotification
   ): Promise<boolean> {
     if (!this.initialized) {
-      logger.warn('Firebase non initialisÃ©. Notification ignorÃ©e.');
+      logger.warn('Firebase non initialisÃƒÂ©. Notification ignorÃƒÂ©e.');
       return false;
     }
 
@@ -180,7 +180,7 @@ class FirebaseService {
       };
 
       const response = await admin.messaging().send(message);
-      logger.firebase('Notification envoyÃ©e au topic', { topic, response });
+      logger.firebase('Notification envoyÃƒÂ©e au topic', { topic, response });
       return true;
     } catch (error) {
       logger.error('Erreur envoi notification topic', error);
@@ -189,7 +189,7 @@ class FirebaseService {
   }
 
   /**
-   * Souscrire des tokens Ã  un topic
+   * Souscrire des tokens ÃƒÂ  un topic
    */
   async subscribeToTopic(
     tokens: string[],
@@ -213,7 +213,7 @@ class FirebaseService {
   }
 
   /**
-   * DÃ©souscrire des tokens d'un topic
+   * DÃƒÂ©souscrire des tokens d'un topic
    */
   async unsubscribeFromTopic(
     tokens: string[],
@@ -225,24 +225,24 @@ class FirebaseService {
 
     try {
       const response = await admin.messaging().unsubscribeFromTopic(tokens, topic);
-      logger.firebase(`DÃ©sinscriptions du topic ${topic}: ${response.successCount}`);
+      logger.firebase(`DÃƒÂ©sinscriptions du topic ${topic}: ${response.successCount}`);
       return {
         success: response.successCount,
         failure: response.failureCount
       };
     } catch (error) {
-      logger.error('Erreur dÃ©sinscription topic', error);
+      logger.error('Erreur dÃƒÂ©sinscription topic', error);
       return { success: 0, failure: tokens.length };
     }
   }
 
   /**
-   * Notifications prÃ©dÃ©finies pour l'application
+   * Notifications prÃƒÂ©dÃƒÂ©finies pour l'application
    */
   notifications = {
     // Nouvelle commande pour restaurant
     newOrder: (orderNumber: string, restaurantName: string): PushNotification => ({
-      title: 'ðŸ†• Nouvelle Commande',
+      title: 'Ã°Å¸â€ â€¢ Nouvelle Commande',
       body: `Commande ${orderNumber} de ${restaurantName}`,
       data: {
         type: 'new_order',
@@ -251,19 +251,19 @@ class FirebaseService {
       }
     }),
 
-    // Commande confirmÃ©e par fournisseur
+    // Commande confirmÃƒÂ©e par fournisseur
     orderConfirmed: (orderNumber: string): PushNotification => ({
-      title: 'âœ… Commande ConfirmÃ©e',
-      body: `Votre commande ${orderNumber} a Ã©tÃ© confirmÃ©e`,
+      title: 'Ã¢Å“â€¦ Commande ConfirmÃƒÂ©e',
+      body: `Votre commande ${orderNumber} a ÃƒÂ©tÃƒÂ© confirmÃƒÂ©e`,
       data: {
         type: 'order_confirmed',
         orderNumber
       }
     }),
 
-    // Livraison assignÃ©e
+    // Livraison assignÃƒÂ©e
     deliveryAssigned: (orderNumber: string, driverName: string): PushNotification => ({
-      title: 'ðŸšš Livreur AssignÃ©',
+      title: 'Ã°Å¸Å¡Å¡ Livreur AssignÃƒÂ©',
       body: `${driverName} livrera votre commande ${orderNumber}`,
       data: {
         type: 'delivery_assigned',
@@ -274,7 +274,7 @@ class FirebaseService {
 
     // Livraison en cours
     deliveryInProgress: (orderNumber: string): PushNotification => ({
-      title: 'ðŸ“¦ Livraison en cours',
+      title: 'Ã°Å¸â€œÂ¦ Livraison en cours',
       body: `Votre commande ${orderNumber} est en route`,
       data: {
         type: 'delivery_in_progress',
@@ -282,10 +282,10 @@ class FirebaseService {
       }
     }),
 
-    // Livraison terminÃ©e
+    // Livraison terminÃƒÂ©e
     deliveryCompleted: (orderNumber: string): PushNotification => ({
-      title: 'ðŸŽ‰ Livraison terminÃ©e',
-      body: `Commande ${orderNumber} livrÃ©e avec succÃ¨s`,
+      title: 'Ã°Å¸Å½â€° Livraison terminÃƒÂ©e',
+      body: `Commande ${orderNumber} livrÃƒÂ©e avec succÃƒÂ¨s`,
       data: {
         type: 'delivery_completed',
         orderNumber
@@ -294,7 +294,7 @@ class FirebaseService {
 
     // Nouveau message
     newMessage: (senderName: string, preview: string): PushNotification => ({
-      title: `ðŸ’¬ Message de ${senderName}`,
+      title: `Ã°Å¸â€™Â¬ Message de ${senderName}`,
       body: preview,
       data: {
         type: 'new_message',
@@ -304,7 +304,7 @@ class FirebaseService {
 
     // Demande urgente
     urgentRequest: (requesterName: string, category: string): PushNotification => ({
-      title: 'ðŸš¨ Demande Urgente',
+      title: 'Ã°Å¸Å¡Â¨ Demande Urgente',
       body: `${requesterName} a une demande urgente en ${category}`,
       data: {
         type: 'urgent_request',
@@ -315,7 +315,7 @@ class FirebaseService {
 
     // Nouveau utilisateur (pour admins)
     newUserRegistration: (userName: string, role: string): PushNotification => ({
-      title: 'ðŸ‘¤ Nouvel Utilisateur',
+      title: 'Ã°Å¸â€˜Â¤ Nouvel Utilisateur',
       body: `${userName} s'est inscrit comme ${role}`,
       data: {
         type: 'new_user',
@@ -324,10 +324,10 @@ class FirebaseService {
       }
     }),
 
-    // Paiement reÃ§u
+    // Paiement reÃƒÂ§u
     paymentReceived: (amount: number, from: string): PushNotification => ({
-      title: 'ðŸ’° Paiement ReÃ§u',
-      body: `Vous avez reÃ§u ${amount}â‚¬ de ${from}`,
+      title: 'Ã°Å¸â€™Â° Paiement ReÃƒÂ§u',
+      body: `Vous avez reÃƒÂ§u ${amount}Ã¢â€šÂ¬ de ${from}`,
       data: {
         type: 'payment_received',
         amount: amount.toString(),

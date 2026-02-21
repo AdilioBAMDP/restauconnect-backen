@@ -1,24 +1,24 @@
 /**
- * MODÈLE DE TARIFICATION TRANSPORT PROFESSIONNELLE
+ * MODÃƒË†LE DE TARIFICATION TRANSPORT PROFESSIONNELLE
  * Conforme aux normes de facturation transport France/UE
  * 
- * Ce modèle N'AFFECTE PAS les modèles existants Order.ts ou TMS.ts
- * Il s'ajoute comme extension pour calculs avancés
+ * Ce modÃƒÂ¨le N'AFFECTE PAS les modÃƒÂ¨les existants Order.ts ou TMS.ts
+ * Il s'ajoute comme extension pour calculs avancÃƒÂ©s
  */
 
 import { Schema, model, Document } from 'mongoose';
 
-// ========== TYPES DE VÉHICULES ==========
+// ========== TYPES DE VÃƒâ€°HICULES ==========
 export enum VehicleType {
-  VUL_SMALL = 'vul_small',        // VUL 3-6m³ (ex: Kangoo, Partner)
-  VUL_MEDIUM = 'vul_medium',      // VUL 6-12m³ (ex: Trafic, Expert)
-  VUL_LARGE = 'vul_large',        // VUL 12-20m³ (ex: Master, Boxer)
-  TRUCK_35T = 'truck_35t',        // Porteur 3.5T - 20m³
-  TRUCK_75T = 'truck_75t',        // Porteur 7.5T - 30m³
-  TRUCK_19T = 'truck_19t',        // Porteur 19T - 40m³
-  SEMI_TRAILER = 'semi_trailer',  // Semi-remorque 40T - 90m³
-  REFRIGERATED = 'refrigerated',  // Frigorifique (température dirigée)
-  TAUTLINER = 'tautliner',       // Bâché coulissant
+  VUL_SMALL = 'vul_small',        // VUL 3-6mÃ‚Â³ (ex: Kangoo, Partner)
+  VUL_MEDIUM = 'vul_medium',      // VUL 6-12mÃ‚Â³ (ex: Trafic, Expert)
+  VUL_LARGE = 'vul_large',        // VUL 12-20mÃ‚Â³ (ex: Master, Boxer)
+  TRUCK_35T = 'truck_35t',        // Porteur 3.5T - 20mÃ‚Â³
+  TRUCK_75T = 'truck_75t',        // Porteur 7.5T - 30mÃ‚Â³
+  TRUCK_19T = 'truck_19t',        // Porteur 19T - 40mÃ‚Â³
+  SEMI_TRAILER = 'semi_trailer',  // Semi-remorque 40T - 90mÃ‚Â³
+  REFRIGERATED = 'refrigerated',  // Frigorifique (tempÃƒÂ©rature dirigÃƒÂ©e)
+  TAUTLINER = 'tautliner',       // BÃƒÂ¢chÃƒÂ© coulissant
   FLATBED = 'flatbed',           // Plateau
   TANKER = 'tanker'              // Citerne
 }
@@ -26,26 +26,26 @@ export enum VehicleType {
 // ========== ZONES TARIFAIRES ==========
 export enum PricingZone {
   URBAN = 'urban',              // Zone urbaine dense (Paris intra-muros, etc.)
-  SUBURBAN = 'suburban',        // Zone périurbaine (banlieue proche)
-  REGIONAL = 'regional',        // Régional 50-200km
+  SUBURBAN = 'suburban',        // Zone pÃƒÂ©riurbaine (banlieue proche)
+  REGIONAL = 'regional',        // RÃƒÂ©gional 50-200km
   NATIONAL = 'national',        // National 200-500km
   LONG_DISTANCE = 'long_distance', // Longue distance >500km
   INTERNATIONAL = 'international', // International/Transfrontalier
-  MOUNTAIN = 'mountain',        // Zone montagne (alpes, pyrénées)
-  ISLAND = 'island',            // Île (Corse, DOM-TOM)
-  RURAL_REMOTE = 'rural_remote' // Rural isolé/difficile d'accès
+  MOUNTAIN = 'mountain',        // Zone montagne (alpes, pyrÃƒÂ©nÃƒÂ©es)
+  ISLAND = 'island',            // ÃƒÅ½le (Corse, DOM-TOM)
+  RURAL_REMOTE = 'rural_remote' // Rural isolÃƒÂ©/difficile d'accÃƒÂ¨s
 }
 
-// ========== SERVICES & SUPPLÉMENTS ==========
+// ========== SERVICES & SUPPLÃƒâ€°MENTS ==========
 export enum ServiceType {
   STANDARD = 'standard',
   EXPRESS = 'express',          // Livraison express/urgente
   APPOINTMENT = 'appointment',  // Rendez-vous fixe
-  FLOOR_DELIVERY = 'floor',     // Livraison étage
-  TAILGATE = 'tailgate',        // Hayon élévateur
+  FLOOR_DELIVERY = 'floor',     // Livraison ÃƒÂ©tage
+  TAILGATE = 'tailgate',        // Hayon ÃƒÂ©lÃƒÂ©vateur
   TWO_PEOPLE = 'two_people',    // Livraison 2 personnes
   NIGHT = 'night',              // Livraison nocturne
-  WEEKEND = 'weekend',          // Week-end/férié
+  WEEKEND = 'weekend',          // Week-end/fÃƒÂ©riÃƒÂ©
   ADR = 'adr',                  // Marchandise dangereuse (ADR)
   FRAGILE = 'fragile',          // Marchandise fragile
   HIGH_VALUE = 'high_value',    // Marchandise de valeur
@@ -54,9 +54,9 @@ export enum ServiceType {
 
 // ========== INTERFACE CALCUL DE PRIX ==========
 export interface IPricingCalculation {
-  // Données de base
+  // DonnÃƒÂ©es de base
   weight: number;               // Poids en kg
-  volume: number;               // Volume en m³
+  volume: number;               // Volume en mÃ‚Â³
   palletCount?: number;         // Nombre de palettes
   distance: number;             // Distance en km
   
@@ -65,7 +65,7 @@ export interface IPricingCalculation {
   zone: PricingZone;
   services: ServiceType[];
   
-  // Détails marchandise
+  // DÃƒÂ©tails marchandise
   isFragile?: boolean;
   isPerishable?: boolean;
   isDangerous?: boolean;
@@ -77,32 +77,32 @@ export interface IPricingCalculation {
   timeSlot?: 'morning' | 'afternoon' | 'evening' | 'night';
   
   // Contraintes
-  floors?: number;              // Nombre d'étages
+  floors?: number;              // Nombre d'ÃƒÂ©tages
   needsTailgate?: boolean;
   needsHelp?: boolean;          // Besoin aide manutention
   
-  // Saisonnalité
+  // SaisonnalitÃƒÂ©
   seasonMultiplier?: number;    // Coefficient saison (1.0 = normal, 1.4 = haute)
 }
 
-// ========== RÉSULTAT DU CALCUL ==========
+// ========== RÃƒâ€°SULTAT DU CALCUL ==========
 export interface IPricingResult {
   // Prix de base
   basePrice: number;            // Prix de base selon grille
   
   // Composantes du prix
   weightCharge: number;         // Charge au poids/volume
-  distanceCharge: number;       // Charge kilométrique
+  distanceCharge: number;       // Charge kilomÃƒÂ©trique
   paletteCharge: number;        // Charge palettisation
   
-  // Suppléments
-  zoneSuplement: number;        // Supplément zone
-  vehicleSupplement: number;    // Supplément type véhicule
-  serviceSupplement: number;    // Suppléments services
-  seasonSupplement: number;     // Supplément saisonnier
+  // SupplÃƒÂ©ments
+  zoneSuplement: number;        // SupplÃƒÂ©ment zone
+  vehicleSupplement: number;    // SupplÃƒÂ©ment type vÃƒÂ©hicule
+  serviceSupplement: number;    // SupplÃƒÂ©ments services
+  seasonSupplement: number;     // SupplÃƒÂ©ment saisonnier
   
   // Frais additionnels
-  tolls: number;                // Péages estimés
+  tolls: number;                // PÃƒÂ©ages estimÃƒÂ©s
   fuelSurcharge: number;        // Surcharge carburant
   
   // Total HT
@@ -115,16 +115,16 @@ export interface IPricingResult {
   // Total TTC
   totalTTC: number;
   
-  // Détails
+  // DÃƒÂ©tails
   breakdown: {
     label: string;
     amount: number;
     type: 'base' | 'supplement' | 'tax' | 'fee';
   }[];
   
-  // Méta
+  // MÃƒÂ©ta
   calculatedAt: Date;
-  validUntil: Date;             // Validité du devis
+  validUntil: Date;             // ValiditÃƒÂ© du devis
   currency: string;
 }
 
@@ -138,45 +138,45 @@ export interface IPricingGrid extends Document {
   // Tarifs de base
   rates: {
     // Tarif au kg (pour poids taxable)
-    perKg: number;              // Ex: 0.15€/kg
+    perKg: number;              // Ex: 0.15Ã¢â€šÂ¬/kg
     
     // Tarif au km selon zone
     perKm: {
-      urban: number;            // Ex: 1.80€/km
-      suburban: number;         // Ex: 1.50€/km
-      regional: number;         // Ex: 1.20€/km
-      national: number;         // Ex: 0.95€/km
-      long_distance: number;    // Ex: 0.85€/km
-      international: number;    // Ex: 1.10€/km
-      mountain: number;         // Ex: 1.60€/km
-      island: number;           // Ex: 2.00€/km
-      rural_remote: number;     // Ex: 1.40€/km
+      urban: number;            // Ex: 1.80Ã¢â€šÂ¬/km
+      suburban: number;         // Ex: 1.50Ã¢â€šÂ¬/km
+      regional: number;         // Ex: 1.20Ã¢â€šÂ¬/km
+      national: number;         // Ex: 0.95Ã¢â€šÂ¬/km
+      long_distance: number;    // Ex: 0.85Ã¢â€šÂ¬/km
+      international: number;    // Ex: 1.10Ã¢â€šÂ¬/km
+      mountain: number;         // Ex: 1.60Ã¢â€šÂ¬/km
+      island: number;           // Ex: 2.00Ã¢â€šÂ¬/km
+      rural_remote: number;     // Ex: 1.40Ã¢â€šÂ¬/km
     };
     
     // Tarif par palette
     perPallet: {
-      standard: number;         // Ex: 12€/palette
-      euro: number;             // Ex: 12€/palette Europe
-      half: number;             // Ex: 7€/demi-palette
-      oversized: number;        // Ex: 25€/palette hors gabarit
+      standard: number;         // Ex: 12Ã¢â€šÂ¬/palette
+      euro: number;             // Ex: 12Ã¢â€šÂ¬/palette Europe
+      half: number;             // Ex: 7Ã¢â€šÂ¬/demi-palette
+      oversized: number;        // Ex: 25Ã¢â€šÂ¬/palette hors gabarit
     };
     
-    // Forfaits véhicules (si forfait au lieu de calcul)
+    // Forfaits vÃƒÂ©hicules (si forfait au lieu de calcul)
     vehicleFlatRates?: {
       [key in VehicleType]?: number;
     };
   };
   
-  // Suppléments en pourcentage
+  // SupplÃƒÂ©ments en pourcentage
   supplements: {
-    // Suppléments véhicules spéciaux
+    // SupplÃƒÂ©ments vÃƒÂ©hicules spÃƒÂ©ciaux
     refrigerated: number;       // +40% (0.40)
     tautliner: number;          // +10%
     flatbed: number;            // +15%
     tanker: number;             // +50%
     tailgate: number;           // +15%
     
-    // Suppléments services
+    // SupplÃƒÂ©ments services
     express: number;            // +100% (1.0)
     appointment: number;        // +20%
     night: number;              // +50%
@@ -185,14 +185,14 @@ export interface IPricingGrid extends Document {
     fragile: number;            // +25%
     highValue: number;          // +30%
     
-    // Suppléments zones difficiles
+    // SupplÃƒÂ©ments zones difficiles
     mountainAccess: number;     // +30%
     islandAccess: number;       // +50%
     ruralRemote: number;        // +20%
     restrictedZone: number;     // +25%
     
     // Manutention
-    perFloor: number;           // Ex: 15€/étage
+    perFloor: number;           // Ex: 15Ã¢â€šÂ¬/ÃƒÂ©tage
     twoPersonDelivery: number;  // +40%
     assembly: number;           // Tarif horaire
   };
@@ -202,7 +202,7 @@ export interface IPricingGrid extends Document {
     lowSeason: number;          // 0.90 (-10%)
     normalSeason: number;       // 1.0
     highSeason: number;         // 1.35 (+35%)
-    peakSeason: number;         // 1.50 (+50% - ex: Noël)
+    peakSeason: number;         // 1.50 (+50% - ex: NoÃƒÂ«l)
   };
   
   // TVA
@@ -210,17 +210,17 @@ export interface IPricingGrid extends Document {
   intraCommunityVat: number;    // 0.0 (autoliquidation)
   
   // Minimum de facturation
-  minimumCharge: number;        // Ex: 50€ minimum
+  minimumCharge: number;        // Ex: 50Ã¢â€šÂ¬ minimum
   
-  // Métadonnées
-  transporterId?: Schema.Types.ObjectId;  // Si grille spécifique à un transporteur
+  // MÃƒÂ©tadonnÃƒÂ©es
+  transporterId?: Schema.Types.ObjectId;  // Si grille spÃƒÂ©cifique ÃƒÂ  un transporteur
   isGlobal: boolean;            // Si grille globale plateforme
   createdBy: Schema.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
 
-// ========== SCHÉMA MONGOOSE ==========
+// ========== SCHÃƒâ€°MA MONGOOSE ==========
 const PricingGridSchema = new Schema<IPricingGrid>({
   name: { type: String, required: true },
   active: { type: Boolean, default: true },
@@ -284,7 +284,7 @@ const PricingGridSchema = new Schema<IPricingGrid>({
   
   transporterId: { type: Schema.Types.ObjectId, ref: 'User' },
   isGlobal: { type: Boolean, default: false },
-  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false }, // Optionnel pour grilles globales système
+  createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false }, // Optionnel pour grilles globales systÃƒÂ¨me
   
 }, { timestamps: true });
 

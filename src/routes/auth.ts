@@ -34,7 +34,7 @@ router.post('/login', async (req: Request, res: Response) => {
       user: result.data.user,
       token: result.data.token,
       source: result.data.source,
-      message: 'Connexion r�ussie'
+      message: 'Connexion rÃ¯Â¿Â½ussie'
     } as ApiResponse);
     return;
 
@@ -73,7 +73,7 @@ router.post('/register', async (req: Request, res: Response) => {
       success: true,
       user: result.data.user,
       token: result.data.token,
-      message: 'Inscription r�ussie'
+      message: 'Inscription rÃ¯Â¿Â½ussie'
     } as ApiResponse);
     return;
 
@@ -87,11 +87,11 @@ router.post('/register', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/auth/verify - V�rifier la validit� du token
+// GET /api/auth/verify - VÃ¯Â¿Â½rifier la validitÃ¯Â¿Â½ du token
 router.get('/verify', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    // Le middleware authenticateToken a d�j� valid� le token
-    // On r�cup�re juste les informations utilisateur
+    // Le middleware authenticateToken a dÃ¯Â¿Â½jÃ¯Â¿Â½ validÃ¯Â¿Â½ le token
+    // On rÃ¯Â¿Â½cupÃ¯Â¿Â½re juste les informations utilisateur
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
@@ -119,34 +119,34 @@ router.get('/verify', authenticateToken, async (req: AuthRequest, res: Response)
     return;
 
   } catch (error) {
-    logger.error('Erreur vérification token:', error);
+    logger.error('Erreur vÃƒÂ©rification token:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur serveur lors de la vérification'
+      error: 'Erreur serveur lors de la vÃƒÂ©rification'
     } as ApiResponse);
     return;
   }
 });
 
-// GET /api/auth/me - Récupérer les informations de l'utilisateur connecté
+// GET /api/auth/me - RÃƒÂ©cupÃƒÂ©rer les informations de l'utilisateur connectÃƒÂ©
 router.get('/me', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        error: 'Utilisateur non authentifié'
+        error: 'Utilisateur non authentifiÃƒÂ©'
       } as ApiResponse);
     }
 
     res.json({
       success: true,
       data: req.user,
-      message: 'Informations utilisateur récupérées'
+      message: 'Informations utilisateur rÃƒÂ©cupÃƒÂ©rÃƒÂ©es'
     } as ApiResponse);
     return;
 
   } catch (error) {
-    logger.error('Erreur récupération utilisateur:', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration utilisateur:', error);
     res.status(500).json({
       success: false,
       error: 'Erreur serveur'
@@ -164,7 +164,7 @@ router.put('/change-password', authenticateToken, async (req: AuthRequest, res: 
     if (!userId) {
       return res.status(401).json({
         success: false,
-        error: 'Non authentifié'
+        error: 'Non authentifiÃƒÂ©'
       } as ApiResponse);
     }
 
@@ -178,21 +178,21 @@ router.put('/change-password', authenticateToken, async (req: AuthRequest, res: 
     if (newPassword.length < 6) {
       return res.status(400).json({
         success: false,
-        error: 'Le nouveau mot de passe doit contenir au moins 6 caractères'
+        error: 'Le nouveau mot de passe doit contenir au moins 6 caractÃƒÂ¨res'
       } as ApiResponse);
     }
 
-    // Récupérer l'utilisateur avec le mot de passe
+    // RÃƒÂ©cupÃƒÂ©rer l'utilisateur avec le mot de passe
     const user = await User.findById(userId).select('+password').exec();
 
     if (!user) {
       return res.status(404).json({
         success: false,
-        error: 'Utilisateur non trouvé'
+        error: 'Utilisateur non trouvÃƒÂ©'
       } as ApiResponse);
     }
 
-    // Vérifier l'ancien mot de passe
+    // VÃƒÂ©rifier l'ancien mot de passe
     const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
 
     if (!isPasswordValid) {
@@ -205,17 +205,17 @@ router.put('/change-password', authenticateToken, async (req: AuthRequest, res: 
     // Hash du nouveau mot de passe
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
-    // Mettre à jour le mot de passe
+    // Mettre ÃƒÂ  jour le mot de passe
     await User.findByIdAndUpdate(userId, {
       password: hashedPassword,
       updatedAt: new Date()
     });
 
-    logger.info(`Mot de passe changé pour l'utilisateur: ${user.email}`);
+    logger.info(`Mot de passe changÃƒÂ© pour l'utilisateur: ${user.email}`);
 
     res.json({
       success: true,
-      message: 'Mot de passe modifié avec succès'
+      message: 'Mot de passe modifiÃƒÂ© avec succÃƒÂ¨s'
     } as ApiResponse);
     return;
 

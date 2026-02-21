@@ -16,13 +16,13 @@ const router = express.Router();
 // Middleware d'authentification sur toutes les routes
 router.use(authenticateToken);
 
-// ================= MODÉRATION ADMIN OFFRES =================
+// ================= MODÃƒâ€°RATION ADMIN OFFRES =================
 
-// Liste des offres à modérer (flagged ou pending)
+// Liste des offres ÃƒÂ  modÃƒÂ©rer (flagged ou pending)
 router.get('/moderation', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'super_admin')) {
-      return res.status(403).json({ success: false, error: 'Accès refusé' });
+      return res.status(403).json({ success: false, error: 'AccÃƒÂ¨s refusÃƒÂ©' });
     }
     const offers = await Offer.find({
       $or: [
@@ -32,7 +32,7 @@ router.get('/moderation', authenticateToken, async (req: AuthRequest, res: Respo
     }).sort({ createdAt: -1 });
     res.json({ success: true, data: offers });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Erreur lors de la récupération des offres à modérer' });
+    res.status(500).json({ success: false, error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des offres ÃƒÂ  modÃƒÂ©rer' });
   }
 });
 
@@ -40,11 +40,11 @@ router.get('/moderation', authenticateToken, async (req: AuthRequest, res: Respo
 router.patch('/:id/approve', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'super_admin')) {
-      return res.status(403).json({ success: false, error: 'Accès refusé' });
+      return res.status(403).json({ success: false, error: 'AccÃƒÂ¨s refusÃƒÂ©' });
     }
     const { id } = req.params;
     const offer = await Offer.findById(id);
-    if (!offer) return res.status(404).json({ success: false, error: 'Offre non trouvée' });
+    if (!offer) return res.status(404).json({ success: false, error: 'Offre non trouvÃƒÂ©e' });
     offer.moderationStatus = 'approved';
     offer.flagged = false;
     offer.moderationComment = undefined;
@@ -72,15 +72,15 @@ router.patch('/:id/approve', authenticateToken, async (req: AuthRequest, res: Re
 router.patch('/:id/reject', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'super_admin')) {
-      return res.status(403).json({ success: false, error: 'Accès refusé' });
+      return res.status(403).json({ success: false, error: 'AccÃƒÂ¨s refusÃƒÂ©' });
     }
     const { id } = req.params;
     const { reason } = req.body;
     const offer = await Offer.findById(id);
-    if (!offer) return res.status(404).json({ success: false, error: 'Offre non trouvée' });
+    if (!offer) return res.status(404).json({ success: false, error: 'Offre non trouvÃƒÂ©e' });
     offer.moderationStatus = 'rejected';
     offer.flagged = true;
-    offer.moderationComment = reason || 'Rejeté par modération';
+    offer.moderationComment = reason || 'RejetÃƒÂ© par modÃƒÂ©ration';
     offer.moderatedBy = new mongoose.Types.ObjectId(req.user._id);
     offer.moderatedAt = new Date();
     offer.moderationHistory = offer.moderationHistory || [];
@@ -105,11 +105,11 @@ router.patch('/:id/reject', authenticateToken, async (req: AuthRequest, res: Res
 router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user || (req.user.role !== 'admin' && req.user.role !== 'super_admin')) {
-      return res.status(403).json({ success: false, error: 'Accès refusé' });
+      return res.status(403).json({ success: false, error: 'AccÃƒÂ¨s refusÃƒÂ©' });
     }
     const { id } = req.params;
     const offer = await Offer.findById(id);
-    if (!offer) return res.status(404).json({ success: false, error: 'Offre non trouvée' });
+    if (!offer) return res.status(404).json({ success: false, error: 'Offre non trouvÃƒÂ©e' });
     await offer.deleteOne();
     // Audit log
     await AuditLog.create({
@@ -119,7 +119,7 @@ router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response)
       performedBy: req.user._id,
       performedByRole: req.user.role
     });
-    res.json({ success: true, message: 'Offre supprimée' });
+    res.json({ success: true, message: 'Offre supprimÃƒÂ©e' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Erreur lors de la suppression de l\'offre' });
   }
@@ -137,19 +137,19 @@ router.post('/upload-photos', uploadOfferPhotos, async (req: Request, res: Respo
     if (compressedPhotos.length === 0) {
       return res.status(400).json({
         success: false,
-        error: 'Aucune photo uploadée'
+        error: 'Aucune photo uploadÃƒÂ©e'
       });
     }
 
-    logger.info(`✅ ${compressedPhotos.length} photo(s) uploadée(s)`);
+    logger.info(`Ã¢Å“â€¦ ${compressedPhotos.length} photo(s) uploadÃƒÂ©e(s)`);
 
     res.status(200).json({
       success: true,
       photos: compressedPhotos,
-      message: `${compressedPhotos.length} photo(s) uploadée(s) avec succès`
+      message: `${compressedPhotos.length} photo(s) uploadÃƒÂ©e(s) avec succÃƒÂ¨s`
     });
   } catch (error: any) {
-    logger.error('❌ Erreur upload photos:', error);
+    logger.error('Ã¢ÂÅ’ Erreur upload photos:', error);
     res.status(500).json({
       success: false,
       error: error.message || 'Erreur lors de l\'upload des photos'
@@ -159,7 +159,7 @@ router.post('/upload-photos', uploadOfferPhotos, async (req: Request, res: Respo
 
 /**
  * POST /api/offers
- * Créer une nouvelle offre
+ * CrÃƒÂ©er une nouvelle offre
  */
 router.post('/', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -186,7 +186,7 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
     if (!zone || !title || !description || !category) {
       return res.status(400).json({
         success: false,
-        error: 'Zone, titre, description et catégorie sont requis'
+        error: 'Zone, titre, description et catÃƒÂ©gorie sont requis'
       });
     }
     
@@ -194,16 +194,16 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
     if (zone === 'information-globale' && (!targetRoles || targetRoles.length === 0)) {
       return res.status(400).json({
         success: false,
-        error: 'Veuillez sélectionner au moins un rôle cible pour Information Globale'
+        error: 'Veuillez sÃƒÂ©lectionner au moins un rÃƒÂ´le cible pour Information Globale'
       });
     }
     
     // Calculer date d'expiration
     const expiresAt = expiresInDays 
       ? new Date(Date.now() + expiresInDays * 24 * 60 * 60 * 1000)
-      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 jours par défaut
+      : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 jours par dÃƒÂ©faut
     
-    // Créer l'offre
+    // CrÃƒÂ©er l'offre
     const offer = await Offer.create({
       publishedBy: user._id,
   publishedByRole: user.role,
@@ -229,7 +229,7 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
     
     // Si offre urgente dans Info Globale, envoyer notifications
     if (isUrgent && zone === 'information-globale' && !offer.urgentNotificationSent) {
-      // TODO: Implémenter dans NotificationService (Phase 3)
+      // TODO: ImplÃƒÂ©menter dans NotificationService (Phase 3)
       // await NotificationService.sendUrgentOfferNotifications(offer);
       offer.urgentNotificationSent = true;
       await offer.save();
@@ -241,17 +241,17 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
     });
     
   } catch (error: any) {
-    logger.error('Erreur création offre:', error);
+    logger.error('Erreur crÃƒÂ©ation offre:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de la création de l\'offre'
+      error: error.message || 'Erreur lors de la crÃƒÂ©ation de l\'offre'
     });
   }
 });
 
 /**
  * GET /api/offers
- * Lister les offres (avec filtres intelligents par rôle)
+ * Lister les offres (avec filtres intelligents par rÃƒÂ´le)
  */
 router.get('/', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -283,7 +283,7 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
         ];
       }
     } else {
-      // Pas de zone spécifiée = retourner toutes les offres visibles
+      // Pas de zone spÃƒÂ©cifiÃƒÂ©e = retourner toutes les offres visibles
       filter.$or = [
         { zone: 'marketplace' }, // Marketplace visible par tous
         {
@@ -307,7 +307,7 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
     // Pagination
     const skip = (Number(page) - 1) * Number(limit);
     
-    // Requête
+    // RequÃƒÂªte
     const offersQuery = Offer.find(filter)
       .populate('publishedBy', 'name email companyName')
       .sort(sort as string)
@@ -334,14 +334,14 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
     logger.error('Erreur liste offres:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de la récupération des offres'
+      error: error.message || 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des offres'
     });
   }
 });
 
 /**
  * GET /api/offers/:id
- * Détails d'une offre
+ * DÃƒÂ©tails d'une offre
  */
 router.get('/:id', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -356,15 +356,15 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
     if (!offer) {
       return res.status(404).json({
         success: false,
-        error: 'Offre non trouvée'
+        error: 'Offre non trouvÃƒÂ©e'
       });
     }
     
-    // Vérifier si l'utilisateur peut voir cette offre
+    // VÃƒÂ©rifier si l'utilisateur peut voir cette offre
     if (!(offer as any).canUserView(user.role) && offer.publishedBy._id.toString() !== user._id.toString()) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'avez pas accès à cette offre'
+        error: 'Vous n\'avez pas accÃƒÂ¨s ÃƒÂ  cette offre'
       });
     }
     
@@ -374,17 +374,17 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
     });
     
   } catch (error: any) {
-    logger.error('Erreur détails offre:', error);
+    logger.error('Erreur dÃƒÂ©tails offre:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de la récupération de l\'offre'
+      error: error.message || 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration de l\'offre'
     });
   }
 });
 
 /**
  * POST /api/offers/:id/view
- * Marquer une offre comme vue (incrémente compteur)
+ * Marquer une offre comme vue (incrÃƒÂ©mente compteur)
  */
 router.post('/:id/view', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -396,11 +396,11 @@ router.post('/:id/view', async (req: Request, res: Response): Promise<any> => {
     if (!offer) {
       return res.status(404).json({
         success: false,
-        error: 'Offre non trouvée'
+        error: 'Offre non trouvÃƒÂ©e'
       });
     }
     
-    // Incrémenter vues (méthode du modèle évite doublons)
+    // IncrÃƒÂ©menter vues (mÃƒÂ©thode du modÃƒÂ¨le ÃƒÂ©vite doublons)
     await (offer as any).addView(user._id);
     
     res.json({
@@ -419,7 +419,7 @@ router.post('/:id/view', async (req: Request, res: Response): Promise<any> => {
 
 /**
  * POST /api/offers/:id/respond
- * Répondre à une offre (crée conversation)
+ * RÃƒÂ©pondre ÃƒÂ  une offre (crÃƒÂ©e conversation)
  */
 router.post('/:id/respond', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -433,22 +433,22 @@ router.post('/:id/respond', async (req: Request, res: Response): Promise<any> =>
     if (!offer) {
       return res.status(404).json({
         success: false,
-        error: 'Offre non trouvée'
+        error: 'Offre non trouvÃƒÂ©e'
       });
     }
     
-    // Ne peut pas répondre à sa propre offre
+    // Ne peut pas rÃƒÂ©pondre ÃƒÂ  sa propre offre
     if (offer.publishedBy._id.toString() === user._id.toString()) {
       return res.status(400).json({
         success: false,
-        error: 'Vous ne pouvez pas répondre à votre propre offre'
+        error: 'Vous ne pouvez pas rÃƒÂ©pondre ÃƒÂ  votre propre offre'
       });
     }
     
-    // TODO: Créer conversation (sera implémenté dans routes/conversations.ts)
+    // TODO: CrÃƒÂ©er conversation (sera implÃƒÂ©mentÃƒÂ© dans routes/conversations.ts)
     // const conversation = await Conversation.findOrCreate(...)
     
-    // Ajouter la réponse à l'offre
+    // Ajouter la rÃƒÂ©ponse ÃƒÂ  l'offre
     await (offer as any).addResponse({
       userId: user._id,
       userName: user.companyName || user.name || user.email,
@@ -457,13 +457,13 @@ router.post('/:id/respond', async (req: Request, res: Response): Promise<any> =>
       createdAt: new Date()
     });
     
-    // Notifier le propriétaire de l'offre
+    // Notifier le propriÃƒÂ©taire de l'offre
     await (Notification as any).createAndSend(
       offer.publishedBy._id,
   (offer.publishedBy as any).role,
       'offer-response',
-      'Nouvelle réponse à votre offre',
-      `${user.companyName || user.name} a répondu à "${offer.title}"`,
+      'Nouvelle rÃƒÂ©ponse ÃƒÂ  votre offre',
+      `${user.companyName || user.name} a rÃƒÂ©pondu ÃƒÂ  "${offer.title}"`,
       {
         priority: 'high',
         data: { offerId: offer._id, senderId: user._id },
@@ -474,22 +474,22 @@ router.post('/:id/respond', async (req: Request, res: Response): Promise<any> =>
     
     res.json({
       success: true,
-      message: 'Réponse envoyée avec succès'
+      message: 'RÃƒÂ©ponse envoyÃƒÂ©e avec succÃƒÂ¨s'
       // data: { conversationId: conversation._id }
     });
     
   } catch (error: any) {
-    logger.error('Erreur réponse offre:', error);
+    logger.error('Erreur rÃƒÂ©ponse offre:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de l\'envoi de la réponse'
+      error: error.message || 'Erreur lors de l\'envoi de la rÃƒÂ©ponse'
     });
   }
 });
 
 /**
  * PATCH /api/offers/:id
- * Modifier une offre (propriétaire seulement)
+ * Modifier une offre (propriÃƒÂ©taire seulement)
  */
 router.patch('/:id', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -502,28 +502,28 @@ router.patch('/:id', async (req: Request, res: Response): Promise<any> => {
     if (!offer) {
       return res.status(404).json({
         success: false,
-        error: 'Offre non trouvée'
+        error: 'Offre non trouvÃƒÂ©e'
       });
     }
     
-    // Vérifier propriétaire
+    // VÃƒÂ©rifier propriÃƒÂ©taire
     if (offer.publishedBy.toString() !== user._id.toString()) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas autorisé à modifier cette offre'
+        error: 'Vous n\'ÃƒÂªtes pas autorisÃƒÂ© ÃƒÂ  modifier cette offre'
       });
     }
     
     // Champs modifiables
   const allowedUpdatesStr = 'title,description,price,priceType,images,location,contactPhone,contactEmail,tags';
-    // Boucle for-in directe pour appliquer les mises � jour sans tableau
-    // Fonction utilitaire locale pour lire le caract�re � une position donn�e
+    // Boucle for-in directe pour appliquer les mises Ã¯Â¿Â½ jour sans tableau
+    // Fonction utilitaire locale pour lire le caractÃ¯Â¿Â½re Ã¯Â¿Â½ une position donnÃ¯Â¿Â½e
     function charAt(str: string, pos: number): string {
       let i = 0;
       let current = '';
       let idx = 0;
       while (true) {
-        // Construit le caract�re � la position idx
+        // Construit le caractÃ¯Â¿Â½re Ã¯Â¿Â½ la position idx
         let c = '';
         let found = false;
         let j = 0;
@@ -539,8 +539,8 @@ router.patch('/:id', async (req: Request, res: Response): Promise<any> => {
           return c;
         }
         idx++;
-        // Avance dans la cha�ne
-        if (i >= 10000) break; // s�curit� anti-boucle infinie
+        // Avance dans la chaÃ¯Â¿Â½ne
+        if (i >= 10000) break; // sÃ¯Â¿Â½curitÃ¯Â¿Â½ anti-boucle infinie
         i++;
       }
       return '';
@@ -589,7 +589,7 @@ router.patch('/:id', async (req: Request, res: Response): Promise<any> => {
 
 /**
  * POST /api/offers/:id/close
- * Clôturer une offre
+ * ClÃƒÂ´turer une offre
  */
 router.post('/:id/close', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -602,15 +602,15 @@ router.post('/:id/close', async (req: Request, res: Response): Promise<any> => {
     if (!offer) {
       return res.status(404).json({
         success: false,
-        error: 'Offre non trouvée'
+        error: 'Offre non trouvÃƒÂ©e'
       });
     }
     
-    // Vérifier propriétaire
+    // VÃƒÂ©rifier propriÃƒÂ©taire
     if (offer.publishedBy.toString() !== user._id.toString()) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas autorisé à clôturer cette offre'
+        error: 'Vous n\'ÃƒÂªtes pas autorisÃƒÂ© ÃƒÂ  clÃƒÂ´turer cette offre'
       });
     }
     
@@ -621,21 +621,21 @@ router.post('/:id/close', async (req: Request, res: Response): Promise<any> => {
     
     res.json({
       success: true,
-      message: 'Offre clôturée avec succès'
+      message: 'Offre clÃƒÂ´turÃƒÂ©e avec succÃƒÂ¨s'
     });
     
   } catch (error: any) {
-    logger.error('Erreur clôture offre:', error);
+    logger.error('Erreur clÃƒÂ´ture offre:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de la clôture de l\'offre'
+      error: error.message || 'Erreur lors de la clÃƒÂ´ture de l\'offre'
     });
   }
 });
 
 /**
  * DELETE /api/offers/:id
- * Supprimer une offre (propriétaire seulement)
+ * Supprimer une offre (propriÃƒÂ©taire seulement)
  */
 router.delete('/:id', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -647,15 +647,15 @@ router.delete('/:id', async (req: Request, res: Response): Promise<any> => {
     if (!offer) {
       return res.status(404).json({
         success: false,
-        error: 'Offre non trouvée'
+        error: 'Offre non trouvÃƒÂ©e'
       });
     }
     
-    // Vérifier propriétaire
+    // VÃƒÂ©rifier propriÃƒÂ©taire
     if (offer.publishedBy.toString() !== user._id.toString()) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas autorisé à supprimer cette offre'
+        error: 'Vous n\'ÃƒÂªtes pas autorisÃƒÂ© ÃƒÂ  supprimer cette offre'
       });
     }
     
@@ -663,7 +663,7 @@ router.delete('/:id', async (req: Request, res: Response): Promise<any> => {
     
     res.json({
       success: true,
-      message: 'Offre supprimée avec succès'
+      message: 'Offre supprimÃƒÂ©e avec succÃƒÂ¨s'
     });
     
   } catch (error: any) {

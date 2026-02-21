@@ -1,21 +1,21 @@
-﻿import express, { Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import Investment from '../models/Investment';
 import InvestmentOpportunity from '../models/InvestmentOpportunity';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
-// Middleware pour v�rifier r�le investisseur
+// Middleware pour vï¿½rifier rï¿½le investisseur
 const requireInvestorRole = (req: any, res: Response, next: Function) => {
   if (req.user?.role !== 'investisseur' && req.user?.role !== 'super_admin') {
-    res.status(403).json({ error: 'Acc�s r�serv� aux investisseurs' }); return;
+    res.status(403).json({ error: 'Accï¿½s rï¿½servï¿½ aux investisseurs' }); return;
   }
   return next();
 };
 
 /**
  * GET /api/investor/opportunities
- * Liste des opportunit�s d'investissement disponibles
+ * Liste des opportunitï¿½s d'investissement disponibles
  */
 router.get('/opportunities', authenticateToken, requireInvestorRole, async (req: any, res: Response) => {
   try {
@@ -26,7 +26,7 @@ router.get('/opportunities', authenticateToken, requireInvestorRole, async (req:
     if (riskLevel) filter.riskLevel = riskLevel;
     if (sector) filter.sector = new RegExp(sector as string, 'i');
     if (status) filter.status = status;
-    else filter.status = 'open'; // Par d�faut, seulement les opportunit�s ouvertes
+    else filter.status = 'open'; // Par dï¿½faut, seulement les opportunitï¿½s ouvertes
     
     // Filtre ROI minimum
     if (minROI) filter.expectedROI = { $gte: parseFloat(minROI as string) };
@@ -43,7 +43,7 @@ router.get('/opportunities', authenticateToken, requireInvestorRole, async (req:
   } catch (error: any) {
     // console.error('Error fetching investment opportunities:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des opportunit�s',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des opportunitï¿½s',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }
@@ -51,7 +51,7 @@ router.get('/opportunities', authenticateToken, requireInvestorRole, async (req:
 
 /**
  * POST /api/investor/invest
- * Investir dans une opportunit�
+ * Investir dans une opportunitï¿½
  */
 router.post('/invest', authenticateToken, requireInvestorRole, async (req: any, res: Response) => {
   try {
@@ -64,32 +64,32 @@ router.post('/invest', authenticateToken, requireInvestorRole, async (req: any, 
     }
     
     if (amount <= 0 || shares <= 0) {
-      res.status(400).json({ error: 'Amount et shares doivent �tre positifs' }); return;
+      res.status(400).json({ error: 'Amount et shares doivent ï¿½tre positifs' }); return;
     }
     
-    // V�rifier que l'opportunit� existe et est ouverte
+    // Vï¿½rifier que l'opportunitï¿½ existe et est ouverte
     const opportunity = await InvestmentOpportunity.findById(opportunityId).exec();
     if (!opportunity) {
-      res.status(404).json({ error: 'Opportunit� introuvable' }); return;
+      res.status(404).json({ error: 'Opportunitï¿½ introuvable' }); return;
     }
     
     if (opportunity.status !== 'open') {
-      res.status(400).json({ error: 'Cette opportunit� n\'est plus ouverte' }); return;
+      res.status(400).json({ error: 'Cette opportunitï¿½ n\'est plus ouverte' }); return;
     }
     
     if (new Date() > opportunity.deadline) {
-      res.status(400).json({ error: 'La deadline est d�pass�e' }); return;
+      res.status(400).json({ error: 'La deadline est dï¿½passï¿½e' }); return;
     }
     
-    // V�rifier qu'il reste de la place
+    // Vï¿½rifier qu'il reste de la place
     const remaining = opportunity.targetAmount - opportunity.raisedAmount;
     if (amount > remaining) {
       res.status(400).json({ 
-        error: `Montant trop �lev�. Reste disponible: ${remaining}�` 
+        error: `Montant trop ï¿½levï¿½. Reste disponible: ${remaining}ï¿½` 
       }); return;
     }
     
-    // Cr�er l'investissement
+    // Crï¿½er l'investissement
     const investment = new Investment({
       investorId,
       opportunityId,
@@ -102,7 +102,7 @@ router.post('/invest', authenticateToken, requireInvestorRole, async (req: any, 
     
     await investment.save();
     
-    // Mettre � jour l'opportunit�
+    // Mettre ï¿½ jour l'opportunitï¿½
     opportunity.raisedAmount += amount;
     if (opportunity.raisedAmount >= opportunity.targetAmount) {
       opportunity.status = 'funded';
@@ -111,13 +111,13 @@ router.post('/invest', authenticateToken, requireInvestorRole, async (req: any, 
     
     res.status(201).json({
       success: true,
-      message: 'Investissement cr�� avec succ�s',
+      message: 'Investissement crï¿½ï¿½ avec succï¿½s',
       investment
     }); return;
   } catch (error: any) {
     // console.error('Error creating investment:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la cr�ation de l\'investissement',
+      error: 'Erreur lors de la crï¿½ation de l\'investissement',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }
@@ -161,7 +161,7 @@ router.get('/portfolio', authenticateToken, requireInvestorRole, async (req: any
   } catch (error: any) {
     // console.error('Error fetching portfolio:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la récupération du portefeuille',
+      error: 'Erreur lors de la rÃ©cupÃ©ration du portefeuille',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }
@@ -181,12 +181,12 @@ router.get('/projects', authenticateToken, requireInvestorRole, async (req: any,
     res.json({
       success: true,
       data: projects,
-      message: `${projects.length} projets trouvés`
+      message: `${projects.length} projets trouvÃ©s`
     });
   } catch (error: any) {
     res.status(500).json({ 
       success: false,
-      error: 'Erreur lors de la récupération des projets',
+      error: 'Erreur lors de la rÃ©cupÃ©ration des projets',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); 
     return;
@@ -209,12 +209,12 @@ router.get('/transactions', authenticateToken, requireInvestorRole, async (req: 
     res.json({
       success: true,
       data: transactions,
-      message: `${transactions.length} transactions trouvées`
+      message: `${transactions.length} transactions trouvÃ©es`
     });
   } catch (error: any) {
     res.status(500).json({ 
       success: false,
-      error: 'Erreur lors de la récupération des transactions',
+      error: 'Erreur lors de la rÃ©cupÃ©ration des transactions',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); 
     return;

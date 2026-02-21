@@ -1,5 +1,5 @@
 /**
- * Logger centralisé pour le backend
+ * Logger centralisÃƒÂ© pour le backend
  * Remplace tous les console.log/error/warn
  */
 
@@ -32,10 +32,10 @@ class Logger {
   private formatMessage(level: LogLevel, message: string, ...args: unknown[]): string {
     const timestamp = this.getTimestamp();
     const emoji = {
-      debug: '🐛',
-      info: 'ℹ️',
-      warn: '⚠️',
-      error: '❌'
+      debug: 'Ã°Å¸Ââ€º',
+      info: 'Ã¢â€žÂ¹Ã¯Â¸Â',
+      warn: 'Ã¢Å¡Â Ã¯Â¸Â',
+      error: 'Ã¢ÂÅ’'
     }[level];
 
     return `${timestamp} ${emoji} [${level.toUpperCase()}] ${message}`;
@@ -77,37 +77,37 @@ class Logger {
       // eslint-disable-next-line no-console
       console.error(this.formatMessage('error', message), error, ...args);
       
-      // TODO: Envoyer à un service de monitoring (Sentry, etc.)
+      // TODO: Envoyer ÃƒÂ  un service de monitoring (Sentry, etc.)
       // if (process.env.NODE_ENV === 'production') {
       //   sendToMonitoring(message, error);
       // }
     }
   }
 
-  // Méthode spéciale pour les logs de démarrage serveur
+  // MÃƒÂ©thode spÃƒÂ©ciale pour les logs de dÃƒÂ©marrage serveur
   server(message: string, ...args: unknown[]): void {
     // eslint-disable-next-line no-console
-    console.log(`🚀 ${this.getTimestamp()} ${message}`, ...args);
+    console.log(`Ã°Å¸Å¡â‚¬ ${this.getTimestamp()} ${message}`, ...args);
   }
 
-  // Méthode pour les logs Socket.IO
+  // MÃƒÂ©thode pour les logs Socket.IO
   socket(message: string, ...args: unknown[]): void {
     if (this.isDevelopment) {
       // eslint-disable-next-line no-console
-      console.log(`📡 ${this.getTimestamp()} ${message}`, ...args);
+      console.log(`Ã°Å¸â€œÂ¡ ${this.getTimestamp()} ${message}`, ...args);
     }
   }
 
-  // Méthode pour les logs TMS
+  // MÃƒÂ©thode pour les logs TMS
   tms(message: string, ...args: unknown[]): void {
     // eslint-disable-next-line no-console
-    console.log(`🚚 ${this.getTimestamp()} ${message}`, ...args);
+    console.log(`Ã°Å¸Å¡Å¡ ${this.getTimestamp()} ${message}`, ...args);
   }
 
-  // Méthode pour les logs Firebase/Push
+  // MÃƒÂ©thode pour les logs Firebase/Push
   firebase(message: string, ...args: unknown[]): void {
     // eslint-disable-next-line no-console
-    console.log(`🔔 ${this.getTimestamp()} ${message}`, ...args);
+    console.log(`Ã°Å¸â€â€ ${this.getTimestamp()} ${message}`, ...args);
   }
 }
 

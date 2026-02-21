@@ -12,10 +12,10 @@ router.post('/debug-payment-data', authenticateToken, async (req: express.Reques
   try {
     const userId = (req as any).user.id;
     
-    console.log('\n🔍 DEBUG PAYMENT DATA FROM FRONTEND:\n');
+    console.log('\nÃ°Å¸â€Â DEBUG PAYMENT DATA FROM FRONTEND:\n');
     console.log('User ID:', userId);
-    console.log('Body reçu:', JSON.stringify(req.body, null, 2));
-    console.log('\n--- Détails ---');
+    console.log('Body reÃƒÂ§u:', JSON.stringify(req.body, null, 2));
+    console.log('\n--- DÃƒÂ©tails ---');
     console.log('amount:', req.body.amount, typeof req.body.amount);
     console.log('currency:', req.body.currency);
     console.log('orderData:', JSON.stringify(req.body.orderData, null, 2));
@@ -29,7 +29,7 @@ router.post('/debug-payment-data', authenticateToken, async (req: express.Reques
     
     return res.json({
       success: true,
-      message: 'Données reçues et loggées. Regardez les logs Railway.',
+      message: 'DonnÃƒÂ©es reÃƒÂ§ues et loggÃƒÂ©es. Regardez les logs Railway.',
       receivedData: req.body
     });
     

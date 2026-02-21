@@ -1,4 +1,4 @@
-﻿/// <reference lib="es2015" />
+/// <reference lib="es2015" />
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { UserService } from './UserService';
@@ -7,8 +7,8 @@ import { config } from '../config';
 import { logger } from '../utils/logger';
 import { devLog } from '../utils/devLogger';
 
-// 🔄 MAPPING RÔLES FRANÇAIS → ANGLAIS (MongoDB)
-// Frontend utilise noms français, MongoDB attend noms anglais
+// ðŸ”„ MAPPING RÃ”LES FRANÃ‡AIS â†’ ANGLAIS (MongoDB)
+// Frontend utilise noms franÃ§ais, MongoDB attend noms anglais
 function mapRoleToMongoDB(frontendRole: string): string {
   const roleMap: Record<string, string> = {
     'fournisseur': 'supplier',
@@ -18,7 +18,7 @@ function mapRoleToMongoDB(frontendRole: string): string {
     'comptable': 'accountant',
     'investisseur': 'investor',
     'auditeur': 'auditor',
-    // Rôles identiques français/anglais
+    // RÃ´les identiques franÃ§ais/anglais
     'restaurant': 'restaurant',
     'artisan': 'artisan',
     'candidat': 'candidat',
@@ -29,11 +29,11 @@ function mapRoleToMongoDB(frontendRole: string): string {
   return roleMap[frontendRole] || frontendRole;
 }
 
-// 🔴 COMPTES DE TEST - Pour tous les rôles de l'application
-// ⚠️  DÉSACTIVÉS EN PRODUCTION via process.env.ENABLE_TEST_ACCOUNTS
+// ðŸ”´ COMPTES DE TEST - Pour tous les rÃ´les de l'application
+// âš ï¸  DÃ‰SACTIVÃ‰S EN PRODUCTION via process.env.ENABLE_TEST_ACCOUNTS
 const isTestAccountsEnabled = process.env.ENABLE_TEST_ACCOUNTS !== 'false';
 const criticalDriverAccounts = isTestAccountsEnabled ? [
-  // 🎯 Comptes avec DONNÉES DE TEST RÉELLES (password123)
+  // ðŸŽ¯ Comptes avec DONNÃ‰ES DE TEST RÃ‰ELLES (password123)
   { id: 'restaurant-001', email: 'restaurant@test.fr', password: 'password123', role: 'restaurant', name: 'Restaurant Test' },
   { id: 'artisan-001', email: 'artisan@test.fr', password: 'password123', role: 'artisan', name: 'Artisan Test' },
   { id: 'driver1', email: 'driver1@test.fr', password: 'password123', role: 'livreur', name: 'Livreur Test' },
@@ -59,7 +59,7 @@ const criticalDriverAccounts = isTestAccountsEnabled ? [
 
 export class AuthService {
   /**
-   * Authentifier un utilisateur et générer un token
+   * Authentifier un utilisateur et gÃ©nÃ©rer un token
    */
   static async login(email: string, password: string) {
     try {
@@ -77,13 +77,13 @@ export class AuthService {
           {
             userId: criticalUser.id,
             email: criticalUser.email,
-            role: mapRoleToMongoDB(criticalUser.role) // 🔄 Mapper rôle français → anglais
+            role: mapRoleToMongoDB(criticalUser.role) // ðŸ”„ Mapper rÃ´le franÃ§ais â†’ anglais
           },
           config.jwt.secret,
           { expiresIn: '24h' }
         );
 
-        logger.info(`Connexion réussie pour ${email} (rôle: ${criticalUser.role}) - Compte critique`);
+        logger.info(`Connexion rÃ©ussie pour ${email} (rÃ´le: ${criticalUser.role}) - Compte critique`);
 
         return {
           success: true,
@@ -106,7 +106,7 @@ export class AuthService {
         if (mongoUser && mongoUser.password) {
           const isValidPassword = await bcrypt.compare(password, mongoUser.password);
           if (isValidPassword) {
-            // ✅ VÉRIFIER LE STATUT DU COMPTE
+            // âœ… VÃ‰RIFIER LE STATUT DU COMPTE
             if (mongoUser.status === 'pending') {
               logger.warn(`Tentative de connexion d'un compte en attente: ${email}`);
               return {
@@ -116,19 +116,19 @@ export class AuthService {
             }
 
             if (mongoUser.status === 'rejected') {
-              logger.warn(`Tentative de connexion d'un compte rejeté: ${email}`);
+              logger.warn(`Tentative de connexion d'un compte rejetÃ©: ${email}`);
               return {
                 success: false,
-                error: 'Votre demande d\'inscription a été rejetée. Contactez le support pour plus d\'informations.'
+                error: 'Votre demande d\'inscription a Ã©tÃ© rejetÃ©e. Contactez le support pour plus d\'informations.'
               };
             }
 
-            // Vérifier si le compte est actif
+            // VÃ©rifier si le compte est actif
             if (!mongoUser.isActive) {
-              logger.warn(`Compte désactivé: ${email}`);
+              logger.warn(`Compte dÃ©sactivÃ©: ${email}`);
               return {
                 success: false,
-                error: 'Compte désactivé'
+                error: 'Compte dÃ©sactivÃ©'
               };
             }
 
@@ -136,15 +136,15 @@ export class AuthService {
               {
                 userId: mongoUser._id,
                 email: mongoUser.email,
-                role: mongoUser.role // ✅ Rôle MongoDB déjà en anglais
+                role: mongoUser.role // âœ… RÃ´le MongoDB dÃ©jÃ  en anglais
               },
               config.jwt.secret,
               { expiresIn: '24h' }
             );
 
-            logger.info(`Connexion réussie pour ${email} (rôle: ${mongoUser.role}) - MongoDB`);
+            logger.info(`Connexion rÃ©ussie pour ${email} (rÃ´le: ${mongoUser.role}) - MongoDB`);
 
-            // Retourner données utilisateur MongoDB (production)
+            // Retourner donnÃ©es utilisateur MongoDB (production)
             const { password: _, ...userWithoutPassword } = mongoUser.toObject();
             return {
               success: true,
@@ -164,8 +164,8 @@ export class AuthService {
         logger.warn('Erreur MongoDB, utilisation comptes critiques uniquement', mongoError);
       }
 
-      // 3. Aucun compte trouvé
-      logger.warn(`Échec de connexion pour: ${email} - Aucun compte trouvé`);
+      // 3. Aucun compte trouvÃ©
+      logger.warn(`Ã‰chec de connexion pour: ${email} - Aucun compte trouvÃ©`);
       return {
         success: false,
         error: 'Email ou mot de passe incorrect'
@@ -186,13 +186,13 @@ export class AuthService {
     try {
       logger.info(`Tentative d'inscription pour l'email: ${email}`);
 
-      // Vérifier si l'utilisateur existe déjà
+      // VÃ©rifier si l'utilisateur existe dÃ©jÃ 
       const existingUser = await User.findOne({ email: email.toLowerCase() }).exec();
       if (existingUser) {
         logger.warn(`Tentative d'inscription avec email existant: ${email}`);
         return {
           success: false,
-          error: 'Un compte avec cet email existe déjà'
+          error: 'Un compte avec cet email existe dÃ©jÃ '
         };
       }
 
@@ -200,14 +200,14 @@ export class AuthService {
       const saltRounds = 12;
       const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-      // Créer le nouvel utilisateur - EN ATTENTE DE VALIDATION ADMIN
+      // CrÃ©er le nouvel utilisateur - EN ATTENTE DE VALIDATION ADMIN
       const newUser = new User({
         name,
         email: email.toLowerCase(),
         password: hashedPassword,
         role,
-        status: 'pending',   // ⚠️ Nécessite validation admin
-        isActive: false,     // Désactivé jusqu'à approbation admin
+        status: 'pending',   // âš ï¸ NÃ©cessite validation admin
+        isActive: false,     // DÃ©sactivÃ© jusqu'Ã  approbation admin
         verified: false,
         createdAt: new Date(),
         updatedAt: new Date()
@@ -215,7 +215,7 @@ export class AuthService {
 
       await newUser.save();
 
-      // Générer token même si en attente
+      // GÃ©nÃ©rer token mÃªme si en attente
       const token = jwt.sign(
         {
           userId: newUser._id,
@@ -228,7 +228,7 @@ export class AuthService {
 
       const { password: pwd2, ...userWithoutPassword } = newUser.toObject();
       
-      logger.info(`Inscription en attente de validation pour ${email} (rôle: ${role})`);
+      logger.info(`Inscription en attente de validation pour ${email} (rÃ´le: ${role})`);
 
       return {
         success: true,
@@ -239,7 +239,7 @@ export class AuthService {
             id: newUser._id.toString()
           },
           token,
-          message: 'Inscription enregistrée. Un administrateur doit valider votre compte et vérifier votre rôle avant activation.'
+          message: 'Inscription enregistrÃ©e. Un administrateur doit valider votre compte et vÃ©rifier votre rÃ´le avant activation.'
         }
       };
     } catch (error) {
@@ -252,22 +252,22 @@ export class AuthService {
   }
 
   /**
-   * Vérifier la validité d'un token et récupérer l'utilisateur
+   * VÃ©rifier la validitÃ© d'un token et rÃ©cupÃ©rer l'utilisateur
    */
   static async verifyTokenAndGetUser(token: string) {
     try {
-      // Vérifier le token JWT
+      // VÃ©rifier le token JWT
       const decoded = jwt.verify(token, config.jwt.secret) as any;
       const userId = decoded.userId || decoded._id || decoded.id;
 
       if (!userId) {
         return {
           success: false,
-          error: 'Token invalide - données manquantes'
+          error: 'Token invalide - donnÃ©es manquantes'
         };
       }
 
-      // Essayer de récupérer depuis MongoDB d'abord
+      // Essayer de rÃ©cupÃ©rer depuis MongoDB d'abord
       try {
         const user = await User.findById(userId).select('-password').exec();
         if (user) {
@@ -286,7 +286,7 @@ export class AuthService {
           };
         }
       } catch (mongoError) {
-        logger.warn('Erreur récupération utilisateur MongoDB:', mongoError);
+        logger.warn('Erreur rÃ©cupÃ©ration utilisateur MongoDB:', mongoError);
       }
 
       // Fallback vers comptes critiques
@@ -304,7 +304,7 @@ export class AuthService {
 
       return {
         success: false,
-        error: 'Utilisateur non trouvé'
+        error: 'Utilisateur non trouvÃ©'
       };
     } catch (error) {
       if (error instanceof jwt.JsonWebTokenError) {
@@ -317,20 +317,20 @@ export class AuthService {
       if (error instanceof jwt.TokenExpiredError) {
         return {
           success: false,
-          error: 'Token expiré'
+          error: 'Token expirÃ©'
         };
       }
 
-      logger.error('Erreur lors de la vérification du token:', error);
+      logger.error('Erreur lors de la vÃ©rification du token:', error);
       return {
         success: false,
-        error: 'Erreur lors de la vérification du token'
+        error: 'Erreur lors de la vÃ©rification du token'
       };
     }
   }
 
   /**
-   * Vérifier la validité d'un token (simple)
+   * VÃ©rifier la validitÃ© d'un token (simple)
    */
   static async verifyToken(token: string) {
     try {
@@ -350,23 +350,23 @@ export class AuthService {
       if (error instanceof jwt.TokenExpiredError) {
         return {
           success: false,
-          error: 'Token expiré'
+          error: 'Token expirÃ©'
         };
       }
 
       return {
         success: false,
-        error: 'Erreur lors de la vérification du token'
+        error: 'Erreur lors de la vÃ©rification du token'
       };
     }
   }
 
   /**
-   * Rafraîchir un token
+   * RafraÃ®chir un token
    */
   static async refreshToken(token: string) {
     try {
-      // D'abord vérifier le token et récupérer l'utilisateur
+      // D'abord vÃ©rifier le token et rÃ©cupÃ©rer l'utilisateur
       const userResult = await AuthService.verifyTokenAndGetUser(token);
       if (!userResult.success || !userResult.data) {
         return userResult;
@@ -374,7 +374,7 @@ export class AuthService {
 
       const user = userResult.data.user;
 
-      // Générer un nouveau token
+      // GÃ©nÃ©rer un nouveau token
       const newToken = jwt.sign(
         {
           userId: (user as any).id || (user as any)._id,
@@ -393,10 +393,10 @@ export class AuthService {
         }
       };
     } catch (error) {
-      logger.error('Erreur lors du rafraîchissement du token:', error);
+      logger.error('Erreur lors du rafraÃ®chissement du token:', error);
       return {
         success: false,
-        error: 'Erreur lors du rafraîchissement du token'
+        error: 'Erreur lors du rafraÃ®chissement du token'
       };
     }
   }
@@ -406,15 +406,15 @@ export class AuthService {
    */
   static async logout(token: string) {
     try {
-      // Pour une implémentation complète, on pourrait ajouter le token
-      // à une liste noire Redis, mais pour l'instant on se contente
-      // de vérifier que le token est valide
+      // Pour une implÃ©mentation complÃ¨te, on pourrait ajouter le token
+      // Ã  une liste noire Redis, mais pour l'instant on se contente
+      // de vÃ©rifier que le token est valide
       const verifyResult = await AuthService.verifyToken(token);
       if (!verifyResult.success) {
         return verifyResult;
       }
 
-      // Essayer de récupérer l'utilisateur pour le log
+      // Essayer de rÃ©cupÃ©rer l'utilisateur pour le log
       const userResult = await AuthService.verifyTokenAndGetUser(token);
       const userId = userResult.success && userResult.data ? (userResult.data.user as any).id || (userResult.data.user as any)._id || 'unknown' : 'unknown';
 
@@ -422,19 +422,19 @@ export class AuthService {
 
       return {
         success: true,
-        message: 'Déconnexion réussie'
+        message: 'DÃ©connexion rÃ©ussie'
       };
     } catch (error) {
       logger.error('Erreur lors du logout:', error);
       return {
         success: false,
-        error: 'Erreur lors de la déconnexion'
+        error: 'Erreur lors de la dÃ©connexion'
       };
     }
   }
 
   /**
-   * Générer un token de réinitialisation de mot de passe
+   * GÃ©nÃ©rer un token de rÃ©initialisation de mot de passe
    */
   static generatePasswordResetToken(userId: string): string {
     return jwt.sign(
@@ -445,7 +445,7 @@ export class AuthService {
   }
 
   /**
-   * Vérifier un token de réinitialisation de mot de passe
+   * VÃ©rifier un token de rÃ©initialisation de mot de passe
    */
   static async verifyPasswordResetToken(token: string) {
     try {
@@ -458,12 +458,12 @@ export class AuthService {
         };
       }
 
-      // Vérifier que l'utilisateur existe
+      // VÃ©rifier que l'utilisateur existe
       const userResult = await UserService.getUserById(decoded.userId);
       if (!userResult.success) {
         return {
           success: false,
-          error: 'Utilisateur non trouvé'
+          error: 'Utilisateur non trouvÃ©'
         };
       }
 
@@ -477,34 +477,34 @@ export class AuthService {
     } catch (error) {
       return {
         success: false,
-        error: 'Token de réinitialisation invalide ou expiré'
+        error: 'Token de rÃ©initialisation invalide ou expirÃ©'
       };
     }
   }
 
   /**
-   * Vérifier les permissions d'un utilisateur
+   * VÃ©rifier les permissions d'un utilisateur
    */
   static checkPermissions(userRole: string, requiredRoles: string[]): boolean {
     return requiredRoles.includes(userRole);
   }
 
   /**
-   * Vérifier si un utilisateur a le rôle admin
+   * VÃ©rifier si un utilisateur a le rÃ´le admin
    */
   static isAdmin(userRole: string): boolean {
     return ['super_admin', 'admin'].includes(userRole);
   }
 
   /**
-   * Vérifier si un utilisateur a le rôle super_admin
+   * VÃ©rifier si un utilisateur a le rÃ´le super_admin
    */
   static isSuperAdmin(userRole: string): boolean {
     return userRole === 'super_admin';
   }
 
   /**
-   * Obtenir les permissions par rôle
+   * Obtenir les permissions par rÃ´le
    */
   static getRolePermissions(role: string): string[] {
     const rolePermissions: Record<string, string[]> = {
@@ -558,7 +558,7 @@ export class AuthService {
   }
 
   /**
-   * Vérifier une permission spécifique
+   * VÃ©rifier une permission spÃ©cifique
    */
   static hasPermission(userRole: string, permission: string): boolean {
     const permissions = this.getRolePermissions(userRole);

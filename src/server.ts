@@ -1,19 +1,19 @@
-﻿/**
- * ðŸš€ Web Spider Backend Server
- * Point d'entrÃ©e principal pour le serveur backend
+/**
+ * Ã°Å¸Å¡â‚¬ Web Spider Backend Server
+ * Point d'entrÃƒÂ©e principal pour le serveur backend
  * 
- * Ce fichier dÃ©marre le serveur Express avec Socket.io
- * et se connecte Ã  la base de donnÃ©es MongoDB
+ * Ce fichier dÃƒÂ©marre le serveur Express avec Socket.io
+ * et se connecte ÃƒÂ  la base de donnÃƒÂ©es MongoDB
  */
 
 import './app';
 import { logger } from './utils/logger';
 
 /**
- * Note: Toute la logique de dÃ©marrage est dans app.ts
- * Ce fichier sert uniquement de point d'entrÃ©e pour nodemon
- * qui permet le hot-reload pendant le dÃ©veloppement
+ * Note: Toute la logique de dÃƒÂ©marrage est dans app.ts
+ * Ce fichier sert uniquement de point d'entrÃƒÂ©e pour nodemon
+ * qui permet le hot-reload pendant le dÃƒÂ©veloppement
  */
 
-logger.info('âœ… Server.ts - Point d\'entrÃ©e chargÃ©');
-logger.info('ðŸ”„ Le serveur dÃ©marre via app.ts...');
+logger.info('Ã¢Å“â€¦ Server.ts - Point d\'entrÃƒÂ©e chargÃƒÂ©');
+logger.info('Ã°Å¸â€â€ž Le serveur dÃƒÂ©marre via app.ts...');

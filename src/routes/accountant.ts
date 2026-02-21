@@ -1,4 +1,4 @@
-﻿import express, { Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import AccountingDocument from '../models/AccountingDocument';
 import TaxAlert from '../models/TaxAlert';
 import { User } from '../models/User';
@@ -22,13 +22,13 @@ const arrayJoin = (arr: any[], separator: string): string => {
 
 const router = express.Router();
 
-// Middleware pour vérifier rôle comptable
+// Middleware pour vÃ©rifier rÃ´le comptable
 const requireAccountantRole = (req: any, res: Response, next: Function) => {
   const allowedRoles = ['comptable', 'admin', 'super_admin'];
   if (!allowedRoles.includes(req.user?.role)) {
     res.status(403).json({ 
       success: false,
-      error: 'Accès réservé aux comptables' 
+      error: 'AccÃ¨s rÃ©servÃ© aux comptables' 
     }); 
     return;
   }
@@ -43,11 +43,11 @@ router.get('/clients', authenticateToken, requireAccountantRole, async (req: any
   try {
     const accountantId = req.user._id;
     
-    // Trouver tous les documents o� le comptable est assign�
+    // Trouver tous les documents oï¿½ le comptable est assignï¿½
     const documents = await AccountingDocument.find({ accountantId })
       .distinct('clientId');
     
-    // R�cup�rer infos clients
+    // Rï¿½cupï¿½rer infos clients
     const clients = await User.find({
       _id: { $in: documents }
     })
@@ -62,7 +62,7 @@ router.get('/clients', authenticateToken, requireAccountantRole, async (req: any
   } catch (error: any) {
     // console.error('Error fetching clients:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des clients',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des clients',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }
@@ -70,7 +70,7 @@ router.get('/clients', authenticateToken, requireAccountantRole, async (req: any
 
 /**
  * GET /api/accountant/documents/:clientId
- * Documents comptables d'un client sp�cifique
+ * Documents comptables d'un client spï¿½cifique
  */
 router.get('/documents/:clientId', authenticateToken, requireAccountantRole, async (req: any, res: Response) => {
   try {
@@ -78,7 +78,7 @@ router.get('/documents/:clientId', authenticateToken, requireAccountantRole, asy
     const { clientId } = req.params;
     const { type, fiscalYear } = req.query;
     
-    // V�rifier que le client existe
+    // Vï¿½rifier que le client existe
     const client = await User.findById(clientId).exec();
     if (!client) {
       res.status(404).json({ error: 'Client introuvable' }); return;
@@ -108,7 +108,7 @@ router.get('/documents/:clientId', authenticateToken, requireAccountantRole, asy
   } catch (error: any) {
     // console.error('Error fetching documents:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des documents',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des documents',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }
@@ -133,17 +133,17 @@ router.post('/documents', authenticateToken, requireAccountantRole, async (req: 
     const validTypes = ['invoice', 'tax-declaration', 'balance-sheet', 'income-statement', 'other'];
     if (!validTypes.includes(type)) {
       res.status(400).json({ 
-        error: `Type invalide. Valeurs autoris�es: ${arrayJoin(validTypes, ', ')}` 
+        error: `Type invalide. Valeurs autorisï¿½es: ${arrayJoin(validTypes, ', ')}` 
       });
     }
     
-    // V�rifier que le client existe
+    // Vï¿½rifier que le client existe
     const client = await User.findById(clientId).exec();
     if (!client) {
       res.status(404).json({ error: 'Client introuvable' }); return;
     }
     
-    // Cr�er le document
+    // Crï¿½er le document
     const document = new AccountingDocument({
       clientId,
       accountantId,
@@ -158,7 +158,7 @@ router.post('/documents', authenticateToken, requireAccountantRole, async (req: 
     
     res.status(201).json({
       success: true,
-      message: 'Document upload� avec succ�s',
+      message: 'Document uploadï¿½ avec succï¿½s',
       document
     }); return;
   } catch (error: any) {
@@ -172,7 +172,7 @@ router.post('/documents', authenticateToken, requireAccountantRole, async (req: 
 
 /**
  * POST /api/accountant/alerts
- * Cr�er une alerte fiscale pour un client
+ * Crï¿½er une alerte fiscale pour un client
  */
 router.post('/alerts', authenticateToken, requireAccountantRole, async (req: any, res: Response) => {
   try {
@@ -189,24 +189,24 @@ router.post('/alerts', authenticateToken, requireAccountantRole, async (req: any
     const validTypes = ['deadline', 'missing-document', 'audit', 'payment', 'other'];
     if (!validTypes.includes(type)) {
       res.status(400).json({ 
-        error: `Type invalide. Valeurs autoris�es: ${arrayJoin(validTypes, ', ')}` 
+        error: `Type invalide. Valeurs autorisï¿½es: ${arrayJoin(validTypes, ', ')}` 
       });
     }
     
     const validPriorities = ['low', 'medium', 'high'];
     if (priority && !validPriorities.includes(priority)) {
       res.status(400).json({ 
-        error: `Priority invalide. Valeurs autoris�es: ${arrayJoin(validPriorities, ', ')}` 
+        error: `Priority invalide. Valeurs autorisï¿½es: ${arrayJoin(validPriorities, ', ')}` 
       });
     }
     
-    // V�rifier que le client existe
+    // Vï¿½rifier que le client existe
     const client = await User.findById(clientId).exec();
     if (!client) {
       res.status(404).json({ error: 'Client introuvable' }); return;
     }
     
-    // Cr�er l'alerte
+    // Crï¿½er l'alerte
     const alert = new TaxAlert({
       clientId,
       type,
@@ -221,13 +221,13 @@ router.post('/alerts', authenticateToken, requireAccountantRole, async (req: any
     
     res.status(201).json({
       success: true,
-      message: 'Alerte cr��e avec succ�s',
+      message: 'Alerte crï¿½ï¿½e avec succï¿½s',
       alert
     }); return;
   } catch (error: any) {
     // console.error('Error creating alert:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la cr�ation de l\'alerte',
+      error: 'Erreur lors de la crï¿½ation de l\'alerte',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }
@@ -261,7 +261,7 @@ router.get('/alerts', authenticateToken, requireAccountantRole, async (req: any,
   } catch (error: any) {
     // console.error('Error fetching alerts:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des alertes',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des alertes',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }

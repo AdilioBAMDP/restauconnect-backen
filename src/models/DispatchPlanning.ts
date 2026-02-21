@@ -24,7 +24,7 @@ export interface IDispatchPlanning extends Document {
     assignedRoute?: mongoose.Types.ObjectId;
   }[];
   
-  // Livraisons à dispatcher
+  // Livraisons ÃƒÂ  dispatcher
   pendingDeliveries: {
     deliveryId: mongoose.Types.ObjectId;
     priority: 'low' | 'normal' | 'high' | 'urgent';
@@ -39,7 +39,7 @@ export interface IDispatchPlanning extends Document {
     status: 'unassigned' | 'assigned' | 'in-planning';
   }[];
   
-  // Routes créées
+  // Routes crÃƒÂ©ÃƒÂ©es
   routes: mongoose.Types.ObjectId[];
   
   // Statistiques
@@ -154,7 +154,7 @@ const DispatchPlanningSchema = new Schema<IDispatchPlanning>({
   timestamps: true
 });
 
-// Index unique pour éviter doublons de planning par jour
+// Index unique pour ÃƒÂ©viter doublons de planning par jour
 DispatchPlanningSchema.index({ transporteurId: 1, date: 1 }, { unique: true });
 
 export default mongoose.model<IDispatchPlanning>('DispatchPlanning', DispatchPlanningSchema);

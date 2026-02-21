@@ -1,17 +1,17 @@
-﻿import express, { Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import Campaign from '../models/Campaign';
 import Announcement from '../models/Announcement';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
-// Middleware pour vérifier rôle community manager
+// Middleware pour vÃ©rifier rÃ´le community manager
 const requireCommunityManagerRole = (req: any, res: Response, next: Function) => {
   const allowedRoles = ['community-manager', 'community_manager', 'admin', 'super_admin'];
   if (!allowedRoles.includes(req.user?.role)) {
     res.status(403).json({ 
       success: false,
-      error: 'Accès réservé aux community managers' 
+      error: 'AccÃ¨s rÃ©servÃ© aux community managers' 
     });
     return;
   }
@@ -20,7 +20,7 @@ const requireCommunityManagerRole = (req: any, res: Response, next: Function) =>
 
 /**
  * POST /api/community/campaigns
- * Cr�er une nouvelle campagne marketing
+ * Crï¿½er une nouvelle campagne marketing
  */
 router.post('/campaigns', authenticateToken, requireCommunityManagerRole, async (req: any, res: Response) => {
   try {
@@ -37,7 +37,7 @@ router.post('/campaigns', authenticateToken, requireCommunityManagerRole, async 
     const validTypes = ['social-media', 'email', 'sms', 'influencer', 'ads'];
     if (!validTypes.includes(type)) {
       res.status(400).json({ 
-        error: `Type invalide. Valeurs autoris�es: ${validTypes.join(', ')}` 
+        error: `Type invalide. Valeurs autorisï¿½es: ${validTypes.join(', ')}` 
       });
     }
     
@@ -45,14 +45,14 @@ router.post('/campaigns', authenticateToken, requireCommunityManagerRole, async 
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (start >= end) {
-      res.status(400).json({ error: 'La startDate doit �tre avant endDate' }); return;
+      res.status(400).json({ error: 'La startDate doit ï¿½tre avant endDate' }); return;
     }
     
     if (budget && budget < 0) {
-      res.status(400).json({ error: 'Le budget ne peut pas �tre n�gatif' }); return;
+      res.status(400).json({ error: 'Le budget ne peut pas ï¿½tre nï¿½gatif' }); return;
     }
     
-    // Cr�er la campagne
+    // Crï¿½er la campagne
     const campaign = new Campaign({
       title,
       description,
@@ -76,13 +76,13 @@ router.post('/campaigns', authenticateToken, requireCommunityManagerRole, async 
     
     res.status(201).json({
       success: true,
-      message: 'Campagne cr��e avec succ�s',
+      message: 'Campagne crï¿½ï¿½e avec succï¿½s',
       campaign
     }); return;
   } catch (error: any) {
     // console.error('Error creating campaign:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la cr�ation de la campagne',
+      error: 'Erreur lors de la crï¿½ation de la campagne',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }
@@ -115,7 +115,7 @@ router.get('/campaigns', authenticateToken, requireCommunityManagerRole, async (
   } catch (error: any) {
     // console.error('Error fetching campaigns:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des campagnes',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des campagnes',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }
@@ -123,7 +123,7 @@ router.get('/campaigns', authenticateToken, requireCommunityManagerRole, async (
 
 /**
  * PATCH /api/community/campaigns/:id
- * Mettre � jour une campagne (statut ou analytics)
+ * Mettre ï¿½ jour une campagne (statut ou analytics)
  */
 router.patch('/campaigns/:id', authenticateToken, requireCommunityManagerRole, async (req: any, res: Response) => {
   try {
@@ -137,18 +137,18 @@ router.patch('/campaigns/:id', authenticateToken, requireCommunityManagerRole, a
       res.status(404).json({ error: 'Campagne introuvable' }); return;
     }
     
-    // Mettre � jour le statut
+    // Mettre ï¿½ jour le statut
     if (status) {
       const validStatuses = ['draft', 'scheduled', 'active', 'completed', 'cancelled'];
       if (!validStatuses.includes(status)) {
         res.status(400).json({ 
-          error: `Status invalide. Valeurs autoris�es: ${validStatuses.join(', ')}` 
+          error: `Status invalide. Valeurs autorisï¿½es: ${validStatuses.join(', ')}` 
         });
       }
       campaign.status = status;
     }
     
-    // Mettre � jour les analytics
+    // Mettre ï¿½ jour les analytics
     if (analytics) {
       if (analytics.reach !== undefined) campaign.analytics.reach = analytics.reach;
       if (analytics.engagement !== undefined) campaign.analytics.engagement = analytics.engagement;
@@ -160,13 +160,13 @@ router.patch('/campaigns/:id', authenticateToken, requireCommunityManagerRole, a
     
     res.json({
       success: true,
-      message: 'Campagne mise � jour avec succ�s',
+      message: 'Campagne mise ï¿½ jour avec succï¿½s',
       campaign
     });
   } catch (error: any) {
     // console.error('Error updating campaign:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la mise � jour de la campagne',
+      error: 'Erreur lors de la mise ï¿½ jour de la campagne',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }
@@ -226,7 +226,7 @@ router.get('/analytics', authenticateToken, requireCommunityManagerRole, async (
   } catch (error: any) {
     // console.error('Error fetching analytics:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des analytics',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des analytics',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }
@@ -251,18 +251,18 @@ router.post('/announcements', authenticateToken, requireCommunityManagerRole, as
     const validCategories = ['maintenance', 'feature', 'event', 'promotion', 'alert'];
     if (!validCategories.includes(category)) {
       res.status(400).json({ 
-        error: `Category invalide. Valeurs autoris�es: ${validCategories.join(', ')}` 
+        error: `Category invalide. Valeurs autorisï¿½es: ${validCategories.join(', ')}` 
       });
     }
     
     const validPriorities = ['low', 'normal', 'high'];
     if (priority && !validPriorities.includes(priority)) {
       res.status(400).json({ 
-        error: `Priority invalide. Valeurs autoris�es: ${validPriorities.join(', ')}` 
+        error: `Priority invalide. Valeurs autorisï¿½es: ${validPriorities.join(', ')}` 
       });
     }
     
-    // Cr�er l'annonce
+    // Crï¿½er l'annonce
     const announcement = new Announcement({
       title,
       content,
@@ -279,13 +279,13 @@ router.post('/announcements', authenticateToken, requireCommunityManagerRole, as
     
     res.status(201).json({
       success: true,
-      message: 'Annonce publi�e avec succ�s',
+      message: 'Annonce publiï¿½e avec succï¿½s',
       announcement
     }); return;
   } catch (error: any) {
     // console.error('Error creating announcement:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la cr�ation de l\'annonce',
+      error: 'Erreur lors de la crï¿½ation de l\'annonce',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }
@@ -304,7 +304,7 @@ router.get('/announcements', authenticateToken, requireCommunityManagerRole, asy
     if (category) filter.category = category;
     if (isPublished !== undefined) filter.isPublished = isPublished === 'true';
     
-    // Ne pas afficher les annonces expir�es
+    // Ne pas afficher les annonces expirï¿½es
     filter.$or = [
       { expiresAt: { $exists: false } },
       { expiresAt: { $gt: new Date() } }
@@ -322,7 +322,7 @@ router.get('/announcements', authenticateToken, requireCommunityManagerRole, asy
   } catch (error: any) {
     // console.error('Error fetching announcements:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des annonces',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des annonces',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     }); return;
   }

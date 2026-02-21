@@ -9,7 +9,7 @@ const router = express.Router();
 
 /**
  * GET /api/orders
- * R�cup�rer toutes les commandes (avec filtres optionnels)
+ * RÃ¯Â¿Â½cupÃ¯Â¿Â½rer toutes les commandes (avec filtres optionnels)
  */
 router.get('/', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -47,7 +47,7 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
     });
 
   } catch (error) {
-    console.error('? Erreur r�cup�ration commandes:', error);
+    console.error('? Erreur rÃ¯Â¿Â½cupÃ¯Â¿Â½ration commandes:', error);
     res.status(500).json({
       error: 'Erreur serveur',
       details: (error as Error).message
@@ -57,20 +57,20 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
 
 /**
  * GET /api/orders/stats
- * R�cup�rer les statistiques des commandes
+ * RÃ¯Â¿Â½cupÃ¯Â¿Â½rer les statistiques des commandes
  */
 router.get('/stats', async (req: Request, res: Response): Promise<any> => {
   try {
     const { userId } = req.query;
 
     // Pour l'instant, logique simple directement dans la route
-    // TODO: D�placer dans OrderService.getOrderStats() plus tard
+    // TODO: DÃ¯Â¿Â½placer dans OrderService.getOrderStats() plus tard
     const filters: any = {};
     if (userId) {
       filters.restaurantId = userId;
     }
 
-    // Statistiques g�n�rales
+    // Statistiques gÃ¯Â¿Â½nÃ¯Â¿Â½rales
     const totalOrders = await Order.countDocuments(filters);
     const confirmedOrders = await Order.countDocuments({ ...filters, status: 'confirmed' });
     const deliveredOrders = await Order.countDocuments({ ...filters, status: 'delivered' });
@@ -106,7 +106,7 @@ router.get('/stats', async (req: Request, res: Response): Promise<any> => {
     });
 
   } catch (error) {
-    console.error('? Erreur r�cup�ration stats:', error);
+    console.error('? Erreur rÃ¯Â¿Â½cupÃ¯Â¿Â½ration stats:', error);
     res.status(500).json({
       error: 'Erreur serveur',
       details: (error as Error).message
@@ -114,7 +114,7 @@ router.get('/stats', async (req: Request, res: Response): Promise<any> => {
   }
 });/**
  * GET /api/orders/:id
- * R�cup�rer une commande par ID
+ * RÃ¯Â¿Â½cupÃ¯Â¿Â½rer une commande par ID
  */
 router.get('/:id', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -132,7 +132,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
     });
 
   } catch (error) {
-    console.error('? Erreur r�cup�ration commande:', error);
+    console.error('? Erreur rÃ¯Â¿Â½cupÃ¯Â¿Â½ration commande:', error);
     res.status(500).json({
       error: 'Erreur serveur',
       details: (error as Error).message
@@ -142,7 +142,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
 
 /**
  * PUT /api/orders/:id/status
- * Mettre à jour le statut d'une commande
+ * Mettre ÃƒÂ  jour le statut d'une commande
  */
 router.put('/:id/status', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -161,7 +161,7 @@ router.put('/:id/status', async (req: Request, res: Response): Promise<any> => {
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ 
         success: false, 
-        error: `Statut invalide. Valeurs autorisées: ${validStatuses.join(', ')}` 
+        error: `Statut invalide. Valeurs autorisÃƒÂ©es: ${validStatuses.join(', ')}` 
       });
     }
 
@@ -177,11 +177,11 @@ router.put('/:id/status', async (req: Request, res: Response): Promise<any> => {
     res.json({
       success: true,
       order: result.data,
-      message: `Statut mis à jour: ${status}`
+      message: `Statut mis ÃƒÂ  jour: ${status}`
     });
 
   } catch (error) {
-    console.error('❌ Erreur mise à jour statut:', error);
+    console.error('Ã¢ÂÅ’ Erreur mise ÃƒÂ  jour statut:', error);
     res.status(500).json({
       success: false,
       error: 'Erreur serveur',
@@ -202,7 +202,7 @@ router.patch('/:id/status', async (req: Request, res: Response): Promise<any> =>
 
     const validStatuses = ['pending', 'confirmed', 'preparing', 'ready_for_pickup', 'in_transit', 'delivered', 'cancelled'];
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ success: false, error: `Statut invalide. Valeurs autorisées: ${validStatuses.join(', ')}` });
+      return res.status(400).json({ success: false, error: `Statut invalide. Valeurs autorisÃƒÂ©es: ${validStatuses.join(', ')}` });
     }
 
     const result = await OrderService.updateOrderStatus(id, status as any);
@@ -210,9 +210,9 @@ router.patch('/:id/status', async (req: Request, res: Response): Promise<any> =>
       return res.status(404).json({ success: false, error: result.error });
     }
 
-    res.json({ success: true, order: result.data, message: `Statut mis à jour: ${status}` });
+    res.json({ success: true, order: result.data, message: `Statut mis ÃƒÂ  jour: ${status}` });
   } catch (error) {
-    console.error('❌ Erreur mise à jour statut (PATCH):', error);
+    console.error('Ã¢ÂÅ’ Erreur mise ÃƒÂ  jour statut (PATCH):', error);
     res.status(500).json({ success: false, error: 'Erreur serveur', details: (error as Error).message });
   }
 });
@@ -221,7 +221,7 @@ router.patch('/:id/status', async (req: Request, res: Response): Promise<any> =>
 
 /**
  * POST /api/orders/create
- * Cr�er une nouvelle commande avec paiement
+ * CrÃ¯Â¿Â½er une nouvelle commande avec paiement
  */
 router.post('/create', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -236,10 +236,10 @@ router.post('/create', async (req: Request, res: Response): Promise<any> => {
     } = req.body;
 
     const result = await OrderService.createOrder({
-      restaurantId: (req as any).user?.id, // L'utilisateur connect� est le restaurant
+      restaurantId: (req as any).user?.id, // L'utilisateur connectÃ¯Â¿Â½ est le restaurant
       supplierId,
       items,
-      pickupAddress: deliveryAddress, // Pour l'instant, m�me adresse que livraison
+      pickupAddress: deliveryAddress, // Pour l'instant, mÃ¯Â¿Â½me adresse que livraison
       deliveryAddress
     });
 
@@ -250,13 +250,13 @@ router.post('/create', async (req: Request, res: Response): Promise<any> => {
     res.status(201).json({
       success: true,
       order: result.data,
-      message: 'Commande cr��e avec succ�s'
+      message: 'Commande crÃ¯Â¿Â½Ã¯Â¿Â½e avec succÃ¯Â¿Â½s'
     });
 
   } catch (error) {
-    console.error('? Erreur cr�ation commande:', error);
+    console.error('? Erreur crÃ¯Â¿Â½ation commande:', error);
     const errorMessage = (error as Error).message;
-    if (errorMessage.includes('requis') || errorMessage.includes('non trouv�')) {
+    if (errorMessage.includes('requis') || errorMessage.includes('non trouvÃ¯Â¿Â½')) {
       return res.status(400).json({
         success: false,
         error: errorMessage
@@ -283,7 +283,7 @@ router.patch('/:orderId/confirm', async (req: Request, res: Response): Promise<a
     const result = await OrderService.updateOrderStatus(orderId, OrderStatus.PREPARING, userId);
 
     if (!result.success) {
-      if (result.error?.includes('non trouv�e')) {
+      if (result.error?.includes('non trouvÃ¯Â¿Â½e')) {
         return res.status(404).json({
           success: false,
           error: result.error
@@ -295,13 +295,13 @@ router.patch('/:orderId/confirm', async (req: Request, res: Response): Promise<a
       });
     }
 
-    // Ajouter le temps de pr�paration estim�
+    // Ajouter le temps de prÃ¯Â¿Â½paration estimÃ¯Â¿Â½
     const order = result.data;
     if (order) {
       order.specialInstructions = (order.specialInstructions || '') + ` | Prep time: ${estimatedPreparationTime}min`;
       await order.save();
 
-      console.log(`? Commande ${order.orderNumber} confirm�e par fournisseur`);
+      console.log(`? Commande ${order.orderNumber} confirmÃ¯Â¿Â½e par fournisseur`);
     }
 
     res.json({
@@ -321,14 +321,14 @@ router.patch('/:orderId/confirm', async (req: Request, res: Response): Promise<a
 
 /**
  * PATCH /api/orders/:orderId/mark-ready
- * ?? ROUTE CRITIQUE - Fournisseur marque pr�t ? D�clenche l'algorithme
+ * ?? ROUTE CRITIQUE - Fournisseur marque prÃ¯Â¿Â½t ? DÃ¯Â¿Â½clenche l'algorithme
  */
 router.patch('/:orderId/mark-ready', async (req: Request, res: Response): Promise<any> => {
   try {
     const { orderId } = req.params;
     const userId = (req as any).user?.id;
 
-    // D'abord r�cup�rer la commande pour v�rifier si elle veut livraison
+    // D'abord rÃ¯Â¿Â½cupÃ¯Â¿Â½rer la commande pour vÃ¯Â¿Â½rifier si elle veut livraison
     const orderResult = await OrderService.getOrderById(orderId);
     if (!orderResult.success) {
       return res.status(404).json({
@@ -339,7 +339,7 @@ router.patch('/:orderId/mark-ready', async (req: Request, res: Response): Promis
 
     const order = orderResult.data as any;
 
-    console.log('🔍 DEBUG order data:', {
+    console.log('Ã°Å¸â€Â DEBUG order data:', {
       orderId: order._id,
       supplierId: order.supplierId,
       restaurantId: order.restaurantId,
@@ -351,24 +351,24 @@ router.patch('/:orderId/mark-ready', async (req: Request, res: Response): Promis
     let newStatus: any = OrderStatus.READY_FOR_PICKUP;
     let forceStatusUpdate = false;
 
-    // 🔥 SI LIVRAISON DEMANDÉE → Créer livraison et changer statut
+    // Ã°Å¸â€Â¥ SI LIVRAISON DEMANDÃƒâ€°E Ã¢â€ â€™ CrÃƒÂ©er livraison et changer statut
     if (order.deliveryAddress && order.pricing.deliveryFee > 0) {
-      // TODO: Cette logique devrait être dans un DeliveryService
+      // TODO: Cette logique devrait ÃƒÂªtre dans un DeliveryService
 
-      // 🔥 VALIDATION: Utiliser des coordonnées par défaut pour l'instant
+      // Ã°Å¸â€Â¥ VALIDATION: Utiliser des coordonnÃƒÂ©es par dÃƒÂ©faut pour l'instant
       let supplierCoords = [2.3522, 48.8566]; // Paris centre
       let customerCoords = [2.3722, 48.8766]; // Paris + 2km
 
-      // 🔥 VALIDATION: S'assurer d'avoir un ID valide
-      const validUserId = userId || order.supplierId || order.restaurantId || '60a7b7b7b7b7b7b7b7b7b7b7'; // ID par défaut
+      // Ã°Å¸â€Â¥ VALIDATION: S'assurer d'avoir un ID valide
+      const validUserId = userId || order.supplierId || order.restaurantId || '60a7b7b7b7b7b7b7b7b7b7b7'; // ID par dÃƒÂ©faut
 
-      console.log('🔍 DEBUG delivery creation:', {
+      console.log('Ã°Å¸â€Â DEBUG delivery creation:', {
         requesterId: validUserId,
         supplierId: validUserId,
         orderId: order._id
       });
 
-      // Créer la livraison SANS driverId → Déclenche l'algorithme
+      // CrÃƒÂ©er la livraison SANS driverId Ã¢â€ â€™ DÃƒÂ©clenche l'algorithme
       delivery = new DeliveryModel({
         requesterId: validUserId,
         supplierId: validUserId,
@@ -412,32 +412,32 @@ router.patch('/:orderId/mark-ready', async (req: Request, res: Response): Promis
           estimatedDistance: 5 // 5 km
         },
         priority: 'normal',
-        status: 'pending' // AUCUN driverId ? Algorithme se d�clenche
+        status: 'pending' // AUCUN driverId ? Algorithme se dÃ¯Â¿Â½clenche
       });
 
       await delivery.save();
 
-      // Lier la livraison � la commande
+      // Lier la livraison Ã¯Â¿Â½ la commande
       order.deliveryId = delivery._id;
       newStatus = 'in_transit';
       forceStatusUpdate = true;
 
-      console.log(`🚀 Livraison créée: ${delivery._id} - Lancement algorithme...`);
+      console.log(`Ã°Å¸Å¡â‚¬ Livraison crÃƒÂ©ÃƒÂ©e: ${delivery._id} - Lancement algorithme...`);
 
-      // 🔥 APPELER L'ALGORITHME DE MATCHING
-      // Lancer l'algorithme en arrière-plan (ne pas bloquer la réponse)
+      // Ã°Å¸â€Â¥ APPELER L'ALGORITHME DE MATCHING
+      // Lancer l'algorithme en arriÃƒÂ¨re-plan (ne pas bloquer la rÃƒÂ©ponse)
       deliveryMatchingService.proposeDeliveryToDrivers(delivery).catch((error: Error) => {
-        console.error('❌ Erreur algorithme matching:', error);
+        console.error('Ã¢ÂÅ’ Erreur algorithme matching:', error);
       });
 
     } else {
-      // Pas de livraison ? Notification client "pr�t pour retrait"
-      console.log(`?? Commande ${order.orderNumber} pr�te pour retrait client`);
-    }    // Mettre � jour le statut via le service
+      // Pas de livraison ? Notification client "prÃ¯Â¿Â½t pour retrait"
+      console.log(`?? Commande ${order.orderNumber} prÃ¯Â¿Â½te pour retrait client`);
+    }    // Mettre Ã¯Â¿Â½ jour le statut via le service
     let updatedOrder = null;
     let updateResult = await OrderService.updateOrderStatus(orderId, newStatus, userId);
     if (!updateResult.success && forceStatusUpdate) {
-      // Forcer la transition si la livraison vient d'être créée
+      // Forcer la transition si la livraison vient d'ÃƒÂªtre crÃƒÂ©ÃƒÂ©e
       updatedOrder = await Order.findById(orderId);
       if (updatedOrder) {
         updatedOrder.status = newStatus;
@@ -446,7 +446,7 @@ router.patch('/:orderId/mark-ready', async (req: Request, res: Response): Promis
           status: newStatus,
           timestamp: new Date(),
           userId: userId ? userId : undefined,
-          note: 'Transition forcée suite à création livraison'
+          note: 'Transition forcÃƒÂ©e suite ÃƒÂ  crÃƒÂ©ation livraison'
         });
         await updatedOrder.save();
       }
@@ -472,8 +472,8 @@ router.patch('/:orderId/mark-ready', async (req: Request, res: Response): Promis
         deliveryAddress: delivery.deliveryAddress
       } : null,
       message: delivery
-        ? 'Commande prête - Recherche de livreur en cours...'
-        : 'Commande prête pour retrait client'
+        ? 'Commande prÃƒÂªte - Recherche de livreur en cours...'
+        : 'Commande prÃƒÂªte pour retrait client'
     });
 
   } catch (error) {
@@ -499,7 +499,7 @@ router.patch('/:orderId/cancel', async (req: Request, res: Response): Promise<an
     const result = await OrderService.cancelOrder(orderId, cancellationReason, userId);
 
     if (!result.success) {
-      if (result.error?.includes('non trouv�e')) {
+      if (result.error?.includes('non trouvÃ¯Â¿Â½e')) {
         return res.status(404).json({
           success: false,
           error: result.error
@@ -511,7 +511,7 @@ router.patch('/:orderId/cancel', async (req: Request, res: Response): Promise<an
       });
     }
 
-    console.log(`? Commande annul�e`);
+    console.log(`? Commande annulÃ¯Â¿Â½e`);
 
     res.json({
       success: true,

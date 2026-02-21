@@ -1,13 +1,13 @@
 /**
  * Utilitaire de logging conditionnel pour production
- * Remplace console.log/warn/error par des loggers qui désactivent en production
+ * Remplace console.log/warn/error par des loggers qui dÃƒÂ©sactivent en production
  */
 
 const isProduction = process.env.NODE_ENV === 'production';
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 /**
- * Logger de développement - ne s'affiche qu'en développement
+ * Logger de dÃƒÂ©veloppement - ne s'affiche qu'en dÃƒÂ©veloppement
  */
 export const devLog = {
   log: (...args: any[]) => {
@@ -29,7 +29,7 @@ export const devLog = {
   },
   
   error: (...args: any[]) => {
-    // Toujours afficher les erreurs même en production
+    // Toujours afficher les erreurs mÃƒÂªme en production
     console.error('[ERROR]', ...args);
   },
   
@@ -41,8 +41,8 @@ export const devLog = {
 };
 
 /**
- * Logger de production - toujours affiché
- * À utiliser pour les logs critiques
+ * Logger de production - toujours affichÃƒÂ©
+ * Ãƒâ‚¬ utiliser pour les logs critiques
  */
 export const prodLog = {
   info: (...args: any[]) => {
@@ -68,7 +68,7 @@ export const conditionalLog = (message: string, ...args: any[]) => {
 };
 
 /**
- * Wrapper pour désactiver les logs d'une fonction en production
+ * Wrapper pour dÃƒÂ©sactiver les logs d'une fonction en production
  */
 export const withDevLogs = <T extends (...args: any[]) => any>(
   fn: T,

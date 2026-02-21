@@ -1,6 +1,6 @@
-﻿/**
- * Service de tracking GPS temps réel pour les livreurs
- * Gère les positions GPS, calculs ETA, notifications
+/**
+ * Service de tracking GPS temps rÃ©el pour les livreurs
+ * GÃ¨re les positions GPS, calculs ETA, notifications
  */
 
 import { Server as SocketIOServer, Socket } from 'socket.io';
@@ -18,8 +18,8 @@ interface LocationUpdate {
     lng: number;
   };
   speed?: number; // km/h
-  heading?: number; // degrés
-  accuracy?: number; // mètres
+  heading?: number; // degrÃ©s
+  accuracy?: number; // mÃ¨tres
   timestamp: Date;
 }
 
@@ -52,7 +52,7 @@ class RealtimeTrackingService {
         try {
           const { driverId, transporteurId } = data;
           
-          // Vérifier que le chauffeur existe
+          // VÃ©rifier que le chauffeur existe
           const driver = await DriverEmployee.findById(driverId);
           if (!driver) {
             socket.emit('error', { message: 'Chauffeur introuvable' });
@@ -64,7 +64,7 @@ class RealtimeTrackingService {
           socket.join(`transporteur:${transporteurId}`);
           socket.join(`driver:${driverId}`);
 
-          // Mettre à jour le statut du chauffeur
+          // Mettre Ã  jour le statut du chauffeur
           await DriverEmployee.findByIdAndUpdate(driverId, {
             status: 'on_delivery'
           });
@@ -84,14 +84,14 @@ class RealtimeTrackingService {
         }
       });
 
-      // Event: Mise à jour position GPS
+      // Event: Mise Ã  jour position GPS
       socket.on('location:update', async (data: LocationUpdate) => {
         try {
           const { driverId, deliveryId, routeId, location, speed, heading, accuracy } = data;
 
-          // Valider les données GPS
+          // Valider les donnÃ©es GPS
           if (!location.lat || !location.lng) {
-            socket.emit('error', { message: 'Coordonnées GPS invalides' });
+            socket.emit('error', { message: 'CoordonnÃ©es GPS invalides' });
             return;
           }
 
@@ -101,7 +101,7 @@ class RealtimeTrackingService {
             timestamp: new Date()
           });
 
-          // Mettre à jour la position dans la BDD
+          // Mettre Ã  jour la position dans la BDD
           await DriverEmployee.findByIdAndUpdate(driverId, {
             currentLocation: {
               lat: location.lat,
@@ -109,7 +109,7 @@ class RealtimeTrackingService {
             }
           });
 
-          // Si une livraison est en cours, mettre à jour le tracking
+          // Si une livraison est en cours, mettre Ã  jour le tracking
           if (deliveryId) {
             await TransporteurDelivery.findByIdAndUpdate(deliveryId, {
               $push: {
@@ -129,10 +129,10 @@ class RealtimeTrackingService {
               }
             });
 
-            // Calculer l'ETA mise à jour
+            // Calculer l'ETA mise Ã  jour
             const eta = await this.calculateETA(deliveryId, location);
             
-            // Émettre la mise à jour aux observateurs
+            // Ã‰mettre la mise Ã  jour aux observateurs
             const delivery = await TransporteurDelivery.findById(deliveryId)
               .select('transporteurId clientId')
               .lean();
@@ -148,7 +148,7 @@ class RealtimeTrackingService {
                 timestamp: new Date()
               });
 
-              // Notifier le client si tracking partagé
+              // Notifier le client si tracking partagÃ©
               if (delivery.clientId) {
                 this.io.to(`client:${delivery.clientId}`).emit('delivery:tracking', {
                   deliveryId,
@@ -160,7 +160,7 @@ class RealtimeTrackingService {
             }
           }
 
-          // Mettre à jour la route si applicable
+          // Mettre Ã  jour la route si applicable
           if (routeId) {
             await this.updateRouteProgress(routeId, driverId, location);
           }
@@ -171,7 +171,7 @@ class RealtimeTrackingService {
         }
       });
 
-      // Event: Chauffeur démarre une livraison
+      // Event: Chauffeur dÃ©marre une livraison
       socket.on('delivery:start', async (data: { deliveryId: string; driverId: string }) => {
         try {
           const { deliveryId, driverId } = data;
@@ -200,7 +200,7 @@ class RealtimeTrackingService {
         }
       });
 
-      // Event: Chauffeur arrive à destination
+      // Event: Chauffeur arrive Ã  destination
       socket.on('delivery:arrive', async (data: { deliveryId: string; driverId: string; location: { lat: number; lng: number } }) => {
         try {
           const { deliveryId, driverId, location } = data;
@@ -243,7 +243,7 @@ class RealtimeTrackingService {
         }
       });
 
-      // Event: Livraison complétée
+      // Event: Livraison complÃ©tÃ©e
       socket.on('delivery:complete', async (data: { deliveryId: string; driverId: string; proofOfDelivery?: string }) => {
         try {
           const { deliveryId, driverId, proofOfDelivery } = data;
@@ -264,7 +264,7 @@ class RealtimeTrackingService {
             return;
           }
 
-          // Mettre à jour les statistiques du chauffeur
+          // Mettre Ã  jour les statistiques du chauffeur
           await DriverEmployee.findByIdAndUpdate(driverId, {
             $inc: { 'performance.totalDeliveries': 1 }
           });
@@ -283,7 +283,7 @@ class RealtimeTrackingService {
         }
       });
 
-      // Event: Chauffeur se déconnecte
+      // Event: Chauffeur se dÃ©connecte
       socket.on('driver:disconnect', async (data: { driverId: string }) => {
         try {
           const { driverId } = data;
@@ -292,7 +292,7 @@ class RealtimeTrackingService {
           this.activeDrivers.delete(driverId);
           this.driverLocations.delete(driverId);
 
-          // Mettre à jour le statut
+          // Mettre Ã  jour le statut
           const driver = await DriverEmployee.findByIdAndUpdate(driverId, {
             status: 'off_duty'
           });
@@ -310,9 +310,9 @@ class RealtimeTrackingService {
         }
       });
 
-      // Déconnexion socket
+      // DÃ©connexion socket
       socket.on('disconnect', () => {
-        // Trouver et nettoyer le chauffeur déconnecté
+        // Trouver et nettoyer le chauffeur dÃ©connectÃ©
         for (const [driverId, driverSocket] of this.activeDrivers.entries()) {
           if (driverSocket.id === socket.id) {
             this.activeDrivers.delete(driverId);
@@ -346,7 +346,7 @@ class RealtimeTrackingService {
         destLng
       );
 
-      // Facteur de trafic (simplifié - pourrait être amélioré avec API trafic)
+      // Facteur de trafic (simplifiÃ© - pourrait Ãªtre amÃ©liorÃ© avec API trafic)
       const hour = new Date().getHours();
       let trafficFactor = 1.0;
       if ((hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19)) {
@@ -357,7 +357,7 @@ class RealtimeTrackingService {
       const avgSpeed = 30;
       const adjustedSpeed = avgSpeed / trafficFactor;
       
-      // Temps estimé en heures
+      // Temps estimÃ© en heures
       const hoursRemaining = distanceRemaining / adjustedSpeed;
       const minutesRemaining = hoursRemaining * 60;
 
@@ -397,18 +397,18 @@ class RealtimeTrackingService {
   }
 
   /**
-   * Met à jour la progression d'une route
+   * Met Ã  jour la progression d'une route
    */
   private async updateRouteProgress(routeId: string, driverId: string, currentLocation: { lat: number; lng: number }): Promise<void> {
     try {
       const route = await Route.findById(routeId);
       if (!route) return;
 
-      // Trouver le prochain arrêt non complété
+      // Trouver le prochain arrÃªt non complÃ©tÃ©
       const nextStop = route.stops.find(stop => stop.status !== 'completed');
       if (!nextStop) return;
 
-      // Calculer distance au prochain arrêt
+      // Calculer distance au prochain arrÃªt
       const distanceToNext = this.calculateDistance(
         currentLocation.lat,
         currentLocation.lng,
@@ -450,7 +450,7 @@ class RealtimeTrackingService {
   }
 
   /**
-   * Forcer une mise à jour de position (pour tests)
+   * Forcer une mise Ã  jour de position (pour tests)
    */
   public async forceLocationUpdate(driverId: string, location: { lat: number; lng: number }): Promise<void> {
     const socket = this.activeDrivers.get(driverId);

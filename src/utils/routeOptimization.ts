@@ -1,4 +1,4 @@
-// Algorithme d'optimisation de tournées - Nearest Neighbor (plus proche voisin)
+// Algorithme d'optimisation de tournÃƒÂ©es - Nearest Neighbor (plus proche voisin)
 // Version simple mais efficace pour un TMS professionnel
 
 interface Location {
@@ -72,7 +72,7 @@ export function optimizeRouteNearestNeighbor(
   let totalDistance = 0;
   let sequence = 1;
 
-  // Trier d'abord par priorité
+  // Trier d'abord par prioritÃƒÂ©
   remaining.sort((a, b) => {
     const priorityOrder = { urgent: 0, high: 1, normal: 2, low: 3 };
     return priorityOrder[a.priority || 'normal'] - priorityOrder[b.priority || 'normal'];
@@ -92,7 +92,7 @@ export function optimizeRouteNearestNeighbor(
         stop.location.lng
       );
 
-      // Vérifier fenêtre horaire si applicable
+      // VÃƒÂ©rifier fenÃƒÂªtre horaire si applicable
       if (stop.timeWindow) {
         const travelTime = (distance / avgSpeed) * 60; // minutes
         const arrivalTime = new Date(currentTime.getTime() + travelTime * 60000);
@@ -113,7 +113,7 @@ export function optimizeRouteNearestNeighbor(
     const travelTime = (minDistance / avgSpeed) * 60; // minutes
     currentTime = new Date(currentTime.getTime() + travelTime * 60000);
 
-    // Vérifier fenêtre horaire et ajuster si nécessaire
+    // VÃƒÂ©rifier fenÃƒÂªtre horaire et ajuster si nÃƒÂ©cessaire
     if (nextStop.timeWindow && currentTime < nextStop.timeWindow.start) {
       currentTime = new Date(nextStop.timeWindow.start);
     }
@@ -133,7 +133,7 @@ export function optimizeRouteNearestNeighbor(
   }
 
   const totalDuration = (currentTime.getTime() - startTime.getTime()) / 60000; // minutes
-  const fuelCost = totalDistance * 0.15; // 0.15€/km (moyenne diesel)
+  const fuelCost = totalDistance * 0.15; // 0.15Ã¢â€šÂ¬/km (moyenne diesel)
 
   return {
     stops: optimizedStops,
@@ -143,7 +143,7 @@ export function optimizeRouteNearestNeighbor(
   };
 }
 
-// Algorithme génétique (version simplifiée) pour optimisation avancée
+// Algorithme gÃƒÂ©nÃƒÂ©tique (version simplifiÃƒÂ©e) pour optimisation avancÃƒÂ©e
 export function optimizeRouteGenetic(
   startLocation: Location,
   stops: Stop[],
@@ -157,7 +157,7 @@ export function optimizeRouteGenetic(
     population.push(shuffleArray([...stops]));
   }
 
-  // Évolution sur N générations
+  // Ãƒâ€°volution sur N gÃƒÂ©nÃƒÂ©rations
   for (let gen = 0; gen < generations; gen++) {
     // Calculer fitness (distance totale) pour chaque individu
     const fitness = population.map(route => {
@@ -183,7 +183,7 @@ export function optimizeRouteGenetic(
     // Trier par fitness (distance la plus courte)
     fitness.sort((a, b) => a.distance - b.distance);
 
-    // Sélection des meilleurs (élitisme)
+    // SÃƒÂ©lection des meilleurs (ÃƒÂ©litisme)
     const nextGeneration: Stop[][] = [];
     const eliteCount = Math.floor(populationSize * 0.2);
     for (let i = 0; i < eliteCount; i++) {

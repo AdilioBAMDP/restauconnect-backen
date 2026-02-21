@@ -23,17 +23,17 @@ export interface IWarehouseAddress {
 
 // Warehouse Capacity Interface
 export interface IWarehouseCapacity {
-  totalVolume: number;      // m�
+  totalVolume: number;      // mÂ³
   totalWeight: number;       // kg
-  availableVolume: number;   // m�
+  availableVolume: number;   // mÂ³
   availableWeight: number;   // kg
   utilizationRate: number;   // %
 }
 
 // Warehouse Settings Interface
 export interface IWarehouseSettings {
-  temperatureMin?: number;   // �C
-  temperatureMax?: number;   // �C
+  temperatureMin?: number;   // Â°C
+  temperatureMax?: number;   // Â°C
   humidityMin?: number;      // %
   humidityMax?: number;      // %
   hasFIFO: boolean;          // First In First Out
@@ -59,7 +59,7 @@ export interface IWarehouse extends Document {
   settings: IWarehouseSettings;
   
   // Ownership
-  ownerId: mongoose.Types.ObjectId;  // Fournisseur propri�taire
+  ownerId: mongoose.Types.ObjectId;  // Fournisseur propriÃ©taire
   managerId?: mongoose.Types.ObjectId; // Gestionnaire
   
   // Status

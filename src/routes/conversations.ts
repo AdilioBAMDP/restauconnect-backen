@@ -7,7 +7,7 @@ import { logger } from '../utils/logger';
 
 const router = express.Router();
 
-// ✅ HELPER: Extraire l'ID utilisateur (compatible JWT test et MongoDB)
+// Ã¢Å“â€¦ HELPER: Extraire l'ID utilisateur (compatible JWT test et MongoDB)
 const getUserId = (user: any): string => {
   return user.userId || user._id || user.id;
 };
@@ -48,7 +48,7 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
       logger.error('Erreur MongoDB conversations:', mongoError);
       return res.status(500).json({
         success: false,
-        error: 'Erreur lors de la r�cup�ration des conversations'
+        error: 'Erreur lors de la rÃ¯Â¿Â½cupÃ¯Â¿Â½ration des conversations'
       });
     }
 
@@ -79,21 +79,21 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
     logger.error('Erreur liste conversations:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de la récupération des conversations'
+      error: error.message || 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des conversations'
     });
   }
 });
 
 /**
  * GET /api/conversations/:id
- * Détails d'une conversation avec tous les messages
+ * DÃƒÂ©tails d'une conversation avec tous les messages
  */
 router.get('/:id', async (req: Request, res: Response): Promise<any> => {
   try {
     const user = (req as any).user;
     const { id } = req.params;
     
-    // Pour les données fictives, retourner une conversation fictive
+    // Pour les donnÃƒÂ©es fictives, retourner une conversation fictive
     if (id.startsWith('conv-')) {
       const fakeConversation = {
         _id: id,
@@ -119,7 +119,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
         ],
         offerId: {
           _id: 'offer-001',
-          title: 'Offre Sp�ciale Viandes'
+          title: 'Offre SpÃ¯Â¿Â½ciale Viandes'
         },
         messages: [
           {
@@ -127,7 +127,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
             senderId: 'supplier-001',
             senderName: 'Jean Fournisseur',
             senderRole: 'supplier',
-            content: 'Bonjour, j\'ai une offre sp�ciale sur les viandes cette semaine.',
+            content: 'Bonjour, j\'ai une offre spÃ¯Â¿Â½ciale sur les viandes cette semaine.',
             type: 'text',
             createdAt: new Date(Date.now() - 3600000),
             isRead: true
@@ -137,7 +137,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
             senderId: user._id,
             senderName: user.name,
             senderRole: user.role,
-            content: 'Int�ressant ! Pouvez-vous me donner plus de d�tails ?',
+            content: 'IntÃ¯Â¿Â½ressant ! Pouvez-vous me donner plus de dÃ¯Â¿Â½tails ?',
             type: 'text',
             createdAt: new Date(Date.now() - 1800000),
             isRead: true
@@ -163,34 +163,34 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
     if (!conversation) {
       return res.status(404).json({
         success: false,
-        error: 'Conversation non trouvée'
+        error: 'Conversation non trouvÃƒÂ©e'
       });
     }
     
-    // ✅ FIX: Utiliser userId ou _id selon la source (JWT test vs MongoDB)
+    // Ã¢Å“â€¦ FIX: Utiliser userId ou _id selon la source (JWT test vs MongoDB)
     const currentUserId = getUserId(user);
     
-    // 🔍 DEBUG: Log détaillé pour comprendre le 403
-    logger.info('🔍 GET /:id - Vérification participant:', {
+    // Ã°Å¸â€Â DEBUG: Log dÃƒÂ©taillÃƒÂ© pour comprendre le 403
+    logger.info('Ã°Å¸â€Â GET /:id - VÃƒÂ©rification participant:', {
       conversationId: id,
       currentUserId,
       userObject: { userId: user.userId, _id: user._id, id: user.id },
       participants: conversation.participants.map((p: any) => ({ userId: p.userId, userName: p.userName, userRole: p.userRole }))
     });
     
-    // Vérifier que l'utilisateur est participant
+    // VÃƒÂ©rifier que l'utilisateur est participant
     if (!(conversation as any).isParticipant(currentUserId)) {
-      logger.error('❌ 403 Forbidden - Utilisateur NON participant:', {
+      logger.error('Ã¢ÂÅ’ 403 Forbidden - Utilisateur NON participant:', {
         currentUserId,
         participantIds: conversation.participants.map((p: any) => p.userId)
       });
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas participant de cette conversation'
+        error: 'Vous n\'ÃƒÂªtes pas participant de cette conversation'
       });
     }
     
-    logger.info('✅ Utilisateur est participant - Accès autorisé');
+    logger.info('Ã¢Å“â€¦ Utilisateur est participant - AccÃƒÂ¨s autorisÃƒÂ©');
     
     // Marquer les messages comme lus
     await (conversation as any).markAsRead(currentUserId);
@@ -201,26 +201,26 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
     });
     
   } catch (error: any) {
-    logger.error('Erreur détails conversation:', error);
+    logger.error('Erreur dÃƒÂ©tails conversation:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de la récupération de la conversation'
+      error: error.message || 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration de la conversation'
     });
   }
 });
 
 /**
  * POST /api/conversations
- * Créer une nouvelle conversation ou récupérer existante
+ * CrÃƒÂ©er une nouvelle conversation ou rÃƒÂ©cupÃƒÂ©rer existante
  */
 router.post('/', async (req: Request, res: Response): Promise<any> => {
   try {
     const user = (req as any).user;
     const { otherUserId, offerId, offerTitle, initialMessage, isPartner = false } = req.body;
     
-    // 🔍 DEBUG: Log des données reçues
-    logger.info('📥 POST /api/conversations - Body reçu:', JSON.stringify(req.body, null, 2));
-    logger.info('📥 User authentifié:', { id: user._id || user.userId || user.id, userId: user.userId, _id: user._id, name: user.name || user.companyName, role: user.role });
+    // Ã°Å¸â€Â DEBUG: Log des donnÃƒÂ©es reÃƒÂ§ues
+    logger.info('Ã°Å¸â€œÂ¥ POST /api/conversations - Body reÃƒÂ§u:', JSON.stringify(req.body, null, 2));
+    logger.info('Ã°Å¸â€œÂ¥ User authentifiÃƒÂ©:', { id: user._id || user.userId || user.id, userId: user.userId, _id: user._id, name: user.name || user.companyName, role: user.role });
     
     if (!otherUserId) {
       return res.status(400).json({
@@ -232,14 +232,14 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
     let otherUserName = req.body.otherUserName;
     let otherUserRole = req.body.otherUserRole;
     
-    // Si c'est un partenaire (partner-*), on utilise les données fictives
+    // Si c'est un partenaire (partner-*), on utilise les donnÃƒÂ©es fictives
     if (isPartner || otherUserId.startsWith('partner-')) {
-      // Décoder le nom depuis l'URL si pas fourni
+      // DÃƒÂ©coder le nom depuis l'URL si pas fourni
       if (!otherUserName && req.body.partnerName) {
         otherUserName = decodeURIComponent(req.body.partnerName);
       }
       
-      // Déduire le rôle depuis l'ID si pas fourni
+      // DÃƒÂ©duire le rÃƒÂ´le depuis l'ID si pas fourni
       if (!otherUserRole) {
         if (otherUserId.includes('banquier')) otherUserRole = 'banquier';
         else if (otherUserId.includes('investisseur')) otherUserRole = 'investisseur';
@@ -248,18 +248,18 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
         else otherUserRole = 'partenaire';
       }
       
-      logger.info(`📝 Création conversation avec partenaire fictif: ${otherUserName} (${otherUserRole})`);
+      logger.info(`Ã°Å¸â€œÂ CrÃƒÂ©ation conversation avec partenaire fictif: ${otherUserName} (${otherUserRole})`);
     } else {
-      // TODO: Récupérer infos de l'utilisateur réel depuis DB
-      logger.info(`📝 Création conversation avec utilisateur réel: ${otherUserId}`);
+      // TODO: RÃƒÂ©cupÃƒÂ©rer infos de l'utilisateur rÃƒÂ©el depuis DB
+      logger.info(`Ã°Å¸â€œÂ CrÃƒÂ©ation conversation avec utilisateur rÃƒÂ©el: ${otherUserId}`);
     }
     
-    // ✅ FIX CRITIQUE: Utiliser userId ou _id selon la source
+    // Ã¢Å“â€¦ FIX CRITIQUE: Utiliser userId ou _id selon la source
     const currentUserId = user.userId || user._id || user.id;
     const currentUserName = user.companyName || user.name || user.email;
     
-    // Utiliser la méthode statique findOrCreate du modèle
-    logger.info('🔧 Appel findOrCreate avec:', {
+    // Utiliser la mÃƒÂ©thode statique findOrCreate du modÃƒÂ¨le
+    logger.info('Ã°Å¸â€Â§ Appel findOrCreate avec:', {
       user1Id: currentUserId,
       user1Name: currentUserName,
       user1Role: user.role,
@@ -276,12 +276,12 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
       user.role,
       otherUserId,
       otherUserName || 'Utilisateur',
-      otherUserRole || 'restaurant',  // ✅ FIX: 'restaurant' au lieu de 'client'
+      otherUserRole || 'restaurant',  // Ã¢Å“â€¦ FIX: 'restaurant' au lieu de 'client'
       offerId,
       offerTitle
     );
     
-    logger.info('✅ Conversation créée/trouvée:', conversation._id);
+    logger.info('Ã¢Å“â€¦ Conversation crÃƒÂ©ÃƒÂ©e/trouvÃƒÂ©e:', conversation._id);
     
     // Si message initial, l'ajouter
     if (initialMessage) {
@@ -293,15 +293,15 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
         'text'
       );
       
-      // Pour les partenaires fictifs, pas de notification réelle
+      // Pour les partenaires fictifs, pas de notification rÃƒÂ©elle
       if (!isPartner && !otherUserId.startsWith('partner-')) {
-        // Notifier l'autre utilisateur réel
+        // Notifier l'autre utilisateur rÃƒÂ©el
         await (Notification as any).createAndSend(
           otherUserId,
           otherUserRole,
           'message-new',
           'Nouveau message',
-          `${user.companyName || user.name} vous a envoyé un message`,
+          `${user.companyName || user.name} vous a envoyÃƒÂ© un message`,
           {
             priority: 'normal',
             data: { conversationId: conversation._id, senderId: user._id },
@@ -318,12 +318,12 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
     });
     
   } catch (error: any) {
-    logger.error('❌ [ERROR] Erreur création conversation:', error);
-    logger.error('❌ Stack trace:', error.stack);
-    logger.error('❌ Validation errors:', error.errors);
+    logger.error('Ã¢ÂÅ’ [ERROR] Erreur crÃƒÂ©ation conversation:', error);
+    logger.error('Ã¢ÂÅ’ Stack trace:', error.stack);
+    logger.error('Ã¢ÂÅ’ Validation errors:', error.errors);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de la création de la conversation',
+      error: error.message || 'Erreur lors de la crÃƒÂ©ation de la conversation',
       details: error.errors || {}
     });
   }
@@ -346,7 +346,7 @@ router.post('/:id/messages', async (req: Request, res: Response): Promise<any> =
       });
     }
     
-    // Pour les données fictives
+    // Pour les donnÃƒÂ©es fictives
     if (id.startsWith('conv-')) {
       const fakeMessage = {
         _id: 'msg-' + Date.now(),
@@ -361,7 +361,7 @@ router.post('/:id/messages', async (req: Request, res: Response): Promise<any> =
       
       res.status(201).json({
         success: true,
-        message: 'Message envoyé',
+        message: 'Message envoyÃƒÂ©',
         data: {
           conversationId: id,
           message: fakeMessage
@@ -375,20 +375,20 @@ router.post('/:id/messages', async (req: Request, res: Response): Promise<any> =
     if (!conversation) {
       return res.status(404).json({
         success: false,
-        error: 'Conversation non trouvée'
+        error: 'Conversation non trouvÃƒÂ©e'
       });
     }
     
-    // Vérifier que l'utilisateur est participant
+    // VÃƒÂ©rifier que l'utilisateur est participant
     const currentUserId = getUserId(user);
     if (!(conversation as any).isParticipant(currentUserId)) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas participant de cette conversation'
+        error: 'Vous n\'ÃƒÂªtes pas participant de cette conversation'
       });
     }
     
-    // Ajouter le message avec attachments si présents
+    // Ajouter le message avec attachments si prÃƒÂ©sents
     const senderId = getUserId(user);
     await (conversation as any).addMessage(
       senderId,
@@ -397,16 +397,16 @@ router.post('/:id/messages', async (req: Request, res: Response): Promise<any> =
       content,
       type,
       quoteId,
-      attachments // Passer les fichiers attachés
+      attachments // Passer les fichiers attachÃƒÂ©s
     );
     
     // Notifier l'autre participant
     const otherParticipant = (conversation as any).getOtherParticipant(senderId);
     if (otherParticipant) {
-      // TODO: Réactiver après fix Notification pour comptes test
+      // TODO: RÃƒÂ©activer aprÃƒÂ¨s fix Notification pour comptes test
       /*
       const notificationContent = attachments && attachments.length > 0
-        ? `${user.companyName || user.name}: 📎 ${attachments.length} fichier(s)${content ? ' - ' + content.substring(0, 30) : ''}...`
+        ? `${user.companyName || user.name}: Ã°Å¸â€œÅ½ ${attachments.length} fichier(s)${content ? ' - ' + content.substring(0, 30) : ''}...`
         : `${user.companyName || user.name}: ${content.substring(0, 50)}...`;
         
       await (Notification as any).createAndSend(
@@ -419,7 +419,7 @@ router.post('/:id/messages', async (req: Request, res: Response): Promise<any> =
           priority: 'normal',
           data: { conversationId: conversation._id, senderId: senderId },
           actionUrl: `#conversation?id=${conversation._id}`,
-          actionLabel: 'Répondre'
+          actionLabel: 'RÃƒÂ©pondre'
         }
       );
       */
@@ -430,7 +430,7 @@ router.post('/:id/messages', async (req: Request, res: Response): Promise<any> =
     
     res.status(201).json({
       success: true,
-      message: 'Message envoyé',
+      message: 'Message envoyÃƒÂ©',
       data: conversation
     });
     
@@ -460,11 +460,11 @@ router.post('/:id/upload-files', uploadMessageFiles, async (req: Request, res: R
       });
     }
     
-    // Pour les données fictives
+    // Pour les donnÃƒÂ©es fictives
     if (id.startsWith('conv-')) {
       res.json({
         success: true,
-        message: `${processedFiles.length} fichier(s) uploadé(s)`,
+        message: `${processedFiles.length} fichier(s) uploadÃƒÂ©(s)`,
         data: {
           files: processedFiles
         }
@@ -477,29 +477,29 @@ router.post('/:id/upload-files', uploadMessageFiles, async (req: Request, res: R
     if (!conversation) {
       return res.status(404).json({
         success: false,
-        error: 'Conversation non trouvée'
+        error: 'Conversation non trouvÃƒÂ©e'
       });
     }
     
-    // Vérifier que l'utilisateur est participant
+    // VÃƒÂ©rifier que l'utilisateur est participant
     const currentUserId2 = getUserId(user);
     if (!(conversation as any).isParticipant(currentUserId2)) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas participant de cette conversation'
+        error: 'Vous n\'ÃƒÂªtes pas participant de cette conversation'
       });
     }
     
     res.json({
       success: true,
-      message: `${processedFiles.length} fichier(s) uploadé(s)`,
+      message: `${processedFiles.length} fichier(s) uploadÃƒÂ©(s)`,
       data: {
         files: processedFiles
       }
     });
     
   } catch (error: any) {
-    logger.error('❌ Erreur upload fichiers conversation:', error);
+    logger.error('Ã¢ÂÅ’ Erreur upload fichiers conversation:', error);
     res.status(500).json({
       success: false,
       error: error.message || 'Erreur lors de l\'upload des fichiers'
@@ -517,11 +517,11 @@ router.post('/:id/read', async (req: Request, res: Response): Promise<any> => {
     const currentUserId = getUserId(user);
     const { id } = req.params;
     
-    // Pour les données fictives
+    // Pour les donnÃƒÂ©es fictives
     if (id.startsWith('conv-')) {
       res.json({
         success: true,
-        message: 'Messages marqués comme lus'
+        message: 'Messages marquÃƒÂ©s comme lus'
       });
       return;
     }
@@ -531,15 +531,15 @@ router.post('/:id/read', async (req: Request, res: Response): Promise<any> => {
     if (!conversation) {
       return res.status(404).json({
         success: false,
-        error: 'Conversation non trouvée'
+        error: 'Conversation non trouvÃƒÂ©e'
       });
     }
     
-    // Vérifier que l'utilisateur est participant
+    // VÃƒÂ©rifier que l'utilisateur est participant
     if (!(conversation as any).isParticipant(currentUserId)) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas participant de cette conversation'
+        error: 'Vous n\'ÃƒÂªtes pas participant de cette conversation'
       });
     }
     
@@ -547,7 +547,7 @@ router.post('/:id/read', async (req: Request, res: Response): Promise<any> => {
     
     res.json({
       success: true,
-      message: 'Messages marqués comme lus'
+      message: 'Messages marquÃƒÂ©s comme lus'
     });
     
   } catch (error: any) {
@@ -568,11 +568,11 @@ router.patch('/:id/archive', async (req: Request, res: Response): Promise<any> =
     const user = (req as any).user;
     const { id } = req.params;
     
-    // Pour les données fictives
+    // Pour les donnÃƒÂ©es fictives
     if (id.startsWith('conv-')) {
       res.json({
         success: true,
-        message: 'Conversation archivée'
+        message: 'Conversation archivÃƒÂ©e'
       });
       return;
     }
@@ -582,16 +582,16 @@ router.patch('/:id/archive', async (req: Request, res: Response): Promise<any> =
     if (!conversation) {
       return res.status(404).json({
         success: false,
-        error: 'Conversation non trouvée'
+        error: 'Conversation non trouvÃƒÂ©e'
       });
     }
     
-    // Vérifier que l'utilisateur est participant
+    // VÃƒÂ©rifier que l'utilisateur est participant
     const currentUserId3 = getUserId(user);
     if (!(conversation as any).isParticipant(currentUserId3)) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas participant de cette conversation'
+        error: 'Vous n\'ÃƒÂªtes pas participant de cette conversation'
       });
     }
     
@@ -600,7 +600,7 @@ router.patch('/:id/archive', async (req: Request, res: Response): Promise<any> =
     
     res.json({
       success: true,
-      message: 'Conversation archivée'
+      message: 'Conversation archivÃƒÂ©e'
     });
     
   } catch (error: any) {
@@ -626,27 +626,27 @@ router.delete('/:id', async (req: Request, res: Response): Promise<any> => {
     if (!conversation) {
       return res.status(404).json({
         success: false,
-        error: 'Conversation non trouvée'
+        error: 'Conversation non trouvÃƒÂ©e'
       });
     }
     
-    // Vérifier que l'utilisateur est participant
+    // VÃƒÂ©rifier que l'utilisateur est participant
     const currentUserId = getUserId(user);
     if (!(conversation as any).isParticipant(currentUserId)) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas participant de cette conversation'
+        error: 'Vous n\'ÃƒÂªtes pas participant de cette conversation'
       });
     }
     
     // Supprimer la conversation
     await Conversation.findByIdAndDelete(id).exec();
     
-    logger.info('Conversation supprimée:', id, 'par:', currentUserId);
+    logger.info('Conversation supprimÃƒÂ©e:', id, 'par:', currentUserId);
     
     res.json({
       success: true,
-      message: 'Conversation supprimée'
+      message: 'Conversation supprimÃƒÂ©e'
     });
     
   } catch (error: any) {
@@ -667,7 +667,7 @@ router.get('/unread/count', async (req: Request, res: Response): Promise<any> =>
     const user = (req as any).user;
     const currentUserId = getUserId(user);
 
-    // Récupérer toutes les conversations actives de l'utilisateur
+    // RÃƒÂ©cupÃƒÂ©rer toutes les conversations actives de l'utilisateur
     const conversations = await Conversation.find({
       'participants.userId': currentUserId,
       status: 'active'

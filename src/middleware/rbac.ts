@@ -1,4 +1,4 @@
-﻿// RBAC middleware and policies for Web Spider backend
+// RBAC middleware and policies for Web Spider backend
 import { Request, Response, NextFunction } from 'express';
 import { UserRole } from '../models/User';
 
@@ -48,22 +48,22 @@ export const rolePermissions: Record<UserRole, string[]> = {
 // Middleware to check for a specific permission
 export function requirePermission(permission: string) {
   return (req: any, res: Response, next: NextFunction) => {
-    // console.log(`🔐 RBAC: Checking permission '${permission}' for user:`, req.user?.email, 'role:', req.user?.role);
+    // console.log(`ðŸ” RBAC: Checking permission '${permission}' for user:`, req.user?.email, 'role:', req.user?.role);
     
     if (!req.user || !req.user.role) {
-      // console.log('❌ RBAC: No user or role found');
+      // console.log('âŒ RBAC: No user or role found');
       return res.status(401).json({ success: false, error: 'Authentication required' });
     }
     
     const perms = rolePermissions[req.user.role as UserRole] || [];
-    // console.log(`🔐 RBAC: User permissions:`, perms);
+    // console.log(`ðŸ” RBAC: User permissions:`, perms);
     
     if (perms.includes('all') || perms.includes(permission)) {
-      // console.log(`✅ RBAC: Permission '${permission}' granted`);
+      // console.log(`âœ… RBAC: Permission '${permission}' granted`);
       return next();
     }
     
-    // console.log(`❌ RBAC: Permission '${permission}' denied`);
+    // console.log(`âŒ RBAC: Permission '${permission}' denied`);
     return res.status(403).json({ success: false, error: 'Insufficient permissions' });
   };
 }

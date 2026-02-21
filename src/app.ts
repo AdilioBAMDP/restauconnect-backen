@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -21,12 +21,12 @@ import {
 
 
 const app = express();
-// CORS doit être appliqué tout de suite après la création de l'app
+// CORS doit Ãªtre appliquÃ© tout de suite aprÃ¨s la crÃ©ation de l'app
 app.use(cors(corsOptions));
 // Parse JSON bodies
 app.use(express.json());
 
-// Import routes - ROUTES COMPLÈTES après nettoyage audit 2025
+// Import routes - ROUTES COMPLÃˆTES aprÃ¨s nettoyage audit 2025
 import authRoutes from './routes/auth';
 import partnerRoutes from './routes/partners';
 import offersRoutes from './routes/offers';
@@ -34,13 +34,13 @@ import productsRoutes from './routes/products';
 import conversationsRoutes from './routes/conversations';
 import ordersRoutes from './routes/orders';
 import tmsRoutes from './routes/tms';
-import deliveriesRoutes from './routes/deliveries'; // 📦 LIVRAISONS
+import deliveriesRoutes from './routes/deliveries'; // ðŸ“¦ LIVRAISONS
 import marketplaceRoutes from './routes/marketplace';
 import announcementsRoutes from './routes/announcements';
 import applicationsRoutes from './routes/applications';
-import seedRoutes from './routes/seed'; // 🌱 SEED DATA (temporary)
+import seedRoutes from './routes/seed'; // ðŸŒ± SEED DATA (temporary)
 
-// Routes manquantes ajoutées - Audit Phase 1
+// Routes manquantes ajoutÃ©es - Audit Phase 1
 import accountantRoutes from './routes/accountant';
 import artisanRoutes from './routes/artisan';
 app.use('/api/artisan', artisanRoutes);
@@ -56,7 +56,7 @@ import candidatRoutes from './routes/candidat';
 import cartRoutes from './routes/cart';
 import communityManagerRoutes from './routes/communityManager';
 import dashboardRoutes from './routes/dashboard';
-import invoicesRoutes from './routes/invoices'; // 📄 FACTURES
+import invoicesRoutes from './routes/invoices'; // ðŸ“„ FACTURES
 import investorRoutes from './routes/investor';
 import listingsRoutes from './routes/listings';
 import livreurRoutes from './routes/livreur';
@@ -64,7 +64,7 @@ import messagesRoutes from './routes/messages';
 import notificationsRoutes from './routes/notifications';
 import offersNotificationsRoutes from './routes/offers-notifications';
 import paymentsRoutes from './routes/payments';
-import stripeConnectRoutes from './routes/stripe-connect'; // 💳 Stripe Connect
+import stripeConnectRoutes from './routes/stripe-connect'; // ðŸ’³ Stripe Connect
 import pushRoutes from './routes/push';
 import quotesRoutes from './routes/quotes';
 import restaurantRoutes from './routes/restaurant';
@@ -72,20 +72,20 @@ import reviewsRoutes from './routes/reviews';
 import searchRoutes from './routes/search';
 import suppliersRoutes from './routes/suppliers';
 import transporteurRoutes from './routes/transporteur';
-import transporteurTmsRoutes from './routes/transporteur-tms'; // 🚀 TMS PRO
-import trackingRoutes from './routes/tracking'; // 🚀 TRACKING TEMPS RÉEL
-import pricingRoutes from './routes/pricing'; // 💰 TARIFICATION TRANSPORT PRO
+import transporteurTmsRoutes from './routes/transporteur-tms'; // ðŸš€ TMS PRO
+import trackingRoutes from './routes/tracking'; // ðŸš€ TRACKING TEMPS RÃ‰EL
+import pricingRoutes from './routes/pricing'; // ðŸ’° TARIFICATION TRANSPORT PRO
 import uploadRoutes from './routes/upload';
 import userDirectoryRoutes from './routes/userDirectory';
 import usersRoutes from './routes/users';
-import driversRoutes from './routes/drivers'; // 🚛 GESTION LIVREURS
+import driversRoutes from './routes/drivers'; // ðŸš› GESTION LIVREURS
 import webhooksRoutes from './routes/webhooks';
 import wmsRoutes from './routes/wms';
 import supportRoutes from './routes/support';
 
 
 // Import cron jobs (exports, alertes, monitoring)
-// DÉSACTIVÉ temporairement pour éviter les crashes Railway (SIGTERM)
+// DÃ‰SACTIVÃ‰ temporairement pour Ã©viter les crashes Railway (SIGTERM)
 // if (process.env.NODE_ENV !== 'test') {
 //   require('./utils/cron');
 // }
@@ -93,22 +93,22 @@ import supportRoutes from './routes/support';
 
 const server = createServer(app);
 
-// Déplacer les app.use après la déclaration de app
+// DÃ©placer les app.use aprÃ¨s la dÃ©claration de app
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/platform-config', platformConfigRoutes);
 
-// ✅ FIX: Trust proxy for ngrok/reverse proxy (fixes express-rate-limit warning)
+// âœ… FIX: Trust proxy for ngrok/reverse proxy (fixes express-rate-limit warning)
 app.set('trust proxy', 1);
 
-// Socket.io configuration - RÉACTIVÉ
+// Socket.io configuration - RÃ‰ACTIVÃ‰
 const io = new Server(server, {
   cors: corsOptions
 });
 
-// Expose io globalement pour que les services (ex: deliveryMatchingService) puissent émettre
+// Expose io globalement pour que les services (ex: deliveryMatchingService) puissent Ã©mettre
 (global as any).io = io;
 
-// Initialiser le service de tracking temps réel TMS
+// Initialiser le service de tracking temps rÃ©el TMS
 import RealtimeTrackingService from './services/realtimeTrackingService';
 const trackingService = new RealtimeTrackingService(io);
 
@@ -123,7 +123,7 @@ const apiLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
-    // Bypass rate limit uniquement en développement pour localhost
+    // Bypass rate limit uniquement en dÃ©veloppement pour localhost
     if (!isProduction) {
       const ip = req.ip || req.socket.remoteAddress || '';
       return ip.includes('127.0.0.1') || ip.includes('::1') || ip.includes('localhost');
@@ -134,13 +134,13 @@ const apiLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: isProduction ? 1000 : 500, // Production: 1000 tentatives (rate limit désactivé pour tests)
+  max: isProduction ? 1000 : 500, // Production: 1000 tentatives (rate limit dÃ©sactivÃ© pour tests)
   message: 'Too many login attempts from this IP, please try again after 15 minutes.',
   skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => {
-    // Bypass rate limit uniquement en développement
+    // Bypass rate limit uniquement en dÃ©veloppement
     if (!isProduction) {
       const ip = req.ip || req.socket.remoteAddress || '';
       return ip.includes('127.0.0.1') || ip.includes('::1') || ip.includes('localhost');
@@ -164,7 +164,7 @@ app.use(helmet({
       frameSrc: ["'none'"]
     }
   } : {
-    // Développement: CSP relaxé pour ngrok, Stripe, etc.
+    // DÃ©veloppement: CSP relaxÃ© pour ngrok, Stripe, etc.
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://js.stripe.com", "https://*.ngrok-free.dev"],
@@ -174,7 +174,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"]
     }
   },
-  crossOriginEmbedderPolicy: !isProduction, // Désactiver en production si problèmes
+  crossOriginEmbedderPolicy: !isProduction, // DÃ©sactiver en production si problÃ¨mes
   crossOriginResourcePolicy: { policy: isProduction ? "same-site" : "cross-origin" }
 }));
 app.use(securityHeaders);
@@ -184,14 +184,14 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(requestLogger);
 app.use('/api/', apiLimiter);
 
-// Servir les fichiers uploadés
+// Servir les fichiers uploadÃ©s
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Servir le frontend buildé
+// Servir le frontend buildÃ©
 const frontendPath = path.join(__dirname, '../../ProjetRestauConnect/project_RestauConnect/FRONTEND-COMPLET/dist');
 if (fs.existsSync(frontendPath)) {
   app.use(express.static(frontendPath));
-  console.log('✅ Frontend servi depuis:', frontendPath);
+  console.log('âœ… Frontend servi depuis:', frontendPath);
 }
 
 // Health check endpoint
@@ -204,8 +204,8 @@ app.get('/health', (req: express.Request, res: express.Response) => {
   });
 });
 
-// API routes - TOUTES LES ROUTES ENREGISTRÉES après audit Phase 1
-// Routes essentielles (déjà présentes)
+// API routes - TOUTES LES ROUTES ENREGISTRÃ‰ES aprÃ¨s audit Phase 1
+// Routes essentielles (dÃ©jÃ  prÃ©sentes)
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/partners', partnerRoutes);
 app.use('/api/offers', offersRoutes);
@@ -213,16 +213,16 @@ app.use('/api/products', productsRoutes);
 app.use('/api/conversations', conversationsRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/tms', tmsRoutes);
-app.use('/api/deliveries', deliveriesRoutes); // 📦 LIVRAISONS
+app.use('/api/deliveries', deliveriesRoutes); // ðŸ“¦ LIVRAISONS
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/announcements', announcementsRoutes);
 app.use('/api/applications', applicationsRoutes);
-app.use('/api/seed', seedRoutes); // 🌱 SEED DATA (À SUPPRIMER après utilisation)
+app.use('/api/seed', seedRoutes); // ðŸŒ± SEED DATA (Ã€ SUPPRIMER aprÃ¨s utilisation)
 
-// Routes ajoutées - Audit Phase 1 (31 routes manquantes)
+// Routes ajoutÃ©es - Audit Phase 1 (31 routes manquantes)
 app.use('/api/accountant', accountantRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/admin-test', adminTestRoutes); // 🧪 ROUTE DE TEST
+app.use('/api/admin-test', adminTestRoutes); // ðŸ§ª ROUTE DE TEST
 app.use('/api/auditeur', auditeurRoutes);
 app.use('/api/banker', bankerRoutes);
 app.use('/api/boost-campaigns', boostCampaignsRoutes);
@@ -231,7 +231,7 @@ app.use('/api/candidat', candidatRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/community-manager', communityManagerRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/invoices', invoicesRoutes); // 📄 FACTURES
+app.use('/api/invoices', invoicesRoutes); // ðŸ“„ FACTURES
 app.use('/api/investor', investorRoutes);
 app.use('/api/listings', listingsRoutes);
 app.use('/api/livreur', livreurRoutes);
@@ -239,7 +239,7 @@ app.use('/api/messages', messagesRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/offers-notifications', offersNotificationsRoutes);
 app.use('/api/payments', paymentsRoutes);
-app.use('/api/stripe-connect', stripeConnectRoutes); // 💳 Stripe Connect
+app.use('/api/stripe-connect', stripeConnectRoutes); // ðŸ’³ Stripe Connect
 app.use('/api/push', pushRoutes);
 app.use('/api/quotes', quotesRoutes);
 app.use('/api/restaurant', restaurantRoutes);
@@ -247,13 +247,13 @@ app.use('/api/reviews', reviewsRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/suppliers', suppliersRoutes);
 app.use('/api/transporteur', transporteurRoutes);
-app.use('/api/transporteur-tms', transporteurTmsRoutes); // 🚀 ROUTES TMS PRO
-app.use('/api/tracking', trackingRoutes); // 🚀 TRACKING TEMPS RÉEL
-app.use('/api/pricing', pricingRoutes); // 💰 TARIFICATION TRANSPORT PRO
+app.use('/api/transporteur-tms', transporteurTmsRoutes); // ðŸš€ ROUTES TMS PRO
+app.use('/api/tracking', trackingRoutes); // ðŸš€ TRACKING TEMPS RÃ‰EL
+app.use('/api/pricing', pricingRoutes); // ðŸ’° TARIFICATION TRANSPORT PRO
 app.use('/api/upload', uploadRoutes);
 app.use('/api/user-directory', userDirectoryRoutes);
 app.use('/api/users', usersRoutes);
-app.use('/api/drivers', driversRoutes); // 🚛 GESTION LIVREURS
+app.use('/api/drivers', driversRoutes); // ðŸš› GESTION LIVREURS
 app.use('/api/webhooks', webhooksRoutes);
 app.use('/api/wms', wmsRoutes);
 app.use('/api/support', supportRoutes);
@@ -277,11 +277,11 @@ app.use(errorHandler);
 
 // Socket.io setup - Gestion des connexions livreurs
 io.on('connection', (socket) => {
-  console.log('✅ Client connecté:', socket.id);
+  console.log('âœ… Client connectÃ©:', socket.id);
 
   socket.on('location:update', (location) => {
-    console.log('📍 Position livreur:', location);
-    // Broadcast la position aux restaurants concernés
+    console.log('ðŸ“ Position livreur:', location);
+    // Broadcast la position aux restaurants concernÃ©s
     socket.broadcast.emit('driver:location', {
       driverId: socket.id,
       ...location
@@ -293,7 +293,7 @@ io.on('connection', (socket) => {
     try {
       const roomName = `driver-${userId}`;
       socket.join(roomName);
-      console.log(`🚚 Driver ${userId} en ligne — room rejointe: ${roomName}`);
+      console.log(`ðŸšš Driver ${userId} en ligne â€” room rejointe: ${roomName}`);
       socket.emit('driver-room-joined', { success: true, roomName, userId });
     } catch (err) {
       console.error('Erreur driver-online:', err);
@@ -305,7 +305,7 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('support:notify', ticket);
   });
 
-  // Notifications export (export terminé)
+  // Notifications export (export terminÃ©)
   socket.on('export:done', (info) => {
     socket.broadcast.emit('export:notify', info);
   });
@@ -316,35 +316,35 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('❌ Client déconnecté:', socket.id);
+    console.log('âŒ Client dÃ©connectÃ©:', socket.id);
   });
 });
-console.log('✅ Socket.io handlers configurés');
+console.log('âœ… Socket.io handlers configurÃ©s');
 
 const startServer = async () => {
   try {
-  await connectDatabase(); // Connexion MongoDB activée
+  await connectDatabase(); // Connexion MongoDB activÃ©e
     
     const PORT = config.server.port || 5000;
-    const HOST = '0.0.0.0'; // Railway nécessite 0.0.0.0 pour être accessible
+    const HOST = '0.0.0.0'; // Railway nÃ©cessite 0.0.0.0 pour Ãªtre accessible
     
     server.listen(PORT, HOST, () => {
-      logger.info(`🚀 RestauConnect API démarrée sur le port ${PORT}`);
-      logger.info(`📊 Environment: ${config.server.nodeEnv}`);
-      logger.info(`🔗 Connexion: http://localhost:${PORT}`);
-      logger.info(`📋 Health check: http://localhost:${PORT}/health`);
+      logger.info(`ðŸš€ RestauConnect API dÃ©marrÃ©e sur le port ${PORT}`);
+      logger.info(`ðŸ“Š Environment: ${config.server.nodeEnv}`);
+      logger.info(`ðŸ”— Connexion: http://localhost:${PORT}`);
+      logger.info(`ðŸ“‹ Health check: http://localhost:${PORT}/health`);
     })
     .on('error', (err: any) => {
       if (err.code === 'EADDRINUSE') {
-        logger.error(`❌ Le port ${PORT} est déjà utilisé.\n\nSolution :\n- Arrête le processus qui occupe ce port (ex: un autre backend déjà lancé)\n- Ou démarre ce backend sur un autre port :\n    PowerShell : $env:PORT=5001; node dist/server.js\n    Bash      : PORT=5001 node dist/server.js`);
+        logger.error(`âŒ Le port ${PORT} est dÃ©jÃ  utilisÃ©.\n\nSolution :\n- ArrÃªte le processus qui occupe ce port (ex: un autre backend dÃ©jÃ  lancÃ©)\n- Ou dÃ©marre ce backend sur un autre port :\n    PowerShell : $env:PORT=5001; node dist/server.js\n    Bash      : PORT=5001 node dist/server.js`);
         process.exit(1);
       } else {
-        logger.error('Erreur lors de l\'écoute du serveur:', err);
+        logger.error('Erreur lors de l\'Ã©coute du serveur:', err);
         process.exit(1);
       }
     });
   } catch (error) {
-    logger.error('Erreur lors du démarrage du serveur:', error);
+    logger.error('Erreur lors du dÃ©marrage du serveur:', error);
     process.exit(1);
   }
 };
@@ -355,8 +355,8 @@ if (process.env.NODE_ENV !== 'test') {
   startServer();
 } else {
   // When running tests, ensure the DB connection is still usable for supertest
-  logger.info('ℹ️ Running in test mode — server not started (app exported for tests)');
+  logger.info('â„¹ï¸ Running in test mode â€” server not started (app exported for tests)');
 }
 
-// Export avec io réactivé
+// Export avec io rÃ©activÃ©
 export { app, io, server };

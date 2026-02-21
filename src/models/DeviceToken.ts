@@ -1,4 +1,4 @@
-﻿import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 import { logger } from '../utils/logger';
 
 export interface IDeviceToken extends Document {
@@ -54,10 +54,10 @@ const DeviceTokenSchema = new Schema<IDeviceToken>({
   timestamps: true
 });
 
-// Index composé pour éviter les doublons
+// Index composÃ© pour Ã©viter les doublons
 DeviceTokenSchema.index({ userId: 1, token: 1 }, { unique: true });
 
-// Méthode pour mettre à jour lastUsed
+// MÃ©thode pour mettre Ã  jour lastUsed
 DeviceTokenSchema.methods.updateLastUsed = async function() {
   this.lastUsed = new Date();
   return this.save();
@@ -71,7 +71,7 @@ DeviceTokenSchema.statics.findActiveTokens = function(userId: mongoose.Types.Obj
   }).select('token platform');
 };
 
-// Static method pour nettoyer les vieux tokens (> 90 jours d'inactivité)
+// Static method pour nettoyer les vieux tokens (> 90 jours d'inactivitÃ©)
 DeviceTokenSchema.statics.cleanupInactiveTokens = async function() {
   const ninetyDaysAgo = new Date();
   ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
@@ -80,7 +80,7 @@ DeviceTokenSchema.statics.cleanupInactiveTokens = async function() {
     lastUsed: { $lt: ninetyDaysAgo }
   });
 
-  logger.info(`Nettoyage tokens: ${result.deletedCount} tokens inactifs supprimés`);
+  logger.info(`Nettoyage tokens: ${result.deletedCount} tokens inactifs supprimÃ©s`);
   return result.deletedCount;
 };
 

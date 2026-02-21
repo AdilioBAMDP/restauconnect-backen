@@ -6,7 +6,7 @@ import { SupportTicket } from '../models/SupportTicket';
 
 const router = express.Router();
 
-// Créer un ticket support
+// CrÃƒÂ©er un ticket support
 router.post('/', authenticateToken, async (req: AuthRequest, res) => {
   const { subject, message } = req.body;
   const userId = req.user?.userId || req.user?._id;
@@ -28,7 +28,7 @@ router.get('/', authenticateToken, requirePermission('access_support'), async (r
   res.json({ success: true, tickets });
 });
 
-// Répondre à un ticket
+// RÃƒÂ©pondre ÃƒÂ  un ticket
 router.post('/:id/message', authenticateToken, requirePermission('access_support'), async (req: AuthRequest, res) => {
   const { content } = req.body;
   const ticket = await SupportTicket.findById(req.params.id);

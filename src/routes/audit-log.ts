@@ -8,7 +8,7 @@ const router = express.Router();
 // GET /api/audit-logs - Liste des logs (admin)
 router.get('/', authenticateToken, async (req: any, res: Response) => {
   try {
-    // Optionnel: filtrage par action, user, cible, période
+    // Optionnel: filtrage par action, user, cible, pÃƒÂ©riode
     const { action, targetType, performedBy, from, to, page = 1, limit = 50 } = req.query;
     const query: any = {};
     if (action) query.action = action;
@@ -37,7 +37,7 @@ router.get('/', authenticateToken, async (req: any, res: Response) => {
       }
     } as ApiResponse);
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Erreur lors de la récupération des logs' });
+    res.status(500).json({ success: false, error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des logs' });
   }
 });
 

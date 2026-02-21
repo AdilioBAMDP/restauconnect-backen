@@ -10,18 +10,18 @@ const router = express.Router();
 
 // Export CSV utilisateurs (filtrable)
 router.get('/users', authenticateToken, requirePermission('export_data'), async (req, res) => {
-  // TODO: Ajouter filtres avancés via req.query
+  // TODO: Ajouter filtres avancÃƒÂ©s via req.query
   const filePath = await exportUsersCSV();
   res.download(filePath, 'users-export.csv', err => {
     if (err) res.status(500).json({ success: false, error: 'Erreur export CSV' });
-    // Optionnel: supprimer le fichier après download
+    // Optionnel: supprimer le fichier aprÃƒÂ¨s download
     setTimeout(() => { try { fs.unlinkSync(filePath); } catch {} }, 10000);
   });
 });
 
 // Export PDF utilisateurs (filtrable)
 router.get('/users/pdf', authenticateToken, requirePermission('export_data'), async (req, res) => {
-  // Filtres avancés via req.query
+  // Filtres avancÃƒÂ©s via req.query
   const filters: any = {};
   if (req.query.role) filters.role = req.query.role;
   if (req.query.status) filters.status = req.query.status;
@@ -32,6 +32,6 @@ router.get('/users/pdf', authenticateToken, requirePermission('export_data'), as
   });
 });
 
-// TODO: Ajouter export PDF, export par module, filtres avancés...
+// TODO: Ajouter export PDF, export par module, filtres avancÃƒÂ©s...
 
 export default router;

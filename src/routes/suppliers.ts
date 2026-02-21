@@ -9,22 +9,22 @@ import { Order } from '../models/Order';
 
 const router = Router();
 
-// Get all suppliers (pour la page de sélection des fournisseurs)
-// ⚠️ Route temporairement SANS authentification pour débloquer
+// Get all suppliers (pour la page de sÃƒÂ©lection des fournisseurs)
+// Ã¢Å¡Â Ã¯Â¸Â Route temporairement SANS authentification pour dÃƒÂ©bloquer
 router.get('/', async (req, res) => {
   try {
     const suppliers = await User.find({ role: 'supplier', verified: true })
       .select('_id name email companyName phone address location')
       .sort({ name: 1 });
 
-    logger.info(`✅ ${suppliers.length} fournisseurs trouvés`);
+    logger.info(`Ã¢Å“â€¦ ${suppliers.length} fournisseurs trouvÃƒÂ©s`);
     
     res.json({
       success: true,
       data: suppliers
     } as ApiResponse);
   } catch (error) {
-    logger.error('❌ Erreur lors de la récupération des fournisseurs:', error);
+    logger.error('Ã¢ÂÅ’ Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des fournisseurs:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch suppliers'
@@ -32,14 +32,14 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/suppliers/products - Catalogue produits du fournisseur connecté
+// GET /api/suppliers/products - Catalogue produits du fournisseur connectÃƒÂ©
 router.get('/products', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId || req.user?._id;
     if (!userId) {
       res.status(401).json({
         success: false,
-        error: 'Utilisateur non authentifié'
+        error: 'Utilisateur non authentifiÃƒÂ©'
       } as ApiResponse);
       return;
     }
@@ -50,27 +50,27 @@ router.get('/products', authenticateToken, async (req: AuthRequest, res: Respons
     res.json({
       success: true,
       data: products,
-      message: `${products.length} produits trouvés`
+      message: `${products.length} produits trouvÃƒÂ©s`
     } as ApiResponse);
     return;
   } catch (error) {
     logger.error('Erreur /suppliers/products:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des produits'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des produits'
     } as ApiResponse);
     return;
   }
 });
 
-// GET /api/suppliers/orders - Commandes reçues par le fournisseur
+// GET /api/suppliers/orders - Commandes reÃƒÂ§ues par le fournisseur
 router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?.userId || req.user?._id;
     if (!userId) {
       res.status(401).json({
         success: false,
-        error: 'Utilisateur non authentifié'
+        error: 'Utilisateur non authentifiÃƒÂ©'
       } as ApiResponse);
       return;
     }
@@ -85,14 +85,14 @@ router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response)
     res.json({
       success: true,
       data: orders || [],
-      message: `${(orders || []).length} commandes trouvées`
+      message: `${(orders || []).length} commandes trouvÃƒÂ©es`
     } as ApiResponse);
     return;
   } catch (error) {
     logger.error('Erreur /suppliers/orders:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des commandes'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des commandes'
     } as ApiResponse);
     return;
   }
@@ -105,7 +105,7 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response):
     if (!userId) {
       res.status(401).json({
         success: false,
-        error: 'Utilisateur non authentifié'
+        error: 'Utilisateur non authentifiÃƒÂ©'
       } as ApiResponse);
       return;
     }
@@ -143,14 +143,14 @@ router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response):
         deliveredOrders,
         revenue: Math.round(revenue * 100) / 100
       },
-      message: 'Statistiques fournisseur récupérées'
+      message: 'Statistiques fournisseur rÃƒÂ©cupÃƒÂ©rÃƒÂ©es'
     } as ApiResponse);
     return;
   } catch (error) {
     logger.error('Erreur /suppliers/stats:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des statistiques'
     } as ApiResponse);
     return;
   }

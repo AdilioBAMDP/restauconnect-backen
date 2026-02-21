@@ -1,4 +1,4 @@
-﻿import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import { config } from '../config';
@@ -26,29 +26,29 @@ if (config.server.nodeEnv !== 'production') {
 export const corsOptions = {
   origin: function(origin: any, callback: any) {
     // Ajout du log de debug CORS
-    // console.log('[CORS] Origin reçue :', origin);
+    // console.log('[CORS] Origin reÃ§ue :', origin);
     // Allow requests with no origin (like Postman, or same-origin)
     if (!origin) {
-      // console.log('[CORS] Pas d\'origin, autorisé (Postman ou même origine)');
+      // console.log('[CORS] Pas d\'origin, autorisÃ© (Postman ou mÃªme origine)');
       return callback(null, true);
     }
     
-    // ✅ Allow all Vercel preview URLs (*.vercel.app)
+    // âœ… Allow all Vercel preview URLs (*.vercel.app)
     if (origin.includes('.vercel.app')) {
-      // console.log('[CORS] Vercel preview URL autorisée :', origin);
+      // console.log('[CORS] Vercel preview URL autorisÃ©e :', origin);
       return callback(null, true);
     }
     
     if (allowedOrigins.includes(origin)) {
-      // console.log('[CORS] Origin autorisée :', origin);
+      // console.log('[CORS] Origin autorisÃ©e :', origin);
       return callback(null, true);
     }
     // In development allow all origins to simplify local testing
     if (config.server.nodeEnv !== 'production') {
-      // console.log('[CORS] DEV: Origin autorisée (mode dev) :', origin);
+      // console.log('[CORS] DEV: Origin autorisÃ©e (mode dev) :', origin);
       return callback(null, true);
     }
-    // console.log('[CORS] Origin refusée :', origin);
+    // console.log('[CORS] Origin refusÃ©e :', origin);
     callback(new Error('Not allowed by CORS'));
   },
   credentials: config.cors.credentials,

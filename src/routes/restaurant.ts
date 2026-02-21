@@ -13,7 +13,7 @@ router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response)
     if (!userId) {
       res.status(401).json({
         success: false,
-        error: 'Utilisateur non authentifié'
+        error: 'Utilisateur non authentifiÃƒÂ©'
       } as ApiResponse);
       return;
     }
@@ -21,7 +21,7 @@ router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response)
     const { status, page = 1, limit = 20, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
 
     const filter: any = {
-      restaurantId: userId // Filtre par ID du restaurant connecté
+      restaurantId: userId // Filtre par ID du restaurant connectÃƒÂ©
     };
     
     if (status) filter.status = status;
@@ -49,7 +49,7 @@ router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response)
         pages: Math.ceil(total / Number(limit)),
         totalPages: Math.ceil(total / Number(limit))
       },
-      message: 'Commandes du restaurant récupérées'
+      message: 'Commandes du restaurant rÃƒÂ©cupÃƒÂ©rÃƒÂ©es'
     } as ApiResponse);
     return;
 
@@ -57,7 +57,7 @@ router.get('/orders', authenticateToken, async (req: AuthRequest, res: Response)
     logger.error('Erreur liste commandes restaurant:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des commandes'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des commandes'
     } as ApiResponse);
     return;
   }
@@ -70,7 +70,7 @@ router.get('/orders/stats', authenticateToken, async (req: AuthRequest, res: Res
     if (!userId) {
       res.status(401).json({
         success: false,
-        error: 'Utilisateur non authentifié'
+        error: 'Utilisateur non authentifiÃƒÂ©'
       } as ApiResponse);
       return;
     }
@@ -114,7 +114,7 @@ router.get('/orders/stats', authenticateToken, async (req: AuthRequest, res: Res
         todayCount,
         revenue: Math.round(revenue * 100) / 100
       },
-      message: 'Statistiques commandes restaurant récupérées'
+      message: 'Statistiques commandes restaurant rÃƒÂ©cupÃƒÂ©rÃƒÂ©es'
     } as ApiResponse);
     return;
 
@@ -122,13 +122,13 @@ router.get('/orders/stats', authenticateToken, async (req: AuthRequest, res: Res
     logger.error('Erreur stats commandes restaurant:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des statistiques'
     } as ApiResponse);
     return;
   }
 });
 
-// GET /api/restaurant/orders/:id - Détails d'une commande
+// GET /api/restaurant/orders/:id - DÃƒÂ©tails d'une commande
 router.get('/orders/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -136,13 +136,13 @@ router.get('/orders/:id', authenticateToken, async (req: AuthRequest, res: Respo
 
     const order = await Order.findOne({
       _id: id,
-      restaurantId: userId // Vérifier que la commande appartient au restaurant
+      restaurantId: userId // VÃƒÂ©rifier que la commande appartient au restaurant
     }).lean();
 
     if (!order) {
       res.status(404).json({
         success: false,
-        error: 'Commande non trouvée'
+        error: 'Commande non trouvÃƒÂ©e'
       } as ApiResponse);
       return;
     }
@@ -150,21 +150,21 @@ router.get('/orders/:id', authenticateToken, async (req: AuthRequest, res: Respo
     res.json({
       success: true,
       data: order,
-      message: 'Détails de la commande récupérés'
+      message: 'DÃƒÂ©tails de la commande rÃƒÂ©cupÃƒÂ©rÃƒÂ©s'
     } as ApiResponse);
     return;
 
   } catch (error) {
-    logger.error('Erreur détails commande:', error);
+    logger.error('Erreur dÃƒÂ©tails commande:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération de la commande'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration de la commande'
     } as ApiResponse);
     return;
   }
 });
 
-// PUT /api/restaurant/orders/:id/status - Mettre à jour le statut d'une commande
+// PUT /api/restaurant/orders/:id/status - Mettre ÃƒÂ  jour le statut d'une commande
 router.put('/orders/:id/status', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -191,7 +191,7 @@ router.put('/orders/:id/status', authenticateToken, async (req: AuthRequest, res
     if (!order) {
       res.status(404).json({
         success: false,
-        error: 'Commande non trouvée'
+        error: 'Commande non trouvÃƒÂ©e'
       } as ApiResponse);
       return;
     }
@@ -199,15 +199,15 @@ router.put('/orders/:id/status', authenticateToken, async (req: AuthRequest, res
     res.json({
       success: true,
       data: order,
-      message: 'Statut de la commande mis à jour'
+      message: 'Statut de la commande mis ÃƒÂ  jour'
     } as ApiResponse);
     return;
 
   } catch (error) {
-    logger.error('Erreur mise à jour statut:', error);
+    logger.error('Erreur mise ÃƒÂ  jour statut:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la mise à jour du statut'
+      error: 'Erreur lors de la mise ÃƒÂ  jour du statut'
     } as ApiResponse);
     return;
   }
@@ -220,7 +220,7 @@ router.post('/order-with-tms', authenticateToken, async (req: AuthRequest, res: 
     
     res.json({
       success: true,
-      message: 'Commande créée avec TMS',
+      message: 'Commande crÃƒÂ©ÃƒÂ©e avec TMS',
       data: {
         orderId: 'new-order-id',
         trackingId: 'TMS-' + Date.now(),

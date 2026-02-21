@@ -1,10 +1,10 @@
-﻿// ? FIX: Removed custom utility functions - using native JavaScript instead
+// ? FIX: Removed custom utility functions - using native JavaScript instead
 import mongoose from 'mongoose';
 import Offer, { IOffer } from '../models/Offer';
 import { UserDocument, UserRole } from '../models/User';
 import Notification from '../models/Notification';
 
-// Interfaces pour les param�tres des services
+// Interfaces pour les paramï¿½tres des services
 export interface OfferFilters {
   zone?: 'information-globale' | 'marketplace';
   category?: string;
@@ -25,17 +25,17 @@ export interface OfferStats {
 
 export class OfferService {
   /**
-   * Envoyer des notifications � tous les utilisateurs cibl�s par une offre urgente
+   * Envoyer des notifications ï¿½ tous les utilisateurs ciblï¿½s par une offre urgente
    */
   static async sendUrgentOfferNotifications(offer: IOffer): Promise<void> {
     try {
-      // D�terminer les r�les cibles
+      // Dï¿½terminer les rï¿½les cibles
       let targetRoles: any[] = [];
       const canonicalRoles = ['restaurant', 'artisan', 'supplier', 'banker', 'investor', 'driver', 'admin'];
       if (offer.zone === 'marketplace') {
         // Marketplace = notifier tout le monde ? Non, trop de spam
         // On ne notifie que si urgent ET Information Globale
-        // console.log('?? Offre marketplace urgente - pas de notifications group�es');
+        // console.log('?? Offre marketplace urgente - pas de notifications groupï¿½es');
         return;
       }
       if (offer.zone === 'information-globale') {
@@ -50,13 +50,13 @@ export class OfferService {
       if (!targetRoles || !Array.isArray(targetRoles) || targetRoles.length === 0) {
         return;
       }
-      // R�cup�rer tous les utilisateurs avec ces r�les
+      // Rï¿½cupï¿½rer tous les utilisateurs avec ces rï¿½les
       const targetUsersArr: any[] = await mongoose.model<UserDocument>('User').find({
         role: { $in: targetRoles },
         isActive: true // Seulement utilisateurs actifs
       }).select('_id role name email companyName').exec();
-      // console.log(`?? Envoi notifications urgentes � ${targetUsersArr.length} utilisateurs (r�les: ${targetRoles.join(', ')})`);
-      // Cr�er notifications en batch
+      // console.log(`?? Envoi notifications urgentes ï¿½ ${targetUsersArr.length} utilisateurs (rï¿½les: ${targetRoles.join(', ')})`);
+      // Crï¿½er notifications en batch
       const notifications = targetUsersArr.map((user: any) => ({
         userId: user._id,
         userRole: user.role as UserRole,
@@ -79,13 +79,13 @@ export class OfferService {
       // Insertion en masse (plus performant)
       const notificationInstances = notifications.map(data => new Notification(data));
       await Notification.insertMany(notificationInstances);
-      // Marquer l'offre comme notifi�e
+      // Marquer l'offre comme notifiï¿½e
       offer.urgentNotificationSent = true;
       await offer.save();
-      // console.log(`? ${notifications.length} notifications urgentes cr��es`);
+      // console.log(`? ${notifications.length} notifications urgentes crï¿½ï¿½es`);
       // TODO: Envoyer via Socket.io (Phase 4)
       // TODO: Envoyer push notifications navigateur (Phase 4)
-      // TODO: Envoyer emails pour offres tr�s urgentes (optionnel)
+      // TODO: Envoyer emails pour offres trï¿½s urgentes (optionnel)
     } catch (error) {
       // console.error('? Erreur envoi notifications urgentes:', error);
       throw error;
@@ -93,7 +93,7 @@ export class OfferService {
   }
 
   /**
-   * Filtrer les offres visibles pour un utilisateur selon son r�le
+   * Filtrer les offres visibles pour un utilisateur selon son rï¿½le
    */
   static async getOffersForUser(
     userId: mongoose.Types.ObjectId,
@@ -113,19 +113,19 @@ export class OfferService {
 
   const filter: any = { status };
 
-      // Logique de visibilit� intelligente
+      // Logique de visibilitï¿½ intelligente
       if (zone === 'marketplace') {
         // Marketplace = tout le monde peut voir
         filter.zone = 'marketplace';
       } else if (zone === 'information-globale') {
-        // Information Globale = v�rifier targetRoles
+        // Information Globale = vï¿½rifier targetRoles
         filter.zone = 'information-globale';
         filter.$or = [
           { targetRoles: 'all' },
           { targetRoles: userRole }
         ];
       } else {
-        // Pas de zone sp�cifi�e = les deux
+        // Pas de zone spï¿½cifiï¿½e = les deux
         filter.$or = [
           { zone: 'marketplace' },
           {
@@ -171,14 +171,14 @@ export class OfferService {
       return { offers: offers as unknown as IOffer[], total, unreadCount };
 
     } catch (error) {
-      // console.error('? Erreur r�cup�ration offres:', error);
+      // console.error('? Erreur rï¿½cupï¿½ration offres:', error);
       throw error;
     }
   }
 
   /**
    * Recommander des offres pertinentes pour un utilisateur
-   * (bas� sur son r�le, ses int�r�ts, son historique)
+   * (basï¿½ sur son rï¿½le, ses intï¿½rï¿½ts, son historique)
    */
   static async getRecommendedOffers(
     userId: mongoose.Types.ObjectId,
@@ -187,7 +187,7 @@ export class OfferService {
   ): Promise<IOffer[]> {
     try {
       // Algorithme simple de recommandation
-      // TODO: Am�liorer avec ML / historique d'interactions
+      // TODO: Amï¿½liorer avec ML / historique d'interactions
 
   const recommendations = await Offer.find({
         status: 'active',
@@ -202,7 +202,7 @@ export class OfferService {
             ]
           }
         ],
-        // Offres r�centes (derni�res 30 jours)
+        // Offres rï¿½centes (derniï¿½res 30 jours)
         createdAt: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
       })
         .populate('publishedBy', 'name companyName')
@@ -227,15 +227,15 @@ export class OfferService {
   const offer = await Offer.findById(offerId).lean().exec();
 
       if (!offer) {
-        throw new Error('Offre non trouv�e');
+        throw new Error('Offre non trouvï¿½e');
       }
 
       const stats: OfferStats = {
         views: offer.views,
         uniqueViews: Array.isArray(offer.viewedBy) ? offer.viewedBy.length : 0,
         responses: Array.isArray(offer.responses) ? offer.responses.length : 0,
-        conversions: 0, // TODO: Calculer conversions (devis accept�s, etc.)
-        avgResponseTime: 0 // TODO: Calculer temps moyen de r�ponse
+        conversions: 0, // TODO: Calculer conversions (devis acceptï¿½s, etc.)
+        avgResponseTime: 0 // TODO: Calculer temps moyen de rï¿½ponse
       };
 
       return stats;
@@ -247,8 +247,8 @@ export class OfferService {
   }
 
   /**
-   * Expirer automatiquement les offres p�rim�es
-   * (� appeler via cron job toutes les heures)
+   * Expirer automatiquement les offres pï¿½rimï¿½es
+   * (ï¿½ appeler via cron job toutes les heures)
    */
   static async expireOldOffers(): Promise<number> {
     try {
@@ -262,11 +262,11 @@ export class OfferService {
         }
       ).exec();
 
-      // Pour Mongoose >= 6, le r�sultat est UpdateResult
+      // Pour Mongoose >= 6, le rï¿½sultat est UpdateResult
       const modifiedCount = (result && typeof result.modifiedCount === 'number')
         ? result.modifiedCount
         : 0;
-      // console.log(`? ${modifiedCount} offres expir�es`);
+      // console.log(`? ${modifiedCount} offres expirï¿½es`);
       return modifiedCount;
 
     } catch (error) {
@@ -276,7 +276,7 @@ export class OfferService {
   }
 
   /**
-   * Obtenir les offres tendances (plus de vues/r�ponses r�cemment)
+   * Obtenir les offres tendances (plus de vues/rï¿½ponses rï¿½cemment)
    */
   static async getTrendingOffers(
     userRole: UserRole,
@@ -305,7 +305,7 @@ export class OfferService {
             score: {
               $add: [
                 '$views',
-                { $multiply: [{ $size: '$responses' }, 5] } // R�ponses p�sent 5x plus
+                { $multiply: [{ $size: '$responses' }, 5] } // Rï¿½ponses pï¿½sent 5x plus
               ]
             }
           }
@@ -318,7 +318,7 @@ export class OfferService {
         }
       ]);
 
-      // Peupler les r�f�rences
+      // Peupler les rï¿½fï¿½rences
       const trendingArr: any[] = await (trending as any).exec();
       const trendingIds: string[] = trendingArr.map((t: any) => t._id);
       const offers = await Offer.find({ _id: { $in: trendingIds } })
@@ -345,15 +345,15 @@ export class OfferService {
   const originalOffer = await Offer.findById(offerId).lean().exec();
 
       if (!originalOffer) {
-        throw new Error('Offre originale non trouv�e');
+        throw new Error('Offre originale non trouvï¿½e');
       }
 
-      // V�rifier propri�taire
+      // Vï¿½rifier propriï¿½taire
       if (originalOffer.publishedBy.toString() !== userId.toString()) {
         throw new Error('Vous ne pouvez dupliquer que vos propres offres');
       }
 
-      // Cr�er copie
+      // Crï¿½er copie
   const duplicatedOffer: IOffer = new Offer({
         publishedBy: originalOffer.publishedBy,
         publishedByRole: originalOffer.publishedByRole,
@@ -380,7 +380,7 @@ export class OfferService {
 
       await duplicatedOffer.save();
 
-      // console.log(`? Offre dupliqu�e: ${duplicatedOffer._id}`);
+      // console.log(`? Offre dupliquï¿½e: ${duplicatedOffer._id}`);
       return duplicatedOffer;
 
     } catch (error) {

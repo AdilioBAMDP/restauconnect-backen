@@ -1,52 +1,52 @@
 /**
- * MODÈLE QUOTE - Système de devis
+ * MODÃƒË†LE QUOTE - SystÃƒÂ¨me de devis
  * 
- * Permet aux artisans (et autres prestataires) de créer et envoyer des devis
- * aux clients suite à une demande dans une offre.
+ * Permet aux artisans (et autres prestataires) de crÃƒÂ©er et envoyer des devis
+ * aux clients suite ÃƒÂ  une demande dans une offre.
  * 
  * Workflow :
  * 1. Client publie offre "Besoin frigoriste"
- * 2. Artisan répond via chat
- * 3. Artisan crée un devis
- * 4. Devis envoyé au client via chat
- * 5. Client accepte/refuse/négocie
+ * 2. Artisan rÃƒÂ©pond via chat
+ * 3. Artisan crÃƒÂ©e un devis
+ * 4. Devis envoyÃƒÂ© au client via chat
+ * 5. Client accepte/refuse/nÃƒÂ©gocie
  * 
- * Fonctionnalités :
- * - Lignes de devis détaillées
+ * FonctionnalitÃƒÂ©s :
+ * - Lignes de devis dÃƒÂ©taillÃƒÂ©es
  * - Calcul automatique TTC/HT
- * - Génération PDF
+ * - GÃƒÂ©nÃƒÂ©ration PDF
  * - Historique des versions
- * - Signature électronique
+ * - Signature ÃƒÂ©lectronique
  */
 
 import mongoose, { Schema, Document } from 'mongoose';
 
 // Statuts du devis
 export type QuoteStatus = 
-  | 'draft'      // Brouillon non envoyé
-  | 'sent'       // Envoyé au client
+  | 'draft'      // Brouillon non envoyÃƒÂ©
+  | 'sent'       // EnvoyÃƒÂ© au client
   | 'viewed'     // Vu par le client
-  | 'accepted'   // Accepté
-  | 'rejected'   // Refusé
-  | 'expired';   // Expiré
+  | 'accepted'   // AcceptÃƒÂ©
+  | 'rejected'   // RefusÃƒÂ©
+  | 'expired';   // ExpirÃƒÂ©
 
 // Interface pour une ligne de devis
 export interface IQuoteLine {
   description: string;
   quantity: number;
   unitPrice: number;
-  unit: string; // 'pièce', 'heure', 'forfait', 'm²', etc.
+  unit: string; // 'piÃƒÂ¨ce', 'heure', 'forfait', 'mÃ‚Â²', etc.
   vatRate: number; // Taux TVA en % (20, 10, 5.5, 2.1, 0)
-  totalHT: number; // Calculé automatiquement
-  totalTTC: number; // Calculé automatiquement
+  totalHT: number; // CalculÃƒÂ© automatiquement
+  totalTTC: number; // CalculÃƒÂ© automatiquement
 }
 
-// Interface principale du modèle Quote
+// Interface principale du modÃƒÂ¨le Quote
 export interface IQuote extends Document {
-  // Références
-  quoteNumber: string; // Numéro unique (ex: DEV-2025-001)
+  // RÃƒÂ©fÃƒÂ©rences
+  quoteNumber: string; // NumÃƒÂ©ro unique (ex: DEV-2025-001)
   offerId?: mongoose.Types.ObjectId; // Offre d'origine
-  conversationId?: mongoose.Types.ObjectId; // Conversation associée
+  conversationId?: mongoose.Types.ObjectId; // Conversation associÃƒÂ©e
   
   // Parties prenantes
   providerId: mongoose.Types.ObjectId; // Qui fait le devis (artisan, fournisseur, etc.)
@@ -60,7 +60,7 @@ export interface IQuote extends Document {
     email?: string;
   };
   
-  clientId: mongoose.Types.ObjectId; // Qui reçoit le devis
+  clientId: mongoose.Types.ObjectId; // Qui reÃƒÂ§oit le devis
   clientName: string;
   clientRole: string;
   clientDetails: {
@@ -71,18 +71,18 @@ export interface IQuote extends Document {
   };
   
   // Contenu du devis
-  title: string; // Ex: "Réparation chambre froide"
-  description?: string; // Description générale
-  lines: IQuoteLine[]; // Lignes de détail
+  title: string; // Ex: "RÃƒÂ©paration chambre froide"
+  description?: string; // Description gÃƒÂ©nÃƒÂ©rale
+  lines: IQuoteLine[]; // Lignes de dÃƒÂ©tail
   
   // Montants
-  subtotalHT: number; // Total HT (calculé)
-  totalVAT: number; // Total TVA (calculé)
-  totalTTC: number; // Total TTC (calculé)
+  subtotalHT: number; // Total HT (calculÃƒÂ©)
+  totalVAT: number; // Total TVA (calculÃƒÂ©)
+  totalTTC: number; // Total TTC (calculÃƒÂ©)
   
   // Conditions
-  validUntil: Date; // Date de validité
-  paymentTerms?: string; // "50% à la commande, 50% à la livraison"
+  validUntil: Date; // Date de validitÃƒÂ©
+  paymentTerms?: string; // "50% ÃƒÂ  la commande, 50% ÃƒÂ  la livraison"
   deliveryDelay?: string; // "Sous 48h", "2 semaines"
   warranty?: string; // Garantie
   notes?: string; // Notes additionnelles
@@ -96,15 +96,15 @@ export interface IQuote extends Document {
   rejectedAt?: Date;
   rejectionReason?: string;
   
-  // Versions (si devis modifié après envoi)
-  version: number; // Commence à 1
+  // Versions (si devis modifiÃƒÂ© aprÃƒÂ¨s envoi)
+  version: number; // Commence ÃƒÂ  1
   previousVersionId?: mongoose.Types.ObjectId;
   
   // Fichiers
-  pdfUrl?: string; // URL du PDF généré
+  pdfUrl?: string; // URL du PDF gÃƒÂ©nÃƒÂ©rÃƒÂ©
   attachments?: string[]; // Photos, docs additionnels
   
-  // Signature électronique
+  // Signature ÃƒÂ©lectronique
   signedByClient?: {
     signedAt: Date;
     signature: string; // Base64 ou URL
@@ -115,7 +115,7 @@ export interface IQuote extends Document {
   updatedAt: Date;
 }
 
-// Sous-schéma pour les lignes de devis
+// Sous-schÃƒÂ©ma pour les lignes de devis
 const QuoteLineSchema = new Schema({
   description: {
     type: String,
@@ -135,7 +135,7 @@ const QuoteLineSchema = new Schema({
   unit: {
     type: String,
     required: true,
-    default: 'pièce'
+    default: 'piÃƒÂ¨ce'
   },
   vatRate: {
     type: Number,
@@ -154,7 +154,7 @@ const QuoteLineSchema = new Schema({
   }
 }, { _id: false });
 
-// Schéma principal Quote
+// SchÃƒÂ©ma principal Quote
 const QuoteSchema: Schema = new Schema(
   {
     quoteNumber: {
@@ -300,12 +300,12 @@ const QuoteSchema: Schema = new Schema(
   }
 );
 
-// Index composés
+// Index composÃƒÂ©s
 QuoteSchema.index({ providerId: 1, status: 1, createdAt: -1 });
 QuoteSchema.index({ clientId: 1, status: 1, createdAt: -1 });
 QuoteSchema.index({ status: 1, validUntil: 1 }); // Pour expiration automatique
 
-// Middleware pour générer le numéro de devis
+// Middleware pour gÃƒÂ©nÃƒÂ©rer le numÃƒÂ©ro de devis
 QuoteSchema.pre('save', async function(this: IQuote, next) {
   if (this.isNew && !this.quoteNumber) {
     const year = new Date().getFullYear();
@@ -320,7 +320,7 @@ QuoteSchema.pre('save', async function(this: IQuote, next) {
     this.quoteNumber = `DEV-${year}-${number}`;
   }
   
-  // Vérifier expiration
+  // VÃƒÂ©rifier expiration
   if (this.validUntil < new Date() && this.status !== 'accepted' && this.status !== 'rejected') {
     this.status = 'expired';
   }
@@ -328,7 +328,7 @@ QuoteSchema.pre('save', async function(this: IQuote, next) {
   next();
 });
 
-// Méthode pour calculer les totaux
+// MÃƒÂ©thode pour calculer les totaux
 QuoteSchema.methods.calculateTotals = function() {
   let subtotalHT = 0;
   let totalVAT = 0;
@@ -352,17 +352,17 @@ QuoteSchema.methods.calculateTotals = function() {
   return this;
 };
 
-// Méthode pour envoyer le devis
+// MÃƒÂ©thode pour envoyer le devis
 QuoteSchema.methods.send = function() {
   if (this.status === 'draft') {
     this.status = 'sent';
     this.sentAt = new Date();
     return this.save();
   }
-  throw new Error('Seul un devis en brouillon peut être envoyé');
+  throw new Error('Seul un devis en brouillon peut ÃƒÂªtre envoyÃƒÂ©');
 };
 
-// Méthode pour marquer comme vu
+// MÃƒÂ©thode pour marquer comme vu
 QuoteSchema.methods.markAsViewed = function() {
   if (this.status === 'sent' && !this.viewedAt) {
     this.status = 'viewed';
@@ -372,7 +372,7 @@ QuoteSchema.methods.markAsViewed = function() {
   return Promise.resolve(this);
 };
 
-// Méthode pour accepter
+// MÃƒÂ©thode pour accepter
 QuoteSchema.methods.accept = function() {
   if (['sent', 'viewed'].includes(this.status)) {
     this.status = 'accepted';
@@ -380,10 +380,10 @@ QuoteSchema.methods.accept = function() {
     this.respondedAt = new Date();
     return this.save();
   }
-  throw new Error('Seul un devis envoyé ou vu peut être accepté');
+  throw new Error('Seul un devis envoyÃƒÂ© ou vu peut ÃƒÂªtre acceptÃƒÂ©');
 };
 
-// Méthode pour refuser
+// MÃƒÂ©thode pour refuser
 QuoteSchema.methods.reject = function(reason?: string) {
   if (['sent', 'viewed'].includes(this.status)) {
     this.status = 'rejected';
@@ -392,7 +392,7 @@ QuoteSchema.methods.reject = function(reason?: string) {
     this.rejectionReason = reason;
     return this.save();
   }
-  throw new Error('Seul un devis envoyé ou vu peut être refusé');
+  throw new Error('Seul un devis envoyÃƒÂ© ou vu peut ÃƒÂªtre refusÃƒÂ©');
 };
 
 const QuoteModel = mongoose.model<IQuote>('Quote', QuoteSchema) as mongoose.Model<IQuote>;

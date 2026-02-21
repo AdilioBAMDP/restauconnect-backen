@@ -1,4 +1,4 @@
-﻿import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
 // Batch Status enum
 export enum BatchStatus {
@@ -193,7 +193,7 @@ BatchSchema.pre('save', async function(next) {
 // Instance Methods
 BatchSchema.methods.reserve = async function(quantity: number) {
   if (this.currentQuantity - this.reservedQuantity < quantity) {
-    throw new Error('Quantité insuffisante disponible pour réservation');
+    throw new Error('QuantitÃ© insuffisante disponible pour rÃ©servation');
   }
   
   this.reservedQuantity += quantity;
@@ -206,7 +206,7 @@ BatchSchema.methods.reserve = async function(quantity: number) {
 
 BatchSchema.methods.consume = async function(quantity: number) {
   if (this.currentQuantity < quantity) {
-    throw new Error('Quantité insuffisante pour consommation');
+    throw new Error('QuantitÃ© insuffisante pour consommation');
   }
   
   this.currentQuantity -= quantity;

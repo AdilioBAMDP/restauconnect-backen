@@ -1,13 +1,13 @@
-﻿import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
 // Movement Type enum
 export enum MovementType {
-  RECEPTION = 'reception',      // Réception de marchandises
-  SHIPMENT = 'shipment',         // Expédition
+  RECEPTION = 'reception',      // RÃ©ception de marchandises
+  SHIPMENT = 'shipment',         // ExpÃ©dition
   TRANSFER = 'transfer',         // Transfert entre emplacements
   ADJUSTMENT = 'adjustment',     // Ajustement d'inventaire
-  RESERVATION = 'reservation',   // Réservation
-  RELEASE = 'release',           // Libération de réservation
+  RESERVATION = 'reservation',   // RÃ©servation
+  RELEASE = 'release',           // LibÃ©ration de rÃ©servation
   CONSUMPTION = 'consumption',   // Consommation
   RETURN = 'return',             // Retour
   DAMAGE = 'damage',             // Avarie
@@ -42,7 +42,7 @@ export interface IStockMovement extends Document {
   unit: string;
   
   // User & Validation
-  userId: mongoose.Types.ObjectId;        // Utilisateur qui a effectué le mouvement
+  userId: mongoose.Types.ObjectId;        // Utilisateur qui a effectuÃ© le mouvement
   validatedBy?: mongoose.Types.ObjectId;  // Validateur
   validatedAt?: Date;
   

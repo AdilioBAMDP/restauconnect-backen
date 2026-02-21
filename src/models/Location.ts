@@ -1,4 +1,4 @@
-﻿import mongoose, { Schema, Document, Model } from 'mongoose';
+import mongoose, { Schema, Document, Model } from 'mongoose';
 
 // Location Type enum
 export enum LocationType {
@@ -26,7 +26,7 @@ export interface ILocation extends Document {
   position?: number;
   
   // Capacity
-  maxVolume?: number;  // mÂ³
+  maxVolume?: number;  // mÃ‚Â³
   maxWeight?: number;  // kg
   currentVolume: number;
   currentWeight: number;
@@ -119,7 +119,7 @@ LocationSchema.methods.checkCapacity = function(
 
 LocationSchema.methods.occupy = async function(volume: number, weight: number) {
   if (!this.checkCapacity(volume, weight)) {
-    throw new Error('CapacitÃ© insuffisante dans cet emplacement');
+    throw new Error('CapacitÃƒÂ© insuffisante dans cet emplacement');
   }
   
   this.currentVolume += volume;

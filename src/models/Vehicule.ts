@@ -6,7 +6,7 @@ export interface IVehicule extends Document {
   brand: string;
   vehicleModel: string;
   type: 'van' | 'truck' | 'refrigerated' | 'motorcycle';
-  capacity: number; // En m³ ou kg
+  capacity: number; // En mÃ‚Â³ ou kg
   year: number;
   status: 'available' | 'in_use' | 'maintenance' | 'out_of_service';
   currentLocation?: {
@@ -103,6 +103,6 @@ const VehiculeSchema: Schema = new Schema(
 
 // Index pour recherche rapide
 VehiculeSchema.index({ transporteurId: 1, status: 1 });
-// registrationNumber déjà indexé via unique: true
+// registrationNumber dÃƒÂ©jÃƒÂ  indexÃƒÂ© via unique: true
 
 export const Vehicule = mongoose.model<IVehicule>('Vehicule', VehiculeSchema);

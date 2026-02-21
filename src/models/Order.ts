@@ -1,4 +1,4 @@
-﻿import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 // Order Status enum
 export enum OrderStatus {
@@ -138,7 +138,7 @@ export interface IOrder extends Document {
   cancelReason?: string;
   cancelledBy?: mongoose.Types.ObjectId;
   
-  // Instance Methods (déclarations TypeScript)
+  // Instance Methods (dÃ©clarations TypeScript)
   updateStatus(newStatus: OrderStatus, userId?: mongoose.Types.ObjectId, note?: string): Promise<this>;
   canBeCancelled(): boolean;
   calculateTotal(): number;

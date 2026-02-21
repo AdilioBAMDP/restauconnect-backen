@@ -20,7 +20,7 @@ export interface DeliveryAddress {
   contactEmail?: string;
 }
 
-// Interface pour les items � livrer
+// Interface pour les items Ã¯Â¿Â½ livrer
 export interface DeliveryItem {
   name: string;
   description?: string;
@@ -37,7 +37,7 @@ export interface DeliveryItem {
   category: 'food' | 'equipment' | 'supplies' | 'documents' | 'other';
 }
 
-// Interface pour le suivi temps r�el
+// Interface pour le suivi temps rÃ¯Â¿Â½el
 export interface DeliveryTracking {
   status: 'pending' | 'assigned' | 'pickup_pending' | 'picked_up' | 'in_transit' | 'delivered' | 'failed' | 'cancelled';
   timestamp: Date;
@@ -74,14 +74,14 @@ export interface DeliveryEstimate {
 export interface Delivery {
   _id: string;
   
-  // R�f�rences aux utilisateurs
+  // RÃ¯Â¿Â½fÃ¯Â¿Â½rences aux utilisateurs
   requesterId: mongoose.Types.ObjectId; // Restaurant qui demande
   supplierId: mongoose.Types.ObjectId;  // Fournisseur source
-  driverId?: mongoose.Types.ObjectId;   // Livreur assign�
-  orderId?: mongoose.Types.ObjectId;    // Commande li�e (optionnel)
+  driverId?: mongoose.Types.ObjectId;   // Livreur assignÃ¯Â¿Â½
+  orderId?: mongoose.Types.ObjectId;    // Commande liÃ¯Â¿Â½e (optionnel)
   
   // Informations de base
-  deliveryNumber: string; // Num�ro unique de livraison
+  deliveryNumber: string; // NumÃ¯Â¿Â½ro unique de livraison
   priority: 'low' | 'normal' | 'high' | 'urgent';
   type: 'standard' | 'express' | 'scheduled' | 'return';
   
@@ -89,7 +89,7 @@ export interface Delivery {
   pickupAddress: DeliveryAddress;
   deliveryAddress: DeliveryAddress;
   
-  // Items � livrer
+  // Items Ã¯Â¿Â½ livrer
   items: DeliveryItem[];
   totalWeight: number; // kg
   totalValue: number;  // euros
@@ -110,7 +110,7 @@ export interface Delivery {
   // Tarification
   pricing: DeliveryPricing;
   
-  // Instructions sp�ciales
+  // Instructions spÃ¯Â¿Â½ciales
   specialInstructions?: string;
   requiresRefrigeration: boolean;
   requiresSignature: boolean;
@@ -120,11 +120,11 @@ export interface Delivery {
   waybillPdfPath?: string;
   
   // Codes de confirmation et signatures
-  pickupCode?: string;          // Code pour l'enlèvement (donné par le fournisseur)
-  pickupCodeValidated?: boolean; // Code validé lors de l'enlèvement
+  pickupCode?: string;          // Code pour l'enlÃƒÂ¨vement (donnÃƒÂ© par le fournisseur)
+  pickupCodeValidated?: boolean; // Code validÃƒÂ© lors de l'enlÃƒÂ¨vement
   pickupSignature?: string;     // Signature base64 du fournisseur
-  deliveryCode?: string;        // Code pour la livraison (donné par le destinataire)
-  deliveryCodeValidated?: boolean; // Code validé lors de la livraison
+  deliveryCode?: string;        // Code pour la livraison (donnÃƒÂ© par le destinataire)
+  deliveryCodeValidated?: boolean; // Code validÃƒÂ© lors de la livraison
   deliverySignature?: string;   // Signature base64 du destinataire
   
   // Tentatives de livraison
@@ -136,7 +136,7 @@ export interface Delivery {
     nextAttemptScheduled?: Date;
   }[];
   
-  // Feedback et �valuation
+  // Feedback et Ã¯Â¿Â½valuation
   rating?: {
     fromRequester: {
       score: number;
@@ -167,7 +167,7 @@ export interface Delivery {
     };
   };
   
-  // Gestion des probl�mes
+  // Gestion des problÃ¯Â¿Â½mes
   issues?: {
     type: 'damage' | 'delay' | 'incorrect_address' | 'recipient_unavailable' | 'other';
     description: string;
@@ -317,7 +317,7 @@ const IssueSchema = new Schema({
 });
 
 const DeliverySchema = new Schema({
-  // R�f�rences
+  // RÃ¯Â¿Â½fÃ¯Â¿Â½rences
   requesterId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   supplierId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   driverId: { type: Schema.Types.ObjectId, ref: 'Driver' },
@@ -391,13 +391,13 @@ const DeliverySchema = new Schema({
   // Tentatives
   deliveryAttempts: [DeliveryAttemptSchema],
   
-  // �valuations
+  // Ã¯Â¿Â½valuations
   rating: RatingSchema,
   
   // Preuves
   proofOfDelivery: ProofOfDeliverySchema,
   
-  // Probl�mes
+  // ProblÃ¯Â¿Â½mes
   issues: [IssueSchema],
   
   // Dates importantes
@@ -416,7 +416,7 @@ const DeliverySchema = new Schema({
   toObject: { virtuals: true }
 });
 
-// Validation personnalis�e pour les items
+// Validation personnalisÃ¯Â¿Â½e pour les items
 function arrayLimit(val: DeliveryItem[] | undefined | null): boolean {
   return Boolean(val && val.length >= 1);
 }
@@ -433,11 +433,11 @@ DeliverySchema.index({ priority: 1 });
 DeliverySchema.index({ createdAt: -1 });
 DeliverySchema.index({ scheduledPickupTime: 1 });
 
-// Index g�ospatial pour les adresses
+// Index gÃ¯Â¿Â½ospatial pour les adresses
 DeliverySchema.index({ 'pickupAddress.latitude': 1, 'pickupAddress.longitude': 1 });
 DeliverySchema.index({ 'deliveryAddress.latitude': 1, 'deliveryAddress.longitude': 1 });
 
-// Virtuels pour acc�der aux infos utilisateurs
+// Virtuels pour accÃ¯Â¿Â½der aux infos utilisateurs
 DeliverySchema.virtual('requesterInfo', {
   ref: 'User',
   localField: 'requesterId',
@@ -459,7 +459,7 @@ DeliverySchema.virtual('driverInfo', {
   justOne: true
 });
 
-// M�thodes utilitaires
+// MÃ¯Â¿Â½thodes utilitaires
 DeliverySchema.methods.addTracking = function(status: string, note?: string, location?: { latitude: number; longitude: number }) {
   this.trackingHistory.push({
     status,
@@ -475,13 +475,13 @@ DeliverySchema.methods.assignDriver = function(driverId: mongoose.Types.ObjectId
   this.driverId = driverId;
   this.assignedAt = new Date();
   this.status = 'assigned';
-  return this.addTracking('assigned', 'Livreur assign�');
+  return this.addTracking('assigned', 'Livreur assignÃ¯Â¿Â½');
 };
 
 DeliverySchema.methods.markAsPickedUp = function(location?: { latitude: number; longitude: number }) {
   this.pickedUpAt = new Date();
   this.status = 'picked_up';
-  return this.addTracking('picked_up', 'Commande r�cup�r�e', location);
+  return this.addTracking('picked_up', 'Commande rÃ¯Â¿Â½cupÃ¯Â¿Â½rÃ¯Â¿Â½e', location);
 };
 
 DeliverySchema.methods.markAsDelivered = function(proofOfDelivery: {
@@ -497,7 +497,7 @@ DeliverySchema.methods.markAsDelivered = function(proofOfDelivery: {
   this.deliveredAt = new Date();
   this.status = 'delivered';
   this.proofOfDelivery = proofOfDelivery;
-  return this.addTracking('delivered', 'Commande livr�e', proofOfDelivery.gpsLocation);
+  return this.addTracking('delivered', 'Commande livrÃ¯Â¿Â½e', proofOfDelivery.gpsLocation);
 };
 
 DeliverySchema.methods.cancel = function(reason: string, cancelledBy: mongoose.Types.ObjectId) {
@@ -505,7 +505,7 @@ DeliverySchema.methods.cancel = function(reason: string, cancelledBy: mongoose.T
   this.cancelledAt = new Date();
   this.cancellationReason = reason;
   this.cancelledBy = cancelledBy;
-  return this.addTracking('cancelled', `Livraison annul�e: ${reason}`);
+  return this.addTracking('cancelled', `Livraison annulÃ¯Â¿Â½e: ${reason}`);
 };
 
 DeliverySchema.methods.calculateDistance = function(): number {
@@ -542,7 +542,7 @@ DeliverySchema.pre('save', function(next) {
     }, 0);
   }
   
-  // V�rification des r�f�rences d'items r�frig�r�s
+  // VÃ¯Â¿Â½rification des rÃ¯Â¿Â½fÃ¯Â¿Â½rences d'items rÃ¯Â¿Â½frigÃ¯Â¿Â½rÃ¯Â¿Â½s
   if (this.items && this.items.length > 0) {
     this.requiresRefrigeration = this.items.some((item: any) => item.refrigerated);
   }
@@ -553,7 +553,7 @@ DeliverySchema.pre('save', function(next) {
 // Middleware post-save pour notifications
 DeliverySchema.post('save', function(doc) {
   // TODO: Envoyer notifications via Socket.IO quand le statut change
-  // Sera impl�ment� dans le service de notifications
+  // Sera implÃ¯Â¿Â½mentÃ¯Â¿Â½ dans le service de notifications
 });
 
 export const DeliveryModel = mongoose.models.Delivery || mongoose.model<DeliveryDocumentDB>('Delivery', DeliverySchema);

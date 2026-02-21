@@ -1,4 +1,4 @@
-// Étend le type Express Request pour inclure la propriété user (AuthRequest)
+// Ãƒâ€°tend le type Express Request pour inclure la propriÃƒÂ©tÃƒÂ© user (AuthRequest)
 import { User } from './types';
 declare global {
 	namespace Express {

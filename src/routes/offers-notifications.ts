@@ -1,12 +1,12 @@
 /**
- * ROUTES API NOTIFICATIONS OFFRES - Extension du système de notifications existant
+ * ROUTES API NOTIFICATIONS OFFRES - Extension du systÃƒÂ¨me de notifications existant
  * 
- * Ce fichier COMPLÈTE (ne remplace pas) le fichier notifications.ts existant.
- * Il ajoute des endpoints spécifiques au système d'offres.
+ * Ce fichier COMPLÃƒË†TE (ne remplace pas) le fichier notifications.ts existant.
+ * Il ajoute des endpoints spÃƒÂ©cifiques au systÃƒÂ¨me d'offres.
  * 
  * Endpoints additionnels :
  * - GET /api/offers-notifications/by-type - Filtrer par type d'offre
- * - POST /api/offers-notifications/bulk-send - Envoyer notifs groupées (urgent offers)
+ * - POST /api/offers-notifications/bulk-send - Envoyer notifs groupÃƒÂ©es (urgent offers)
  */
 
 import express, { Request, Response } from 'express';
@@ -53,30 +53,30 @@ router.get('/by-type', async (req: Request, res: Response): Promise<any> => {
 
 /**
  * POST /api/offers-notifications/bulk-send
- * Envoyer notifications groupées (pour offres urgentes)
- * Appelé automatiquement lors création offre urgente
+ * Envoyer notifications groupÃƒÂ©es (pour offres urgentes)
+ * AppelÃƒÂ© automatiquement lors crÃƒÂ©ation offre urgente
  */
 router.post('/bulk-send', async (req: Request, res: Response): Promise<any> => {
   try {
     const user = (req as any).user;
     const { offerId, targetRoles, title, message } = req.body;
     
-    // Vérifier que l'utilisateur a créé cette offre
-    // TODO: Vérifier ownership de l'offre
+    // VÃƒÂ©rifier que l'utilisateur a crÃƒÂ©ÃƒÂ© cette offre
+    // TODO: VÃƒÂ©rifier ownership de l'offre
     
-    // TODO: Récupérer tous les users avec les rôles ciblés
+    // TODO: RÃƒÂ©cupÃƒÂ©rer tous les users avec les rÃƒÂ´les ciblÃƒÂ©s
     // Pour l'instant, endpoint placeholder
     
     res.json({
       success: true,
-      message: 'Notifications groupées envoyées (à implémenter dans Phase 3)'
+      message: 'Notifications groupÃƒÂ©es envoyÃƒÂ©es (ÃƒÂ  implÃƒÂ©menter dans Phase 3)'
     });
     
   } catch (error: any) {
-    logger.error('Erreur envoi groupé:', error);
+    logger.error('Erreur envoi groupÃƒÂ©:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de l\'envoi groupé'
+      error: error.message || 'Erreur lors de l\'envoi groupÃƒÂ©'
     });
   }
 });

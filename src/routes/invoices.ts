@@ -14,33 +14,33 @@ const router = express.Router();
 
 /**
  * GET /api/invoices/:orderId/download
- * Télécharge le PDF de la facture
+ * TÃƒÂ©lÃƒÂ©charge le PDF de la facture
  */
 router.get('/:orderId/download', authenticateToken, async (req: Request, res: Response) => {
   try {
     const { orderId } = req.params;
 
-    // Récupérer la commande
+    // RÃƒÂ©cupÃƒÂ©rer la commande
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ error: 'Commande introuvable' });
     }
 
-    // Vérifier qu'une facture existe
+    // VÃƒÂ©rifier qu'une facture existe
     if (!order.invoice?.invoiceNumber) {
-      return res.status(404).json({ error: 'Aucune facture générée pour cette commande' });
+      return res.status(404).json({ error: 'Aucune facture gÃƒÂ©nÃƒÂ©rÃƒÂ©e pour cette commande' });
     }
 
-    // Récupérer le chemin du PDF
+    // RÃƒÂ©cupÃƒÂ©rer le chemin du PDF
     const pdfPath = InvoiceService.getInvoicePdfPath(order.invoice.invoiceNumber);
 
-    // Vérifier que le fichier existe
+    // VÃƒÂ©rifier que le fichier existe
     if (!fs.existsSync(pdfPath)) {
       logger.error(`Fichier PDF introuvable : ${pdfPath}`);
       return res.status(404).json({ error: 'Fichier PDF introuvable' });
     }
 
-    // Définir les headers pour le téléchargement
+    // DÃƒÂ©finir les headers pour le tÃƒÂ©lÃƒÂ©chargement
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="${order.invoice.invoiceNumber}.pdf"`);
 
@@ -48,11 +48,11 @@ router.get('/:orderId/download', authenticateToken, async (req: Request, res: Re
     const fileStream = fs.createReadStream(pdfPath);
     fileStream.pipe(res);
 
-    logger.info(`📥 Facture téléchargée : ${order.invoice.invoiceNumber}`);
+    logger.info(`Ã°Å¸â€œÂ¥ Facture tÃƒÂ©lÃƒÂ©chargÃƒÂ©e : ${order.invoice.invoiceNumber}`);
 
   } catch (error) {
-    logger.error('Erreur téléchargement facture:', error);
-    res.status(500).json({ error: 'Erreur lors du téléchargement de la facture' });
+    logger.error('Erreur tÃƒÂ©lÃƒÂ©chargement facture:', error);
+    res.status(500).json({ error: 'Erreur lors du tÃƒÂ©lÃƒÂ©chargement de la facture' });
   }
 });
 
@@ -70,7 +70,7 @@ router.get('/:orderId/preview', authenticateToken, async (req: Request, res: Res
     }
 
     if (!order.invoice?.invoiceNumber) {
-      return res.status(404).json({ error: 'Aucune facture générée pour cette commande' });
+      return res.status(404).json({ error: 'Aucune facture gÃƒÂ©nÃƒÂ©rÃƒÂ©e pour cette commande' });
     }
 
     const pdfPath = InvoiceService.getInvoicePdfPath(order.invoice.invoiceNumber);
@@ -87,8 +87,8 @@ router.get('/:orderId/preview', authenticateToken, async (req: Request, res: Res
     fileStream.pipe(res);
 
   } catch (error) {
-    logger.error('Erreur prévisualisation facture:', error);
-    res.status(500).json({ error: 'Erreur lors de la prévisualisation de la facture' });
+    logger.error('Erreur prÃƒÂ©visualisation facture:', error);
+    res.status(500).json({ error: 'Erreur lors de la prÃƒÂ©visualisation de la facture' });
   }
 });
 
@@ -100,25 +100,25 @@ router.post('/:orderId/send-email', authenticateToken, async (req: Request, res:
   try {
     const { orderId } = req.params;
 
-    // Vérifier que la commande existe
+    // VÃƒÂ©rifier que la commande existe
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ error: 'Commande introuvable' });
     }
 
-    // Vérifier qu'une facture existe
+    // VÃƒÂ©rifier qu'une facture existe
     if (!order.invoice?.invoiceNumber) {
-      return res.status(404).json({ error: 'Aucune facture générée pour cette commande' });
+      return res.status(404).json({ error: 'Aucune facture gÃƒÂ©nÃƒÂ©rÃƒÂ©e pour cette commande' });
     }
 
     // Envoyer l'email
     const result = await InvoiceService.sendInvoiceEmail(orderId);
 
     if (result.success) {
-      logger.info(`📧 Email facture envoyé pour commande ${orderId}`);
+      logger.info(`Ã°Å¸â€œÂ§ Email facture envoyÃƒÂ© pour commande ${orderId}`);
       res.json({
         success: true,
-        message: 'Facture envoyée par email avec succès'
+        message: 'Facture envoyÃƒÂ©e par email avec succÃƒÂ¨s'
       });
     } else {
       res.status(500).json({
@@ -135,19 +135,19 @@ router.post('/:orderId/send-email', authenticateToken, async (req: Request, res:
 
 /**
  * POST /api/invoices/:orderId/generate
- * Génère manuellement une facture (si elle n'existe pas encore)
+ * GÃƒÂ©nÃƒÂ¨re manuellement une facture (si elle n'existe pas encore)
  */
 router.post('/:orderId/generate', authenticateToken, async (req: Request, res: Response) => {
   try {
     const { orderId } = req.params;
 
-    // Vérifier que la commande existe
+    // VÃƒÂ©rifier que la commande existe
     const order = await Order.findById(orderId);
     if (!order) {
       return res.status(404).json({ error: 'Commande introuvable' });
     }
 
-    // Générer la facture
+    // GÃƒÂ©nÃƒÂ©rer la facture
     const result = await InvoiceService.generateInvoice(orderId);
 
     if (result.success) {
@@ -155,30 +155,30 @@ router.post('/:orderId/generate', authenticateToken, async (req: Request, res: R
         success: true,
         invoiceNumber: result.invoiceNumber,
         pdfUrl: result.pdfUrl,
-        message: 'Facture générée avec succès'
+        message: 'Facture gÃƒÂ©nÃƒÂ©rÃƒÂ©e avec succÃƒÂ¨s'
       });
     } else {
       res.status(500).json({
         success: false,
-        error: result.error || 'Erreur lors de la génération de la facture'
+        error: result.error || 'Erreur lors de la gÃƒÂ©nÃƒÂ©ration de la facture'
       });
     }
 
   } catch (error) {
-    logger.error('Erreur génération manuelle facture:', error);
-    res.status(500).json({ error: 'Erreur lors de la génération de la facture' });
+    logger.error('Erreur gÃƒÂ©nÃƒÂ©ration manuelle facture:', error);
+    res.status(500).json({ error: 'Erreur lors de la gÃƒÂ©nÃƒÂ©ration de la facture' });
   }
 });
 
 /**
  * GET /api/invoices/:orderId/status
- * Récupère le statut de la facture
+ * RÃƒÂ©cupÃƒÂ¨re le statut de la facture
  */
 router.get('/:orderId/status', authenticateToken, async (req: Request, res: Response) => {
   try {
     const { orderId } = req.params;
 
-    // Vérifier si l'orderId est valide
+    // VÃƒÂ©rifier si l'orderId est valide
     if (!orderId || orderId === 'test-order-id') {
       return res.json({
         exists: false,
@@ -198,7 +198,7 @@ router.get('/:orderId/status', authenticateToken, async (req: Request, res: Resp
       return res.json({
         success: true,
         exists: false,
-        message: 'Aucune facture générée'
+        message: 'Aucune facture gÃƒÂ©nÃƒÂ©rÃƒÂ©e'
       });
     }
 
@@ -214,10 +214,10 @@ router.get('/:orderId/status', authenticateToken, async (req: Request, res: Resp
     });
 
   } catch (error) {
-    logger.error('Erreur récupération statut facture:', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration statut facture:', error);
     res.status(500).json({ 
       success: false,
-      error: 'Erreur lors de la récupération du statut',
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration du statut',
       details: error instanceof Error ? error.message : 'Erreur inconnue'
     });
   }

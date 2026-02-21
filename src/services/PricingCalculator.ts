@@ -2,8 +2,8 @@
  * SERVICE DE CALCUL TARIFAIRE TRANSPORT
  * Algorithme professionnel conforme aux pratiques du secteur
  * 
- * Règle des 3 pour 1 : 1 tonne = 3m³
- * Poids taxable = Max(poids réel, volume/3)
+ * RÃƒÂ¨gle des 3 pour 1 : 1 tonne = 3mÃ‚Â³
+ * Poids taxable = Max(poids rÃƒÂ©el, volume/3)
  */
 
 import { 
@@ -20,21 +20,21 @@ import { logger } from '../utils/logger';
 export class PricingCalculator {
   
   /**
-   * Calcule le poids taxable selon la règle des 3 pour 1
-   * Poids taxable = Max(poids réel en kg, volume en m³ / 3 * 1000)
+   * Calcule le poids taxable selon la rÃƒÂ¨gle des 3 pour 1
+   * Poids taxable = Max(poids rÃƒÂ©el en kg, volume en mÃ‚Â³ / 3 * 1000)
    */
   static calculateTaxableWeight(weight: number, volume: number): number {
-    const volumeWeight = (volume / 3) * 1000; // Convertir m³ en kg
+    const volumeWeight = (volume / 3) * 1000; // Convertir mÃ‚Â³ en kg
     return Math.max(weight, volumeWeight);
   }
 
   /**
-   * Estime les péages autoroutiers selon la distance et le type de véhicule
+   * Estime les pÃƒÂ©ages autoroutiers selon la distance et le type de vÃƒÂ©hicule
    */
   static estimateTolls(distance: number, vehicleType: VehicleType): number {
-    // Tarifs péages moyens 2025 (classe véhicule)
+    // Tarifs pÃƒÂ©ages moyens 2025 (classe vÃƒÂ©hicule)
     const tollRates: Record<VehicleType, number> = {
-      [VehicleType.VUL_SMALL]: 0.10,      // 0.10€/km
+      [VehicleType.VUL_SMALL]: 0.10,      // 0.10Ã¢â€šÂ¬/km
       [VehicleType.VUL_MEDIUM]: 0.12,
       [VehicleType.VUL_LARGE]: 0.14,
       [VehicleType.TRUCK_35T]: 0.18,
@@ -53,7 +53,7 @@ export class PricingCalculator {
   }
 
   /**
-   * Calcule la surcharge carburant (indexée sur prix gazole)
+   * Calcule la surcharge carburant (indexÃƒÂ©e sur prix gazole)
    * Environ 15-20% du prix HT en 2025
    */
   static calculateFuelSurcharge(subtotalHT: number): number {
@@ -62,22 +62,22 @@ export class PricingCalculator {
   }
 
   /**
-   * Détermine le coefficient saisonnier
+   * DÃƒÂ©termine le coefficient saisonnier
    */
   static getSeasonalMultiplier(date: Date, grid: IPricingGrid): number {
     const month = date.getMonth() + 1; // 1-12
     
-    // Haute saison : Septembre-Octobre (rentrée), Novembre-Décembre (Noël)
+    // Haute saison : Septembre-Octobre (rentrÃƒÂ©e), Novembre-DÃƒÂ©cembre (NoÃƒÂ«l)
     if (month >= 11 || month === 9 || month === 10) {
       return grid.seasonalMultipliers.highSeason;
     }
     
-    // Pic : 15 nov - 24 déc (Noël)
+    // Pic : 15 nov - 24 dÃƒÂ©c (NoÃƒÂ«l)
     if (month === 12 && date.getDate() < 25) {
       return grid.seasonalMultipliers.peakSeason;
     }
     
-    // Basse saison : Janvier-Février, Juillet-Août
+    // Basse saison : Janvier-FÃƒÂ©vrier, Juillet-AoÃƒÂ»t
     if (month <= 2 || month >= 7 && month <= 8) {
       return grid.seasonalMultipliers.lowSeason;
     }
@@ -100,7 +100,7 @@ export class PricingCalculator {
       if (gridId) {
         grid = await PricingGrid.findById(gridId);
       } else {
-        // Prendre la grille globale active par défaut
+        // Prendre la grille globale active par dÃƒÂ©faut
         grid = await PricingGrid.findOne({ 
           isGlobal: true, 
           active: true,
@@ -113,17 +113,17 @@ export class PricingCalculator {
       }
 
       if (!grid) {
-        throw new Error('Aucune grille tarifaire active trouvée');
+        throw new Error('Aucune grille tarifaire active trouvÃƒÂ©e');
       }
 
-      // 2. Calcul du poids taxable (règle des 3 pour 1)
+      // 2. Calcul du poids taxable (rÃƒÂ¨gle des 3 pour 1)
       const taxableWeight = this.calculateTaxableWeight(params.weight, params.volume);
-      logger.info(`Poids taxable: ${taxableWeight}kg (poids: ${params.weight}kg, volume: ${params.volume}m³)`);
+      logger.info(`Poids taxable: ${taxableWeight}kg (poids: ${params.weight}kg, volume: ${params.volume}mÃ‚Â³)`);
 
       // 3. Prix de base au poids
       const weightCharge = taxableWeight * grid.rates.perKg;
 
-      // 4. Prix de base à la distance (selon zone)
+      // 4. Prix de base ÃƒÂ  la distance (selon zone)
       const kmRate = grid.rates.perKm[params.zone] || grid.rates.perKm.national;
       const distanceCharge = params.distance * kmRate;
 
@@ -136,7 +136,7 @@ export class PricingCalculator {
       // 6. Prix de base = poids + distance + palettes
       let basePrice = weightCharge + distanceCharge + paletteCharge;
 
-      // 7. Supplément type de véhicule
+      // 7. SupplÃƒÂ©ment type de vÃƒÂ©hicule
       let vehicleSupplement = 0;
       if (params.vehicleType === VehicleType.REFRIGERATED) {
         vehicleSupplement = basePrice * grid.supplements.refrigerated;
@@ -148,7 +148,7 @@ export class PricingCalculator {
         vehicleSupplement = basePrice * grid.supplements.tautliner;
       }
 
-      // 8. Supplément zone géographique
+      // 8. SupplÃƒÂ©ment zone gÃƒÂ©ographique
       let zoneSuplement = 0;
       if (params.zone === PricingZone.MOUNTAIN) {
         zoneSuplement = basePrice * grid.supplements.mountainAccess;
@@ -160,7 +160,7 @@ export class PricingCalculator {
         zoneSuplement = basePrice * grid.supplements.restrictedZone;
       }
 
-      // 9. Suppléments services
+      // 9. SupplÃƒÂ©ments services
       let serviceSupplement = 0;
       
       if (params.services && params.services.length > 0) {
@@ -197,7 +197,7 @@ export class PricingCalculator {
         }
       }
 
-      // Livraison étage
+      // Livraison ÃƒÂ©tage
       if (params.floors && params.floors > 0) {
         serviceSupplement += params.floors * grid.supplements.perFloor;
       }
@@ -231,7 +231,7 @@ export class PricingCalculator {
       // 16. Total TTC
       const totalTTC = Math.round((subtotalHT + vatAmount) * 100) / 100;
 
-      // 17. Détails de la facture
+      // 17. DÃƒÂ©tails de la facture
       const breakdown: IPricingResult['breakdown'] = [
         { label: 'Base poids', amount: Math.round(weightCharge * 100) / 100, type: 'base' },
         { label: 'Base distance', amount: Math.round(distanceCharge * 100) / 100, type: 'base' },
@@ -242,11 +242,11 @@ export class PricingCalculator {
       }
 
       if (vehicleSupplement > 0) {
-        breakdown.push({ label: 'Supp. véhicule spécialisé', amount: Math.round(vehicleSupplement * 100) / 100, type: 'supplement' });
+        breakdown.push({ label: 'Supp. vÃƒÂ©hicule spÃƒÂ©cialisÃƒÂ©', amount: Math.round(vehicleSupplement * 100) / 100, type: 'supplement' });
       }
 
       if (zoneSuplement > 0) {
-        breakdown.push({ label: 'Supp. zone géographique', amount: Math.round(zoneSuplement * 100) / 100, type: 'supplement' });
+        breakdown.push({ label: 'Supp. zone gÃƒÂ©ographique', amount: Math.round(zoneSuplement * 100) / 100, type: 'supplement' });
       }
 
       if (serviceSupplement > 0) {
@@ -254,11 +254,11 @@ export class PricingCalculator {
       }
 
       if (seasonSupplement > 0) {
-        breakdown.push({ label: `Supp. saisonnier (×${seasonMultiplier})`, amount: Math.round(seasonSupplement * 100) / 100, type: 'supplement' });
+        breakdown.push({ label: `Supp. saisonnier (Ãƒâ€”${seasonMultiplier})`, amount: Math.round(seasonSupplement * 100) / 100, type: 'supplement' });
       }
 
       if (tolls > 0) {
-        breakdown.push({ label: 'Péages estimés', amount: tolls, type: 'fee' });
+        breakdown.push({ label: 'PÃƒÂ©ages estimÃƒÂ©s', amount: tolls, type: 'fee' });
       }
 
       if (fuelSurcharge > 0) {
@@ -267,7 +267,7 @@ export class PricingCalculator {
 
       breakdown.push({ label: `TVA (${vatRate * 100}%)`, amount: vatAmount, type: 'tax' });
 
-      // 18. Résultat final
+      // 18. RÃƒÂ©sultat final
       const result: IPricingResult = {
         basePrice: Math.round(basePrice * 100) / 100,
         weightCharge: Math.round(weightCharge * 100) / 100,
@@ -289,7 +289,7 @@ export class PricingCalculator {
         currency: 'EUR'
       };
 
-      logger.info(`Prix calculé: ${totalTTC}€ TTC (HT: ${subtotalHT}€)`);
+      logger.info(`Prix calculÃƒÂ©: ${totalTTC}Ã¢â€šÂ¬ TTC (HT: ${subtotalHT}Ã¢â€šÂ¬)`);
       return result;
 
     } catch (error: any) {
@@ -299,7 +299,7 @@ export class PricingCalculator {
   }
 
   /**
-   * Génère un devis PDF conforme aux normes
+   * GÃƒÂ©nÃƒÂ¨re un devis PDF conforme aux normes
    */
   static async generateQuote(
     params: IPricingCalculation,
@@ -321,8 +321,8 @@ export class PricingCalculator {
       phone: string;
     }
   ): Promise<string> {
-    // TODO: Implémenter génération PDF avec PDFKit
-    // Retourner le chemin du fichier PDF généré
+    // TODO: ImplÃƒÂ©menter gÃƒÂ©nÃƒÂ©ration PDF avec PDFKit
+    // Retourner le chemin du fichier PDF gÃƒÂ©nÃƒÂ©rÃƒÂ©
     return '/exports/quotes/DEVIS-XXXXX.pdf';
   }
 }

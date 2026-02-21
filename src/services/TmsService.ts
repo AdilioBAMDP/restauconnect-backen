@@ -1,4 +1,4 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import {
   Vehicle,
   Driver,
@@ -35,7 +35,7 @@ export enum VehicleType {
   BIKE = 'bike'
 }
 
-// Interfaces pour les paramètres des services
+// Interfaces pour les paramÃ¨tres des services
 export interface DeliveryFilters {
   status?: DeliveryStatus;
   driverId?: string;
@@ -113,7 +113,7 @@ export interface CreateVehicleData {
 
 export class TmsService {
   /**
-   * Récupérer les livraisons avec filtres
+   * RÃ©cupÃ©rer les livraisons avec filtres
    */
   static async getDeliveries(filters: DeliveryFilters = {}, options: DeliveryOptions = {}) {
     try {
@@ -149,22 +149,22 @@ export class TmsService {
         }
       };
     } catch (error) {
-      logger.error('Erreur lors de la récupération des livraisons:', error);
+      logger.error('Erreur lors de la rÃ©cupÃ©ration des livraisons:', error);
       return {
         success: false,
-        error: 'Erreur lors de la récupération des livraisons'
+        error: 'Erreur lors de la rÃ©cupÃ©ration des livraisons'
       };
     }
   }
 
   /**
-   * Créer une nouvelle livraison
+   * CrÃ©er une nouvelle livraison
    */
   static async createDelivery(deliveryData: CreateDeliveryData) {
     try {
       const validatedData = await this.validateDeliveryData(deliveryData);
 
-      // Calcul de l'itinéraire et du temps estimé
+      // Calcul de l'itinÃ©raire et du temps estimÃ©
       const routeInfo = await this.calculateRoute(
         validatedData.pickupAddress,
         validatedData.deliveryAddress
@@ -174,7 +174,7 @@ export class TmsService {
         ...validatedData,
         ...routeInfo,
         status: DeliveryStatus.PENDING,
-        // Générer les codes de confirmation aléatoires
+        // GÃ©nÃ©rer les codes de confirmation alÃ©atoires
         pickupCode: this.generateConfirmationCode(),
         deliveryCode: this.generateConfirmationCode(),
         pickupCodeValidated: false,
@@ -185,9 +185,9 @@ export class TmsService {
 
       await delivery.save();
 
-      logger.info(`Nouvelle livraison créée: ${delivery._id}`);
+      logger.info(`Nouvelle livraison crÃ©Ã©e: ${delivery._id}`);
 
-      // Générer la lettre de voiture PDF
+      // GÃ©nÃ©rer la lettre de voiture PDF
       try {
         const waybillData: WaybillData = {
           deliveryNumber: delivery.deliveryNumber,
@@ -204,16 +204,16 @@ export class TmsService {
         
         const waybillFileName = await DeliveryWaybillService.generateWaybillPDF(waybillData);
         
-        // Mettre à jour la livraison avec le nom du fichier PDF
+        // Mettre Ã  jour la livraison avec le nom du fichier PDF
         await DeliveryModel.updateOne(
           { _id: delivery._id },
           { $set: { waybillPdfPath: waybillFileName } }
         );
         
-        logger.info(`Lettre de voiture générée: ${waybillFileName}`);
+        logger.info(`Lettre de voiture gÃ©nÃ©rÃ©e: ${waybillFileName}`);
       } catch (waybillError) {
-        logger.error('Erreur génération lettre de voiture:', waybillError);
-        // Ne pas faire échouer la création de livraison si la génération PDF échoue
+        logger.error('Erreur gÃ©nÃ©ration lettre de voiture:', waybillError);
+        // Ne pas faire Ã©chouer la crÃ©ation de livraison si la gÃ©nÃ©ration PDF Ã©choue
       }
 
       await delivery.populate('orderId');
@@ -223,47 +223,47 @@ export class TmsService {
         data: delivery
       };
     } catch (error) {
-      logger.error('Erreur lors de la création de la livraison:', error);
+      logger.error('Erreur lors de la crÃ©ation de la livraison:', error);
       return {
         success: false,
-        error: 'Erreur lors de la création de la livraison'
+        error: 'Erreur lors de la crÃ©ation de la livraison'
       };
     }
   }
 
   /**
-   * Assigner une livraison à un chauffeur
+   * Assigner une livraison Ã  un chauffeur
    */
   static async assignDelivery(deliveryId: string, driverId: string) {
     try {
-      // Vérifications
+      // VÃ©rifications
       const [delivery, driver] = await Promise.all([
         DeliveryModel.findById(deliveryId),
         Driver.findById(driverId)
       ]);
 
       if (!delivery) {
-        return { success: false, error: 'Livraison non trouvée' };
+        return { success: false, error: 'Livraison non trouvÃ©e' };
       }
 
       if (!driver) {
-        return { success: false, error: 'Chauffeur non trouvé' };
+        return { success: false, error: 'Chauffeur non trouvÃ©' };
       }
 
       if (delivery.status !== DeliveryStatus.PENDING) {
-        return { success: false, error: 'Cette livraison ne peut pas être assignée' };
+        return { success: false, error: 'Cette livraison ne peut pas Ãªtre assignÃ©e' };
       }
 
-      // Vérifier la disponibilité du chauffeur
+      // VÃ©rifier la disponibilitÃ© du chauffeur
       const isAvailable = await this.checkDriverAvailability(driverId, delivery.createdAt);
       if (!isAvailable) {
         return { success: false, error: 'Chauffeur non disponible' };
       }
 
-      // Vérifier la capacité du véhicule (simplifié pour l'instant)
+      // VÃ©rifier la capacitÃ© du vÃ©hicule (simplifiÃ© pour l'instant)
       const driverDoc = await Driver.findById(driverId);
       if (!driverDoc || driverDoc.currentDeliveries >= driverDoc.maxDeliveries) {
-        return { success: false, error: 'Chauffeur a atteint sa capacité maximale' };
+        return { success: false, error: 'Chauffeur a atteint sa capacitÃ© maximale' };
       }
 
       // Assignation
@@ -274,11 +274,11 @@ export class TmsService {
 
       await delivery.save();
 
-      // Mettre à jour le chauffeur
+      // Mettre Ã  jour le chauffeur
       driver.currentDeliveries += 1;
       await driver.save();
 
-      logger.info(`Livraison ${deliveryId} assignée au chauffeur ${driverId}`);
+      logger.info(`Livraison ${deliveryId} assignÃ©e au chauffeur ${driverId}`);
 
       return {
         success: true,
@@ -294,13 +294,13 @@ export class TmsService {
   }
 
   /**
-   * Mettre à jour le statut d'une livraison
+   * Mettre Ã  jour le statut d'une livraison
    */
   static async updateDeliveryStatus(deliveryId: string, newStatus: DeliveryStatus, notes?: string) {
     try {
       const delivery = await DeliveryModel.findById(deliveryId);
       if (!delivery) {
-        return { success: false, error: 'Livraison non trouvée' };
+        return { success: false, error: 'Livraison non trouvÃ©e' };
       }
 
       // Validation de la transition
@@ -308,15 +308,15 @@ export class TmsService {
       if (!isValidTransition) {
         return {
           success: false,
-          error: `Transition invalide: ${delivery.status} → ${newStatus}`
+          error: `Transition invalide: ${delivery.status} â†’ ${newStatus}`
         };
       }
 
-      // Mise à jour
+      // Mise Ã  jour
       delivery.status = newStatus;
       delivery.updatedAt = new Date();
 
-      // Timestamps spécifiques
+      // Timestamps spÃ©cifiques
       if (newStatus === DeliveryStatus.PICKED_UP) {
         delivery.pickedUpAt = new Date();
       } else if (newStatus === DeliveryStatus.DELIVERED) {
@@ -328,35 +328,35 @@ export class TmsService {
 
       await delivery.save();
 
-      // Libérer le chauffeur si livraison terminée
+      // LibÃ©rer le chauffeur si livraison terminÃ©e
       if ([DeliveryStatus.DELIVERED, DeliveryStatus.FAILED, DeliveryStatus.CANCELLED].includes(newStatus) && delivery.driverId) {
         await this.releaseDriver(delivery.driverId);
       }
 
-      logger.info(`Statut livraison ${deliveryId} mis à jour: ${newStatus}`);
+      logger.info(`Statut livraison ${deliveryId} mis Ã  jour: ${newStatus}`);
 
       return {
         success: true,
         data: delivery
       };
     } catch (error) {
-      logger.error('Erreur lors de la mise à jour du statut:', error);
+      logger.error('Erreur lors de la mise Ã  jour du statut:', error);
       return {
         success: false,
-        error: 'Erreur lors de la mise à jour du statut'
+        error: 'Erreur lors de la mise Ã  jour du statut'
       };
     }
   }
 
   /**
-   * Optimiser les tournées de livraison
+   * Optimiser les tournÃ©es de livraison
    */
   static async optimizeRoutes(deliveries: DeliveryDocument[]) {
     try {
-      // Algorithme d'optimisation des tournées (TSP simplifié)
+      // Algorithme d'optimisation des tournÃ©es (TSP simplifiÃ©)
       const optimizedRoute = this.solveTSP(deliveries);
 
-      // Calcul des économies
+      // Calcul des Ã©conomies
       const originalDistance = this.calculateTotalDistance(deliveries);
       const optimizedDistance = this.calculateTotalDistance(optimizedRoute);
       const savings = ((originalDistance - optimizedDistance) / originalDistance) * 100;
@@ -380,7 +380,7 @@ export class TmsService {
   }
 
   /**
-   * Récupérer les véhicules avec filtres
+   * RÃ©cupÃ©rer les vÃ©hicules avec filtres
    */
   static async getVehicles(filters: VehicleFilters = {}) {
     try {
@@ -399,16 +399,16 @@ export class TmsService {
         data: vehicles
       };
     } catch (error) {
-      logger.error('Erreur lors de la récupération des véhicules:', error);
+      logger.error('Erreur lors de la rÃ©cupÃ©ration des vÃ©hicules:', error);
       return {
         success: false,
-        error: 'Erreur lors de la récupération des véhicules'
+        error: 'Erreur lors de la rÃ©cupÃ©ration des vÃ©hicules'
       };
     }
   }
 
   /**
-   * Créer un nouveau véhicule
+   * CrÃ©er un nouveau vÃ©hicule
    */
   static async createVehicle(vehicleData: CreateVehicleData) {
     try {
@@ -417,23 +417,23 @@ export class TmsService {
 
       await vehicle.populate('driverId', 'name email phone');
 
-      logger.info(`Nouveau véhicule ajouté: ${vehicle.licensePlate}`);
+      logger.info(`Nouveau vÃ©hicule ajoutÃ©: ${vehicle.licensePlate}`);
 
       return {
         success: true,
         data: vehicle
       };
     } catch (error) {
-      logger.error('Erreur lors de la création du véhicule:', error);
+      logger.error('Erreur lors de la crÃ©ation du vÃ©hicule:', error);
       return {
         success: false,
-        error: 'Erreur lors de la création du véhicule'
+        error: 'Erreur lors de la crÃ©ation du vÃ©hicule'
       };
     }
   }
 
   /**
-   * Récupérer les chauffeurs avec filtres
+   * RÃ©cupÃ©rer les chauffeurs avec filtres
    */
   static async getDrivers(filters: DriverFilters = {}) {
     try {
@@ -450,22 +450,22 @@ export class TmsService {
         data: drivers
       };
     } catch (error) {
-      logger.error('Erreur lors de la récupération des chauffeurs:', error);
+      logger.error('Erreur lors de la rÃ©cupÃ©ration des chauffeurs:', error);
       return {
         success: false,
-        error: 'Erreur lors de la récupération des chauffeurs'
+        error: 'Erreur lors de la rÃ©cupÃ©ration des chauffeurs'
       };
     }
   }
 
   /**
-   * Mettre à jour la position d'un chauffeur
+   * Mettre Ã  jour la position d'un chauffeur
    */
   static async updateDriverLocation(driverId: string, latitude: number, longitude: number) {
     try {
       const driver = await Driver.findById(driverId);
       if (!driver) {
-        return { success: false, error: 'Chauffeur non trouvé' };
+        return { success: false, error: 'Chauffeur non trouvÃ©' };
       }
 
       driver.currentLocation = {
@@ -481,10 +481,10 @@ export class TmsService {
         data: driver
       };
     } catch (error) {
-      logger.error('Erreur lors de la mise à jour de la position:', error);
+      logger.error('Erreur lors de la mise Ã  jour de la position:', error);
       return {
         success: false,
-        error: 'Erreur lors de la mise à jour de la position'
+        error: 'Erreur lors de la mise Ã  jour de la position'
       };
     }
   }
@@ -529,15 +529,15 @@ export class TmsService {
         data: stats
       };
     } catch (error) {
-      logger.error('Erreur lors de la récupération des statistiques:', error);
+      logger.error('Erreur lors de la rÃ©cupÃ©ration des statistiques:', error);
       return {
         success: false,
-        error: 'Erreur lors de la récupération des statistiques'
+        error: 'Erreur lors de la rÃ©cupÃ©ration des statistiques'
       };
     }
   }
 
-  // === MÉTHODES UTILITAIRES ===
+  // === MÃ‰THODES UTILITAIRES ===
 
   private static validateDeliveryFilters(filters: DeliveryFilters) {
     const validatedFilters: Partial<DeliveryFilters> = {};
@@ -575,20 +575,20 @@ export class TmsService {
     const { orderId, pickupAddress, deliveryAddress, priority = 'normal' } = deliveryData;
 
     if (!orderId || !pickupAddress || !deliveryAddress) {
-      throw new Error('Données de livraison incomplètes');
+      throw new Error('DonnÃ©es de livraison incomplÃ¨tes');
     }
 
-    // Vérifier que la commande existe
+    // VÃ©rifier que la commande existe
     const order = await Order.findById(orderId);
     if (!order) {
-      throw new Error('Commande non trouvée');
+      throw new Error('Commande non trouvÃ©e');
     }
 
     return deliveryData;
   }
 
   private static async calculateRoute(pickupAddress: Address, deliveryAddress: Address) {
-    // Simulation de calcul d'itinéraire (à remplacer par une vraie API de routing)
+    // Simulation de calcul d'itinÃ©raire (Ã  remplacer par une vraie API de routing)
     const distance = Math.random() * 50 + 5; // 5-55 km
     const duration = distance * 2 + Math.random() * 10; // minutes
 
@@ -600,7 +600,7 @@ export class TmsService {
   }
 
   private static async checkDriverAvailability(driverId: string, pickupTime?: Date): Promise<boolean> {
-    // Vérifier si le chauffeur n'a pas de livraison en cours
+    // VÃ©rifier si le chauffeur n'a pas de livraison en cours
     const driver = await Driver.findById(driverId);
     return driver ? driver.isAvailable && driver.currentDeliveries < driver.maxDeliveries : false;
   }
@@ -630,7 +630,7 @@ export class TmsService {
   }
 
   private static solveTSP(deliveries: DeliveryDocument[]): DeliveryDocument[] {
-    // Algorithme TSP simplifié (plus proche voisin)
+    // Algorithme TSP simplifiÃ© (plus proche voisin)
     if (deliveries.length <= 1) return deliveries;
 
     const optimized = [deliveries[0]];
@@ -656,7 +656,7 @@ export class TmsService {
   }
 
   private static calculateDistance(delivery1: DeliveryDocument, delivery2: DeliveryDocument): number {
-    // Distance euclidienne simplifiée (à remplacer par calcul réel)
+    // Distance euclidienne simplifiÃ©e (Ã  remplacer par calcul rÃ©el)
     const lat1 = delivery1.deliveryAddress?.coordinates?.latitude || 0;
     const lon1 = delivery1.deliveryAddress?.coordinates?.longitude || 0;
     const lat2 = delivery2.deliveryAddress?.coordinates?.latitude || 0;
@@ -674,10 +674,10 @@ export class TmsService {
   }
 
   /**
-   * Générer un code de confirmation aléatoire (6 caractères alphanumériques)
+   * GÃ©nÃ©rer un code de confirmation alÃ©atoire (6 caractÃ¨res alphanumÃ©riques)
    */
   private static generateConfirmationCode(): string {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclure I, O, 0, 1 pour éviter confusion
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclure I, O, 0, 1 pour Ã©viter confusion
     let code = '';
     for (let i = 0; i < 6; i++) {
       code += chars.charAt(Math.floor(Math.random() * chars.length));

@@ -1,4 +1,4 @@
-﻿import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 // Interface TypeScript
 export interface ILoanRequest extends Document {
@@ -6,7 +6,7 @@ export interface ILoanRequest extends Document {
   amount: number;
   purpose: string;
   duration: number; // en mois
-  interestRate?: number; // taux d'intérêt annuel (optionnel)
+  interestRate?: number; // taux d'intÃ©rÃªt annuel (optionnel)
   status: 'pending' | 'approved' | 'rejected' | 'in-review';
   documents: string[];
   riskScore?: number;
@@ -16,7 +16,7 @@ export interface ILoanRequest extends Document {
   updatedAt: Date;
 }
 
-// SchÃ©ma Mongoose
+// SchÃƒÂ©ma Mongoose
 const LoanRequestSchema = new Schema<ILoanRequest>({
   userId: {
     type: Schema.Types.ObjectId,

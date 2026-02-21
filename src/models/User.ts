@@ -11,7 +11,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { User as IUser } from '../types';
 
 /**
- * 13 R�LES SYNCHRONIS�S AVEC LE FRONTEND
+ * 13 RÃ¯Â¿Â½LES SYNCHRONISÃ¯Â¿Â½S AVEC LE FRONTEND
  * - Business: restaurant, artisan, supplier (fournisseur)
  * - Workforce: candidat, driver (livreur)
  * - Finance: banker, accountant (comptable), investor, auditor
@@ -42,14 +42,14 @@ export interface UserDocument extends Omit<IUser, '_id'>, Document {
   role: UserRole;
   name?: string;
   verified?: boolean;
-  // 💳 Stripe Connect
+  // Ã°Å¸â€™Â³ Stripe Connect
   stripeAccountId?: string | null;
   stripeOnboardingComplete?: boolean;
   stripeBankAccountVerified?: boolean;
   stripeDetailsSubmitted?: boolean;
   stripeChargesEnabled?: boolean;
   stripePayoutsEnabled?: boolean;
-  // M�thodes d'instance
+  // MÃ¯Â¿Â½thodes d'instance
   getDisplayName(): string;
   isVerifiedWith(targetUser: UserDocument): boolean;
 }
@@ -152,7 +152,7 @@ const LocationSchema = new Schema({
 });
 
 const UserSchema = new Schema<UserDocument>({
-  // ✅ Laissé par défaut - Mongoose gère automatiquement _id comme ObjectId
+  // Ã¢Å“â€¦ LaissÃƒÂ© par dÃƒÂ©faut - Mongoose gÃƒÂ¨re automatiquement _id comme ObjectId
   email: { 
     type: String, 
     required: true, 
@@ -163,7 +163,7 @@ const UserSchema = new Schema<UserDocument>({
   password: {
     type: String,
     required: true,
-    select: false // Ne pas inclure par d�faut dans les requ�tes
+    select: false // Ne pas inclure par dÃ¯Â¿Â½faut dans les requÃ¯Â¿Â½tes
   },
   // ? COMPATIBILITY: Support both 'name' (new) and 'firstName'/'lastName' (server-final.js)
   name: { 
@@ -222,7 +222,7 @@ const UserSchema = new Schema<UserDocument>({
   preferences: UserPreferencesSchema,
   lastActive: { type: Date, default: Date.now },
   
-  // 💳 Stripe Connect - Pour les fournisseurs qui reçoivent des paiements
+  // Ã°Å¸â€™Â³ Stripe Connect - Pour les fournisseurs qui reÃƒÂ§oivent des paiements
   stripeAccountId: { 
     type: String, 
     default: null 
@@ -261,9 +261,9 @@ const UserSchema = new Schema<UserDocument>({
 });
 
 // Indexes
-// Index unique d�j� cr�� par 'unique: true' sur le champ email
+// Index unique dÃ¯Â¿Â½jÃ¯Â¿Â½ crÃ¯Â¿Â½Ã¯Â¿Â½ par 'unique: true' sur le champ email
 UserSchema.index({ role: 1 });
-// UserSchema.index({ 'location.coordinates': '2dsphere' }); // ⚠️ Désactivé temporairement - cause erreur GeoJSON
+// UserSchema.index({ 'location.coordinates': '2dsphere' }); // Ã¢Å¡Â Ã¯Â¸Â DÃƒÂ©sactivÃƒÂ© temporairement - cause erreur GeoJSON
 UserSchema.index({ verified: 1 });
 UserSchema.index({ rating: -1 });
 UserSchema.index({ createdAt: -1 });
@@ -298,8 +298,8 @@ UserSchema.statics.findByRole = function(...args: any[]) {
 };
 
 UserSchema.statics.findNearby = function(...args: any[]) {
-  // ⚠️ DÉSACTIVÉ TEMPORAIREMENT - Requiert index 2dsphere qui cause erreur GeoJSON
-  console.warn('⚠️ findNearby est désactivé - le schéma location doit être converti en GeoJSON');
+  // Ã¢Å¡Â Ã¯Â¸Â DÃƒâ€°SACTIVÃƒâ€° TEMPORAIREMENT - Requiert index 2dsphere qui cause erreur GeoJSON
+  console.warn('Ã¢Å¡Â Ã¯Â¸Â findNearby est dÃƒÂ©sactivÃƒÂ© - le schÃƒÂ©ma location doit ÃƒÂªtre converti en GeoJSON');
   return this.find({});
   /*
   const _args: any[] = args as any[];

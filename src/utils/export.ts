@@ -9,7 +9,7 @@ export async function exportUsersCSV() {
   const users = await User.find().select('-password').lean();
   const csv = Papa.unparse(users);
   
-  // Créer le dossier exports s'il n'existe pas
+  // CrÃƒÂ©er le dossier exports s'il n'existe pas
   // En production Railway: /app/dist/utils -> /app/exports
   // En dev: backend/src/utils -> backend/exports
   const exportDir = process.env.NODE_ENV === 'production' 
@@ -17,14 +17,14 @@ export async function exportUsersCSV() {
     : path.join(__dirname, '../../exports');
   
   if (!fs.existsSync(exportDir)) {
-    console.log(`📁 Création dossier exports: ${exportDir}`);
+    console.log(`Ã°Å¸â€œÂ CrÃƒÂ©ation dossier exports: ${exportDir}`);
     fs.mkdirSync(exportDir, { recursive: true });
   }
   
   const filePath = path.join(exportDir, 'users-export.csv');
-  console.log(`💾 Export CSV vers: ${filePath}`);
+  console.log(`Ã°Å¸â€™Â¾ Export CSV vers: ${filePath}`);
   fs.writeFileSync(filePath, csv);
   return filePath;
 }
 
-// TODO: Ajouter export PDF, export par module, filtres avancés...
+// TODO: Ajouter export PDF, export par module, filtres avancÃƒÂ©s...

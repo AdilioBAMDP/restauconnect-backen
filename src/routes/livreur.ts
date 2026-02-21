@@ -1,16 +1,16 @@
-﻿import express, { Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import { DeliveryModel, DeliveryDocumentDB } from '../models/Delivery';
 import { User } from '../models/User';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
-// Middleware pour vérifier rôle livreur
+// Middleware pour vÃ©rifier rÃ´le livreur
 const requireLivreurRole = (req: any, res: Response, next: Function) => {
   // Accepter 'livreur', 'driver' et 'super_admin'
   const allowedRoles = ['livreur', 'driver', 'super_admin'];
   if (!allowedRoles.includes(req.user?.role)) {
-    res.status(403).json({ error: 'Accès réservé aux livreurs' });
+    res.status(403).json({ error: 'AccÃ¨s rÃ©servÃ© aux livreurs' });
     return;
   }
   next();
@@ -27,14 +27,14 @@ router.get('/available-deliveries', authenticateToken, requireLivreurRole, async
     // Filtres de base
     const filter: any = { 
       status: 'pending',
-      driverId: { $exists: false } // Pas encore assign�e
+      driverId: { $exists: false } // Pas encore assignï¿½e
     };
 
     if (priority) filter.priority = priority;
 
     let deliveries;
 
-    // Recherche géolocalisée si coordonnées fournies
+    // Recherche gÃ©olocalisÃ©e si coordonnÃ©es fournies
     if (latitude && longitude) {
       deliveries = await (DeliveryModel.find as any)(filter)
         .sort({ priority: -1, requestedPickupTime: 1 })
@@ -56,7 +56,7 @@ router.get('/available-deliveries', authenticateToken, requireLivreurRole, async
         return distance <= parseFloat(maxDistance as string);
       });
     } else {
-      // Recherche sans g�olocalisation
+      // Recherche sans gï¿½olocalisation
       deliveries = await DeliveryModel.find(filter)
         .sort({ priority: -1, requestedPickupTime: 1 })
         .limit(parseInt(limit as string))
@@ -71,7 +71,7 @@ router.get('/available-deliveries', authenticateToken, requireLivreurRole, async
   } catch (error: any) {
     // console.error('Error fetching available deliveries:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des livraisons',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des livraisons',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -79,7 +79,7 @@ router.get('/available-deliveries', authenticateToken, requireLivreurRole, async
 
 /**
  * PUT /api/livreur/update-status/:id
- * Mettre � jour le statut d'une livraison
+ * Mettre ï¿½ jour le statut d'une livraison
  */
 router.put('/update-status/:id', authenticateToken, requireLivreurRole, async (req: any, res: Response) => {
   try {
@@ -87,7 +87,7 @@ router.put('/update-status/:id', authenticateToken, requireLivreurRole, async (r
     const driverId = req.user._id;
     const { status, note, location, proofOfDelivery, pickupCode, pickupSignature, deliveryCode, deliverySignature } = req.body;
 
-    // Vérifier que la livraison appartient au livreur
+    // VÃ©rifier que la livraison appartient au livreur
   const delivery = await (DeliveryModel.findOne as any)({ _id: id, driverId }).exec();
 
     if (!delivery) {
@@ -101,16 +101,16 @@ router.put('/update-status/:id', authenticateToken, requireLivreurRole, async (r
       return;
     }
 
-    // Validation pour l'enlèvement (picked_up)
+    // Validation pour l'enlÃ¨vement (picked_up)
     if (status === 'picked_up') {
       if (!pickupCode && !pickupSignature) {
-        res.status(400).json({ error: 'Code de confirmation ou signature requis pour l\'enlèvement' });
+        res.status(400).json({ error: 'Code de confirmation ou signature requis pour l\'enlÃ¨vement' });
         return;
       }
       
-      // Vérifier le code si fourni
+      // VÃ©rifier le code si fourni
       if (pickupCode && pickupCode !== delivery.pickupCode) {
-        res.status(400).json({ error: 'Code d\'enlèvement incorrect' });
+        res.status(400).json({ error: 'Code d\'enlÃ¨vement incorrect' });
         return;
       }
     }
@@ -122,17 +122,17 @@ router.put('/update-status/:id', authenticateToken, requireLivreurRole, async (r
         return;
       }
       
-      // Vérifier le code si fourni
+      // VÃ©rifier le code si fourni
       if (deliveryCode && deliveryCode !== delivery.deliveryCode) {
         res.status(400).json({ error: 'Code de livraison incorrect' });
         return;
       }
     }
 
-    // Mettre à jour le statut
+    // Mettre Ã  jour le statut
     const updateData: any = { status };
     
-    // Actions spécifiques selon le statut
+    // Actions spÃ©cifiques selon le statut
     switch (status) {
       case 'picked_up':
         updateData.pickedUpAt = new Date();
@@ -153,7 +153,7 @@ router.put('/update-status/:id', authenticateToken, requireLivreurRole, async (r
         break;
     }
 
-    // Initialiser trackingHistory si nécessaire
+    // Initialiser trackingHistory si nÃ©cessaire
     if (!delivery.trackingHistory) {
       updateData.trackingHistory = [];
     } else {
@@ -168,24 +168,24 @@ router.put('/update-status/:id', authenticateToken, requireLivreurRole, async (r
       note
     });
 
-    // Utiliser updateOne au lieu de save() pour éviter les erreurs de validation
+    // Utiliser updateOne au lieu de save() pour Ã©viter les erreurs de validation
     await (DeliveryModel.updateOne as any)({ _id: id }, { $set: updateData });
 
     const updatedDelivery = await (DeliveryModel.findById as any)(id);
 
     res.json({
       success: true,
-      message: 'Statut mis à jour avec succès',
+      message: 'Statut mis Ã  jour avec succÃ¨s',
       delivery: {
         id: updatedDelivery?._id,
         status: updatedDelivery?.status,
-        trackingHistory: updatedDelivery?.trackingHistory?.slice(-1) // Dernière mise à jour
+        trackingHistory: updatedDelivery?.trackingHistory?.slice(-1) // DerniÃ¨re mise Ã  jour
       }
     });
   } catch (error: any) {
     // console.error('Error updating delivery status:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la mise � jour du statut',
+      error: 'Erreur lors de la mise ï¿½ jour du statut',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -193,19 +193,19 @@ router.put('/update-status/:id', authenticateToken, requireLivreurRole, async (r
 
 /**
  * GET /api/livreur/delivery/:id
- * D�tails d'une livraison
+ * Dï¿½tails d'une livraison
  */
 router.get('/delivery/:id', authenticateToken, requireLivreurRole, async (req: any, res: Response) => {
   try {
     const { id } = req.params;
     const driverId = req.user._id;
 
-    // Chercher les livraisons assignées au livreur OU les livraisons disponibles
+    // Chercher les livraisons assignÃ©es au livreur OU les livraisons disponibles
     const delivery = await (DeliveryModel.findOne as any)({ 
       _id: id,
       $or: [
-        { driverId }, // Livraisons assignées au livreur
-        { status: 'pending', driverId: null } // Livraisons disponibles (non assignées)
+        { driverId }, // Livraisons assignÃ©es au livreur
+        { status: 'pending', driverId: null } // Livraisons disponibles (non assignÃ©es)
       ]
     })
       .exec();
@@ -222,7 +222,7 @@ router.get('/delivery/:id', authenticateToken, requireLivreurRole, async (req: a
   } catch (error: any) {
     // console.error('Error fetching delivery details:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration de la livraison',
+      error: 'Erreur lors de la rï¿½cupï¿½ration de la livraison',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -230,14 +230,14 @@ router.get('/delivery/:id', authenticateToken, requireLivreurRole, async (req: a
 
 /**
  * PUT /api/livreur/availability
- * Mettre � jour la disponibilit� du livreur
+ * Mettre ï¿½ jour la disponibilitï¿½ du livreur
  */
 router.put('/availability', authenticateToken, requireLivreurRole, async (req: any, res: Response) => {
   try {
     const driverId = req.user._id;
     const { available, location, vehicleType, maxDistance } = req.body;
 
-    // Mettre � jour le profil utilisateur
+    // Mettre ï¿½ jour le profil utilisateur
     const updateData: any = {
       'profile.availability.urgentAvailable': available,
       lastActive: new Date()
@@ -263,7 +263,7 @@ router.put('/availability', authenticateToken, requireLivreurRole, async (req: a
 
     res.json({
       success: true,
-      message: 'Disponibilit� mise � jour',
+      message: 'Disponibilitï¿½ mise ï¿½ jour',
       availability: {
         available,
         location,
@@ -275,7 +275,7 @@ router.put('/availability', authenticateToken, requireLivreurRole, async (req: a
   } catch (error: any) {
     // console.error('Error updating availability:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la mise � jour de la disponibilit�',
+      error: 'Erreur lors de la mise ï¿½ jour de la disponibilitï¿½',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -290,7 +290,7 @@ router.get('/earnings', authenticateToken, requireLivreurRole, async (req: any, 
     const driverId = req.user._id;
     const { period = 'month' } = req.query;
 
-    // Calculer les dates selon la p�riode
+    // Calculer les dates selon la pï¿½riode
     const now = new Date();
     let startDate: Date;
 
@@ -308,7 +308,7 @@ router.get('/earnings', authenticateToken, requireLivreurRole, async (req: any, 
         startDate = new Date(now.setMonth(now.getMonth() - 1));
     }
 
-    // R�cup�rer les livraisons termin�es
+    // Rï¿½cupï¿½rer les livraisons terminï¿½es
   const deliveries = await (DeliveryModel.find as any)({
       driverId,
       status: 'delivered',
@@ -337,7 +337,7 @@ router.get('/earnings', authenticateToken, requireLivreurRole, async (req: any, 
   } catch (error: any) {
     // console.error('Error fetching earnings:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la récupération des gains',
+      error: 'Erreur lors de la rÃ©cupÃ©ration des gains',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -352,24 +352,24 @@ router.post('/accept-delivery/:id', authenticateToken, requireLivreurRole, async
     const deliveryId = req.params.id;
     const driverId = req.user?._id;
 
-    // Vérifier que la livraison existe et est disponible
+    // VÃ©rifier que la livraison existe et est disponible
     const delivery = await DeliveryModel.findById(deliveryId);
     if (!delivery) {
-      res.status(404).json({ error: 'Livraison non trouvée' });
+      res.status(404).json({ error: 'Livraison non trouvÃ©e' });
       return;
     }
 
     if (delivery.status !== 'pending') {
-      res.status(400).json({ error: 'Livraison déjà assignée ou non disponible' });
+      res.status(400).json({ error: 'Livraison dÃ©jÃ  assignÃ©e ou non disponible' });
       return;
     }
 
     if (delivery.driverId) {
-      res.status(400).json({ error: 'Livraison déjà assignée à un autre livreur' });
+      res.status(400).json({ error: 'Livraison dÃ©jÃ  assignÃ©e Ã  un autre livreur' });
       return;
     }
 
-    // Assigner la livraison au livreur - utiliser updateOne pour éviter la validation complète
+    // Assigner la livraison au livreur - utiliser updateOne pour Ã©viter la validation complÃ¨te
     await DeliveryModel.updateOne(
       { _id: deliveryId },
       {
@@ -381,20 +381,20 @@ router.post('/accept-delivery/:id', authenticateToken, requireLivreurRole, async
       }
     );
 
-    // Récupérer la livraison mise à jour
+    // RÃ©cupÃ©rer la livraison mise Ã  jour
     const updatedDelivery = await DeliveryModel.findById(deliveryId).lean();
 
-    // Mettre à jour le statut du livreur
+    // Mettre Ã  jour le statut du livreur
     await User.findByIdAndUpdate(driverId, {
       isAvailable: false,
       currentDelivery: deliveryId
     });
 
-    // console.log(`✅ Livraison ${deliveryId} acceptée par ${req.user?.email}`);
+    // console.log(`âœ… Livraison ${deliveryId} acceptÃ©e par ${req.user?.email}`);
 
     res.status(200).json({
       success: true,
-      message: 'Livraison acceptée avec succès',
+      message: 'Livraison acceptÃ©e avec succÃ¨s',
       delivery: {
         _id: updatedDelivery._id,
         deliveryNumber: updatedDelivery.deliveryNumber,
@@ -414,7 +414,7 @@ router.post('/accept-delivery/:id', authenticateToken, requireLivreurRole, async
 
 /**
  * PUT /api/livreur/update-status/:id
- * Mettre à jour le statut d'une livraison
+ * Mettre Ã  jour le statut d'une livraison
  */
 router.put('/update-status/:id', authenticateToken, requireLivreurRole, async (req: any, res: Response) => {
   try {
@@ -422,26 +422,26 @@ router.put('/update-status/:id', authenticateToken, requireLivreurRole, async (r
     const { status } = req.body;
     const driverId = req.user?._id;
 
-    // Vérifier que la livraison appartient au livreur
+    // VÃ©rifier que la livraison appartient au livreur
     const delivery = await DeliveryModel.findById(deliveryId);
     if (!delivery) {
-      res.status(404).json({ error: 'Livraison non trouvée' });
+      res.status(404).json({ error: 'Livraison non trouvÃ©e' });
       return;
     }
 
     if (delivery.driverId?.toString() !== driverId.toString()) {
-      res.status(403).json({ error: 'Cette livraison ne vous est pas assignée' });
+      res.status(403).json({ error: 'Cette livraison ne vous est pas assignÃ©e' });
       return;
     }
 
-    // Mettre à jour le statut - utiliser updateOne pour éviter la validation complète
+    // Mettre Ã  jour le statut - utiliser updateOne pour Ã©viter la validation complÃ¨te
     const updateFields: any = { status };
     
     if (status === 'picked_up') {
       updateFields.pickedUpAt = new Date();
     } else if (status === 'delivered') {
       updateFields.deliveredAt = new Date();
-      // Libérer le livreur
+      // LibÃ©rer le livreur
       await User.findByIdAndUpdate(driverId, {
         isAvailable: true,
         currentDelivery: null
@@ -453,14 +453,14 @@ router.put('/update-status/:id', authenticateToken, requireLivreurRole, async (r
       { $set: updateFields }
     );
 
-    // Récupérer la livraison mise à jour
+    // RÃ©cupÃ©rer la livraison mise Ã  jour
     const updatedDelivery = await DeliveryModel.findById(deliveryId).lean();
 
-    // console.log(`📦 Livraison ${deliveryId} : statut mis à jour vers "${status}"`);
+    // console.log(`ðŸ“¦ Livraison ${deliveryId} : statut mis Ã  jour vers "${status}"`);
 
     res.status(200).json({
       success: true,
-      message: `Statut mis à jour: ${status}`,
+      message: `Statut mis Ã  jour: ${status}`,
       delivery: {
         _id: updatedDelivery._id,
         deliveryNumber: updatedDelivery.deliveryNumber,
@@ -471,7 +471,7 @@ router.put('/update-status/:id', authenticateToken, requireLivreurRole, async (r
   } catch (error: any) {
     // console.error('Error updating delivery status:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la mise à jour du statut',
+      error: 'Erreur lors de la mise Ã  jour du statut',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -492,7 +492,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 
 /**
  * GET /api/livreur/deliveries
- * Livraisons assignées au livreur connecté
+ * Livraisons assignÃ©es au livreur connectÃ©
  */
 router.get('/deliveries', authenticateToken, requireLivreurRole, async (req: any, res: Response) => {
   try {
@@ -507,13 +507,13 @@ router.get('/deliveries', authenticateToken, requireLivreurRole, async (req: any
     res.json({
       success: true,
       data: deliveries,
-      message: `${deliveries.length} livraisons trouvées`
+      message: `${deliveries.length} livraisons trouvÃ©es`
     });
   } catch (error) {
     console.error('Erreur /livreur/deliveries:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des livraisons'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des livraisons'
     });
   }
 });
@@ -554,13 +554,13 @@ router.get('/stats', authenticateToken, requireLivreurRole, async (req: any, res
         completedDeliveries,
         earnings: Math.round(earnings * 100) / 100
       },
-      message: 'Statistiques livreur récupérées'
+      message: 'Statistiques livreur rÃ©cupÃ©rÃ©es'
     });
   } catch (error) {
     console.error('Erreur /livreur/stats:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques'
+      error: 'Erreur lors de la rÃ©cupÃ©ration des statistiques'
     });
   }
 });

@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET history for a config key (more specific — keep this before '/:key')
+// GET history for a config key (more specific Ã¢â‚¬â€ keep this before '/:key')
 router.get('/:key/history', async (req, res) => {
   try {
     const history = await PlatformConfigHistory.find({ key: req.params.key }).sort({ createdAt: -1 }).limit(100);
@@ -31,7 +31,7 @@ router.get('/:key/history', async (req, res) => {
 router.get('/:key', async (req, res) => {
   try {
     const config = await PlatformConfig.findOne({ key: req.params.key });
-    if (!config) return res.status(404).json({ success: false, error: 'Clé non trouvée' });
+    if (!config) return res.status(404).json({ success: false, error: 'ClÃƒÂ© non trouvÃƒÂ©e' });
     res.json({ success: true, data: config });
   } catch (err) {
     res.status(500).json({ success: false, error: 'Erreur serveur' });

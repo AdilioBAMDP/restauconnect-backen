@@ -221,14 +221,14 @@ const DeliveryProposalSchema = new Schema<IDeliveryProposal>({
   collection: 'deliveryProposals'
 });
 
-// Index composés pour optimiser les requêtes
+// Index composÃƒÂ©s pour optimiser les requÃƒÂªtes
 DeliveryProposalSchema.index({ deliveryId: 1, driverId: 1 }, { unique: true });
 DeliveryProposalSchema.index({ driverId: 1, status: 1, createdAt: -1 });
 DeliveryProposalSchema.index({ deliveryId: 1, status: 1 });
 DeliveryProposalSchema.index({ expiresAt: 1, status: 1 });
 DeliveryProposalSchema.index({ 'metadata.source': 1, createdAt: -1 });
 
-// Méthodes statiques
+// MÃƒÂ©thodes statiques
 DeliveryProposalSchema.statics.findPendingForDriver = function(driverId: Types.ObjectId) {
   return this.find({
     driverId,
@@ -260,7 +260,7 @@ DeliveryProposalSchema.statics.expirePendingProposals = async function() {
         timeline: {
           status: 'expired',
           timestamp: now,
-          note: 'Proposition expirée automatiquement'
+          note: 'Proposition expirÃƒÂ©e automatiquement'
         }
       }
     }
@@ -319,14 +319,14 @@ DeliveryProposalSchema.statics.getDriverStats = async function(driverId: Types.O
   return result;
 };
 
-// Méthodes d'instance
+// MÃƒÂ©thodes d'instance
 DeliveryProposalSchema.methods.accept = async function(driverId?: Types.ObjectId) {
   if (this.status !== 'pending') {
-    throw new Error('Seules les propositions en attente peuvent être acceptées');
+    throw new Error('Seules les propositions en attente peuvent ÃƒÂªtre acceptÃƒÂ©es');
   }
   
   if (this.expiresAt < new Date()) {
-    throw new Error('Cette proposition a expiré');
+    throw new Error('Cette proposition a expirÃƒÂ©');
   }
   
   this.status = 'accepted';
@@ -336,7 +336,7 @@ DeliveryProposalSchema.methods.accept = async function(driverId?: Types.ObjectId
     status: 'accepted',
     timestamp: new Date(),
     userId: driverId,
-    note: 'Proposition acceptée par le driver'
+    note: 'Proposition acceptÃƒÂ©e par le driver'
   });
   
   await this.save();
@@ -357,7 +357,7 @@ DeliveryProposalSchema.methods.accept = async function(driverId?: Types.ObjectId
         timeline: {
           status: 'cancelled',
           timestamp: new Date(),
-          note: 'Proposition annulée car livraison acceptée par un autre driver'
+          note: 'Proposition annulÃƒÂ©e car livraison acceptÃƒÂ©e par un autre driver'
         }
       }
     }
@@ -368,7 +368,7 @@ DeliveryProposalSchema.methods.accept = async function(driverId?: Types.ObjectId
 
 DeliveryProposalSchema.methods.decline = async function(reason?: string, driverId?: Types.ObjectId) {
   if (this.status !== 'pending') {
-    throw new Error('Seules les propositions en attente peuvent être refusées');
+    throw new Error('Seules les propositions en attente peuvent ÃƒÂªtre refusÃƒÂ©es');
   }
   
   this.status = 'declined';
@@ -379,7 +379,7 @@ DeliveryProposalSchema.methods.decline = async function(reason?: string, driverI
     status: 'declined',
     timestamp: new Date(),
     userId: driverId,
-    note: reason ? `Proposition refusée: ${reason}` : 'Proposition refusée par le driver'
+    note: reason ? `Proposition refusÃƒÂ©e: ${reason}` : 'Proposition refusÃƒÂ©e par le driver'
   });
   
   await this.save();
@@ -394,7 +394,7 @@ DeliveryProposalSchema.methods.markAsViewed = async function() {
     this.timeline.push({
       status: 'viewed',
       timestamp: new Date(),
-      note: 'Proposition consultée par le driver'
+      note: 'Proposition consultÃƒÂ©e par le driver'
     });
     
     await this.save();
@@ -420,7 +420,7 @@ DeliveryProposalSchema.statics.expirePendingProposals = async function() {
         timeline: {
           status: 'expired',
           timestamp: now,
-          note: 'Proposition expirée automatiquement'
+          note: 'Proposition expirÃƒÂ©e automatiquement'
         }
       }
     }
@@ -489,7 +489,7 @@ DeliveryProposalSchema.statics.getDriverStats = async function(driverId: Types.O
   };
 };
 
-// Interface pour les méthodes statiques
+// Interface pour les mÃƒÂ©thodes statiques
 interface IDeliveryProposalModel extends Model<IDeliveryProposal> {
   expirePendingProposals(): Promise<any>;
   getDriverStats(driverId: string, days: number): Promise<any>;

@@ -1,13 +1,13 @@
-﻿/**
+/**
  * QUOTE SERVICE - Gestion des devis (calculs, PDF, workflow)
  * 
- * Ce service gÃ¨re :
+ * Ce service gÃƒÂ¨re :
  * - Calculs automatiques HT/VAT/TTC
- * - GÃ©nÃ©ration de PDF devis
+ * - GÃƒÂ©nÃƒÂ©ration de PDF devis
  * - Validation des lignes de devis
  * - Envoi par email
  * - Statistiques et analytics
- * - Workflow statut (draft â†’ sent â†’ viewed â†’ accepted/rejected)
+ * - Workflow statut (draft Ã¢â€ â€™ sent Ã¢â€ â€™ viewed Ã¢â€ â€™ accepted/rejected)
  */
 
 import mongoose from 'mongoose';
@@ -17,7 +17,7 @@ import { logger } from '../utils/logger';
 
 export class QuoteService {
   /**
-   * Valider les lignes d'un devis avant crÃ©ation/mise Ã  jour
+   * Valider les lignes d'un devis avant crÃƒÂ©ation/mise ÃƒÂ  jour
    */
   static validateQuoteLines(lines: IQuoteLine[]): {
     valid: boolean;
@@ -36,7 +36,7 @@ export class QuoteService {
       }
 
       if (!line.quantity || line.quantity <= 0) {
-        errors.push(`Ligne ${index + 1}: QuantitÃ© invalide (${line.quantity})`);
+        errors.push(`Ligne ${index + 1}: QuantitÃƒÂ© invalide (${line.quantity})`);
       }
 
       if (!line.unitPrice || line.unitPrice < 0) {
@@ -55,7 +55,7 @@ export class QuoteService {
   }
 
   /**
-   * Calculer les totaux d'un devis manuellement (pour vÃ©rification)
+   * Calculer les totaux d'un devis manuellement (pour vÃƒÂ©rification)
    */
   static calculateTotals(lines: IQuoteLine[]): {
     subtotalHT: number;
@@ -95,8 +95,8 @@ export class QuoteService {
   }
 
   /**
-   * GÃ©nÃ©rer un PDF du devis
-   * TODO: Ã€ implÃ©menter avec pdfkit ou puppeteer
+   * GÃƒÂ©nÃƒÂ©rer un PDF du devis
+   * TODO: Ãƒâ‚¬ implÃƒÂ©menter avec pdfkit ou puppeteer
    */
   static async generatePDF(quoteId: mongoose.Types.ObjectId): Promise<Buffer> {
     try {
@@ -109,43 +109,43 @@ export class QuoteService {
         throw new Error('Devis introuvable');
       }
 
-      // TODO Phase 4+: ImplÃ©menter gÃ©nÃ©ration PDF avec pdfkit
+      // TODO Phase 4+: ImplÃƒÂ©menter gÃƒÂ©nÃƒÂ©ration PDF avec pdfkit
       // const PDFDocument = require('pdfkit');
       // const doc = new PDFDocument();
       // 
       // doc.fontSize(20).text(`Devis ${quote.quoteNumber}`, 100, 100);
       // doc.fontSize(12).text(`Date: ${quote.createdAt.toLocaleDateString()}`);
       // 
-      // // En-tÃªte
+      // // En-tÃƒÂªte
       // doc.text(`Fournisseur: ${quote.providerId.name}`);
       // doc.text(`Client: ${quote.clientId.name}`);
       // 
       // // Lignes
       // quote.lines.forEach((line, i) => {
-      //   doc.text(`${i+1}. ${line.description} - ${line.quantity} x ${line.unitPrice}â‚¬`);
+      //   doc.text(`${i+1}. ${line.description} - ${line.quantity} x ${line.unitPrice}Ã¢â€šÂ¬`);
       // });
       // 
       // // Totaux
-      // doc.text(`Sous-total HT: ${quote.subtotalHT}â‚¬`);
-      // doc.text(`TVA: ${quote.totalVAT}â‚¬`);
-      // doc.fontSize(14).text(`TOTAL TTC: ${quote.totalTTC}â‚¬`);
+      // doc.text(`Sous-total HT: ${quote.subtotalHT}Ã¢â€šÂ¬`);
+      // doc.text(`TVA: ${quote.totalVAT}Ã¢â€šÂ¬`);
+      // doc.fontSize(14).text(`TOTAL TTC: ${quote.totalTTC}Ã¢â€šÂ¬`);
       // 
       // return doc buffer
 
-      logger.info('âš ï¸ GÃ©nÃ©ration PDF Ã  implÃ©menter (Phase 4+)');
+      logger.info('Ã¢Å¡Â Ã¯Â¸Â GÃƒÂ©nÃƒÂ©ration PDF ÃƒÂ  implÃƒÂ©menter (Phase 4+)');
       
       // Placeholder: Retourner buffer vide
-      return Buffer.from(`PDF Devis ${quote.quoteNumber} - Ã€ implÃ©menter`);
+      return Buffer.from(`PDF Devis ${quote.quoteNumber} - Ãƒâ‚¬ implÃƒÂ©menter`);
 
     } catch (error) {
-      logger.error('âŒ Erreur gÃ©nÃ©ration PDF:', error);
+      logger.error('Ã¢ÂÅ’ Erreur gÃƒÂ©nÃƒÂ©ration PDF:', error);
       throw error;
     }
   }
 
   /**
-   * Envoyer le devis par email (avec PDF attachÃ©)
-   * TODO: Ã€ implÃ©menter avec Nodemailer
+   * Envoyer le devis par email (avec PDF attachÃƒÂ©)
+   * TODO: Ãƒâ‚¬ implÃƒÂ©menter avec Nodemailer
    */
   static async sendQuoteByEmail(
     quoteId: mongoose.Types.ObjectId,
@@ -160,10 +160,10 @@ export class QuoteService {
         throw new Error('Devis introuvable');
       }
 
-      // GÃ©nÃ©rer PDF
+      // GÃƒÂ©nÃƒÂ©rer PDF
       const pdfBuffer = await this.generatePDF(quoteId);
 
-      // TODO: ImplÃ©menter envoi email avec Nodemailer
+      // TODO: ImplÃƒÂ©menter envoi email avec Nodemailer
       // const transporter = nodemailer.createTransport({ ... });
       // 
       // await transporter.sendMail({
@@ -173,7 +173,7 @@ export class QuoteService {
       //   html: `
       //     <h1>Nouveau devis de ${quote.providerId.name}</h1>
       //     <p>${additionalMessage || ''}</p>
-      //     <p>Montant total TTC: ${quote.totalTTC}â‚¬</p>
+      //     <p>Montant total TTC: ${quote.totalTTC}Ã¢â€šÂ¬</p>
       //     <p>Valable jusqu'au: ${quote.validUntil.toLocaleDateString()}</p>
       //   `,
       //   attachments: [
@@ -184,11 +184,11 @@ export class QuoteService {
       //   ]
       // });
 
-      logger.info(`âš ï¸ Envoi email devis ${quote.quoteNumber} Ã  implÃ©menter (Phase 4+)`);
+      logger.info(`Ã¢Å¡Â Ã¯Â¸Â Envoi email devis ${quote.quoteNumber} ÃƒÂ  implÃƒÂ©menter (Phase 4+)`);
       return false;
 
     } catch (error) {
-      logger.error('âŒ Erreur envoi email devis:', error);
+      logger.error('Ã¢ÂÅ’ Erreur envoi email devis:', error);
       throw error;
     }
   }
@@ -237,7 +237,7 @@ export class QuoteService {
       };
 
     } catch (error) {
-      logger.error('âŒ Erreur stats devis:', error);
+      logger.error('Ã¢ÂÅ’ Erreur stats devis:', error);
       throw error;
     }
   }
@@ -281,7 +281,7 @@ export class QuoteService {
       const acceptanceRate = totalQuotes > 0 ? (acceptedCount / totalQuotes) * 100 : 0;
       const rejectionRate = totalQuotes > 0 ? (rejectedCount / totalQuotes) * 100 : 0;
 
-      // Calculer le temps de rÃ©ponse moyen (entre sent et accepted/rejected)
+      // Calculer le temps de rÃƒÂ©ponse moyen (entre sent et accepted/rejected)
       const responseTimes = quotes
         .filter(q => q.sentAt && (q.acceptedAt || q.rejectedAt))
         .map(q => {
@@ -310,13 +310,13 @@ export class QuoteService {
       };
 
     } catch (error) {
-      logger.error('âŒ Erreur analytics devis fournisseur:', error);
+      logger.error('Ã¢ÂÅ’ Erreur analytics devis fournisseur:', error);
       throw error;
     }
   }
 
   /**
-   * Dupliquer un devis (utile pour crÃ©er variations)
+   * Dupliquer un devis (utile pour crÃƒÂ©er variations)
    */
   static async duplicateQuote(
     quoteId: mongoose.Types.ObjectId,
@@ -333,12 +333,12 @@ export class QuoteService {
         throw new Error('Devis original introuvable');
       }
 
-      // VÃ©rifier que c'est bien le provider du devis
+      // VÃƒÂ©rifier que c'est bien le provider du devis
       if (originalQuote.providerId.toString() !== userId.toString()) {
         throw new Error('Seul le fournisseur peut dupliquer ce devis');
       }
 
-      // CrÃ©er nouvelles lignes avec ajustement prix si demandÃ©
+      // CrÃƒÂ©er nouvelles lignes avec ajustement prix si demandÃƒÂ©
       const newLines = originalQuote.lines.map(line => ({
         description: line.description,
         quantity: line.quantity,
@@ -347,33 +347,33 @@ export class QuoteService {
           ? line.unitPrice * (1 + options.adjustPrices / 100)
           : line.unitPrice,
         vatRate: line.vatRate,
-        totalHT: 0, // Sera recalculÃ©
-        totalTTC: 0 // Sera recalculÃ©
+        totalHT: 0, // Sera recalculÃƒÂ©
+        totalTTC: 0 // Sera recalculÃƒÂ©
       }));
 
-      // CrÃ©er nouveau devis
+      // CrÃƒÂ©er nouveau devis
       const duplicatedQuote = await Quote.create({
         providerId: originalQuote.providerId,
         clientId: options.newClientId || originalQuote.clientId,
         offerId: originalQuote.offerId,
         lines: newLines,
         status: 'draft',
-        notes: `DuplicatÃ© depuis ${originalQuote.quoteNumber}`,
+        notes: `DuplicatÃƒÂ© depuis ${originalQuote.quoteNumber}`,
         validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // +30 jours
       });
 
-      logger.info(`âœ… Devis ${originalQuote.quoteNumber} dupliquÃ© â†’ ${duplicatedQuote.quoteNumber}`);
+      logger.info(`Ã¢Å“â€¦ Devis ${originalQuote.quoteNumber} dupliquÃƒÂ© Ã¢â€ â€™ ${duplicatedQuote.quoteNumber}`);
 
       return duplicatedQuote;
 
     } catch (error) {
-      logger.error('âŒ Erreur duplication devis:', error);
+      logger.error('Ã¢ÂÅ’ Erreur duplication devis:', error);
       throw error;
     }
   }
 
   /**
-   * VÃ©rifier et marquer les devis expirÃ©s (cron job quotidien)
+   * VÃƒÂ©rifier et marquer les devis expirÃƒÂ©s (cron job quotidien)
    */
   static async expireOldQuotes(): Promise<number> {
     try {
@@ -389,17 +389,17 @@ export class QuoteService {
         }
       );
 
-      logger.info(`â° ${result.modifiedCount} devis expirÃ©s mis Ã  jour`);
+      logger.info(`Ã¢ÂÂ° ${result.modifiedCount} devis expirÃƒÂ©s mis ÃƒÂ  jour`);
       return result.modifiedCount || 0;
 
     } catch (error) {
-      logger.error('âŒ Erreur expiration devis:', error);
+      logger.error('Ã¢ÂÅ’ Erreur expiration devis:', error);
       throw error;
     }
   }
 
   /**
-   * Obtenir les devis expirant bientÃ´t (pour relance)
+   * Obtenir les devis expirant bientÃƒÂ´t (pour relance)
    */
   static async getExpiringSoonQuotes(
     providerId: mongoose.Types.ObjectId,
@@ -420,12 +420,12 @@ export class QuoteService {
         .populate('clientId', 'name email')
         .sort({ validUntil: 1 });
 
-      logger.info(`âš ï¸ ${quotes.length} devis expirent dans les ${daysBeforeExpiration} prochains jours`);
+      logger.info(`Ã¢Å¡Â Ã¯Â¸Â ${quotes.length} devis expirent dans les ${daysBeforeExpiration} prochains jours`);
 
       return quotes;
 
     } catch (error) {
-      logger.error('âŒ Erreur devis expirant bientÃ´t:', error);
+      logger.error('Ã¢ÂÅ’ Erreur devis expirant bientÃƒÂ´t:', error);
       throw error;
     }
   }

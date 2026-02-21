@@ -2,17 +2,17 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from './auth';
 
 /**
- * Middleware pour vérifier que l'utilisateur est un transporteur (owner)
+ * Middleware pour vÃƒÂ©rifier que l'utilisateur est un transporteur (owner)
  */
 export const requireTransporteurRole = (req: AuthRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Authentification requise' });
   }
 
-  // Accepter 'carrier' (anglais MongoDB) ET 'transporteur' (français legacy)
+  // Accepter 'carrier' (anglais MongoDB) ET 'transporteur' (franÃƒÂ§ais legacy)
   if (req.user.role !== 'transporteur' && req.user.role !== 'carrier' && req.user.role !== 'super_admin') {
     return res.status(403).json({ 
-      error: 'Accès réservé aux transporteurs',
+      error: 'AccÃƒÂ¨s rÃƒÂ©servÃƒÂ© aux transporteurs',
       requiredRole: 'carrier ou transporteur',
       currentRole: req.user.role 
     });
@@ -22,7 +22,7 @@ export const requireTransporteurRole = (req: AuthRequest, res: Response, next: N
 };
 
 /**
- * Middleware pour vérifier les permissions d'un utilisateur transporteur
+ * Middleware pour vÃƒÂ©rifier les permissions d'un utilisateur transporteur
  * @param permission - La permission requise (ex: 'manage_fleet', 'create_documents', etc.)
  */
 export const requireTransporteurPermission = (permission: string) => {
@@ -41,7 +41,7 @@ export const requireTransporteurPermission = (permission: string) => {
       return next();
     }
 
-    // Vérifier les permissions pour les utilisateurs transporteur
+    // VÃƒÂ©rifier les permissions pour les utilisateurs transporteur
     if (req.user.transporteurRole) {
       const userPermissions = req.user.permissions || [];
       
@@ -57,8 +57,8 @@ export const requireTransporteurPermission = (permission: string) => {
     }
 
     return res.status(403).json({ 
-      error: 'Accès non autorisé',
-      message: 'Vous devez être un utilisateur transporteur pour accéder à cette ressource'
+      error: 'AccÃƒÂ¨s non autorisÃƒÂ©',
+      message: 'Vous devez ÃƒÂªtre un utilisateur transporteur pour accÃƒÂ©der ÃƒÂ  cette ressource'
     });
   };
 };
@@ -106,7 +106,7 @@ export const TRANSPORTEUR_PERMISSIONS = {
 };
 
 /**
- * Rôles prédéfinis avec leurs permissions
+ * RÃƒÂ´les prÃƒÂ©dÃƒÂ©finis avec leurs permissions
  */
 export const TRANSPORTEUR_ROLES = {
   owner: [

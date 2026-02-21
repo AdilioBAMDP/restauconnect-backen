@@ -1,19 +1,19 @@
-﻿import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { logger } from '../utils/logger';
 
 // Interface pour la configuration du rate limiting
 export interface RateLimitOptions {
-  windowMs: number; // Fenêtre de temps en millisecondes
-  maxRequests: number; // Nombre maximum de requêtes
-  keyGenerator?: (req: Request) => string; // Fonction pour générer la clé
-  skipSuccessfulRequests?: boolean; // Ne pas compter les requêtes réussies
-  skipFailedRequests?: boolean; // Ne pas compter les requêtes échouées
-  message?: string; // Message d'erreur personnalisé
+  windowMs: number; // FenÃªtre de temps en millisecondes
+  maxRequests: number; // Nombre maximum de requÃªtes
+  keyGenerator?: (req: Request) => string; // Fonction pour gÃ©nÃ©rer la clÃ©
+  skipSuccessfulRequests?: boolean; // Ne pas compter les requÃªtes rÃ©ussies
+  skipFailedRequests?: boolean; // Ne pas compter les requÃªtes Ã©chouÃ©es
+  message?: string; // Message d'erreur personnalisÃ©
   standardHeaders?: boolean; // Ajouter les headers standard
   legacyHeaders?: boolean; // Ajouter les headers legacy
 }
 
-// Store en mémoire pour le rate limiting (en production, utiliser Redis)
+// Store en mÃ©moire pour le rate limiting (en production, utiliser Redis)
 class MemoryStore {
   private store = new Map<string, { count: number; resetTime: number }>();
 
@@ -21,7 +21,7 @@ class MemoryStore {
     const now = new Date().getTime();
     const windowStart = now - windowMs;
 
-    // Nettoyer les anciennes entrées
+    // Nettoyer les anciennes entrÃ©es
     for (const [k, data] of this.store.entries()) {
       if (data.resetTime < new Date().getTime()) {
         this.store.delete(k);
@@ -61,7 +61,7 @@ export const createRateLimit = (options: RateLimitOptions) => {
     keyGenerator = (req: Request) => req.ip || 'unknown',
     skipSuccessfulRequests = false,
     skipFailedRequests = false,
-    message = 'Trop de requêtes. Veuillez réessayer plus tard.',
+    message = 'Trop de requÃªtes. Veuillez rÃ©essayer plus tard.',
     standardHeaders = true,
     legacyHeaders = true
   } = options;
@@ -70,18 +70,18 @@ export const createRateLimit = (options: RateLimitOptions) => {
     const key = keyGenerator(req);
     const data = memoryStore.increment(key, windowMs);
 
-    // Vérifier si on doit skipper selon le succès/échec
+    // VÃ©rifier si on doit skipper selon le succÃ¨s/Ã©chec
     if (skipSuccessfulRequests || skipFailedRequests) {
       const originalJson = res.json.bind(res);
       res.json = function(body: any) {
         const isSuccess = body && body.success !== false && !body.error;
 
         if ((skipSuccessfulRequests && isSuccess) || (skipFailedRequests && !isSuccess)) {
-          // Ne pas compter cette requête, mais continuer
+          // Ne pas compter cette requÃªte, mais continuer
           return originalJson(body);
         }
 
-        // Vérifier le rate limit
+        // VÃ©rifier le rate limit
         if (data.count > maxRequests) {
           logger.warn(`Rate limit exceeded for key: ${key}, count: ${data.count}/${maxRequests}`);
           return res.status(429).json({
@@ -95,7 +95,7 @@ export const createRateLimit = (options: RateLimitOptions) => {
         return originalJson(body);
       };
     } else {
-      // Vérifier immédiatement le rate limit
+      // VÃ©rifier immÃ©diatement le rate limit
       if (data.count > maxRequests) {
         logger.warn(`Rate limit exceeded for key: ${key}, count: ${data.count}/${maxRequests}`);
         res.status(429).json({
@@ -129,38 +129,38 @@ export const createRateLimit = (options: RateLimitOptions) => {
   };
 };
 
-// Rate limits prédéfinis pour différents types de requêtes
+// Rate limits prÃ©dÃ©finis pour diffÃ©rents types de requÃªtes
 export const rateLimits = {
   // Rate limit strict pour l'authentification
   auth: createRateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    maxRequests: 5, // 5 tentatives par fenêtre
-    message: 'Trop de tentatives de connexion. Réessayez dans 15 minutes.',
+    maxRequests: 5, // 5 tentatives par fenÃªtre
+    message: 'Trop de tentatives de connexion. RÃ©essayez dans 15 minutes.',
     keyGenerator: (req) => `auth:${req.ip}:${req.body.email || 'unknown'}`
   }),
 
-  // Rate limit pour les opérations générales
+  // Rate limit pour les opÃ©rations gÃ©nÃ©rales
   general: createRateLimit({
     windowMs: 60 * 1000, // 1 minute
-    maxRequests: 100, // 100 requêtes par minute
+    maxRequests: 100, // 100 requÃªtes par minute
     skipSuccessfulRequests: false,
     skipFailedRequests: false
   }),
 
-  // Rate limit pour les opérations de création (commandes, etc.)
+  // Rate limit pour les opÃ©rations de crÃ©ation (commandes, etc.)
   create: createRateLimit({
     windowMs: 60 * 1000, // 1 minute
-    maxRequests: 20, // 20 créations par minute
-    skipSuccessfulRequests: true, // Ne pas compter les succès
-    message: 'Trop de créations. Veuillez patienter.'
+    maxRequests: 20, // 20 crÃ©ations par minute
+    skipSuccessfulRequests: true, // Ne pas compter les succÃ¨s
+    message: 'Trop de crÃ©ations. Veuillez patienter.'
   }),
 
-  // Rate limit pour les opérations de recherche
+  // Rate limit pour les opÃ©rations de recherche
   search: createRateLimit({
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 30, // 30 recherches par minute
     skipSuccessfulRequests: false,
-    skipFailedRequests: true // Ne pas compter les échecs
+    skipFailedRequests: true // Ne pas compter les Ã©checs
   }),
 
   // Rate limit pour les uploads de fichiers
@@ -175,14 +175,14 @@ export const rateLimits = {
   api: createRateLimit({
     windowMs: 60 * 1000, // 1 minute
     maxRequests: 50, // 50 appels API par minute
-    message: 'Limite d\'API dépassée. Veuillez réessayer plus tard.'
+    message: 'Limite d\'API dÃ©passÃ©e. Veuillez rÃ©essayer plus tard.'
   }),
 
-  // Rate limit très strict pour les opérations sensibles
+  // Rate limit trÃ¨s strict pour les opÃ©rations sensibles
   sensitive: createRateLimit({
     windowMs: 60 * 60 * 1000, // 1 heure
-    maxRequests: 10, // 10 opérations sensibles par heure
-    message: 'Opération sensible limitée. Contactez le support si nécessaire.',
+    maxRequests: 10, // 10 opÃ©rations sensibles par heure
+    message: 'OpÃ©ration sensible limitÃ©e. Contactez le support si nÃ©cessaire.',
     keyGenerator: (req) => `sensitive:${(req as any).user?.id || req.ip}`
   })
 };

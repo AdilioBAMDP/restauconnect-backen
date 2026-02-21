@@ -1,15 +1,15 @@
-﻿import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
 import { logger } from '../utils/logger';
 
-// Schémas de validation réutilisables
+// SchÃ©mas de validation rÃ©utilisables
 export const validationSchemas = {
   // Validation des IDs MongoDB
   objectId: Joi.string().regex(/^[0-9a-fA-F]{24}$/).messages({
     'string.pattern.base': 'ID invalide'
   }),
 
-  // Validation des coordonnées géographiques
+  // Validation des coordonnÃ©es gÃ©ographiques
   coordinates: Joi.object({
     latitude: Joi.number().min(-90).max(90).required(),
     longitude: Joi.number().min(-180).max(180).required()
@@ -62,7 +62,7 @@ export const validationSchemas = {
   })
 };
 
-// Schéma complet pour la création de commande
+// SchÃ©ma complet pour la crÃ©ation de commande
 export const createOrderSchema = Joi.object({
   restaurantId: validationSchemas.objectId.required(),
   supplierId: validationSchemas.objectId.required(),
@@ -82,7 +82,7 @@ export const createOrderSchema = Joi.object({
   customerEmail: Joi.string().email()
 });
 
-// Schéma pour la mise à jour du statut
+// SchÃ©ma pour la mise Ã  jour du statut
 export const updateOrderStatusSchema = Joi.object({
   status: Joi.string().valid(
     'pending', 'confirmed', 'preparing', 'ready_for_pickup',
@@ -91,12 +91,12 @@ export const updateOrderStatusSchema = Joi.object({
   note: Joi.string().max(500)
 });
 
-// Schéma pour l'annulation de commande
+// SchÃ©ma pour l'annulation de commande
 export const cancelOrderSchema = Joi.object({
   reason: Joi.string().min(1).max(500).required()
 });
 
-// Schéma pour les filtres de recherche
+// SchÃ©ma pour les filtres de recherche
 export const orderFiltersSchema = Joi.object({
   restaurantId: validationSchemas.objectId,
   supplierId: validationSchemas.objectId,
@@ -116,7 +116,7 @@ export const orderFiltersSchema = Joi.object({
   sortOrder: Joi.string().valid('asc', 'desc').default('desc')
 });
 
-// Middleware de validation générique
+// Middleware de validation gÃ©nÃ©rique
 export const validateRequest = (schema: Joi.ObjectSchema, property: 'body' | 'query' | 'params' = 'body') => {
   return (req: Request, res: Response, next: NextFunction): void => {
     const { error, value } = schema.validate(req[property], {
@@ -141,14 +141,14 @@ export const validateRequest = (schema: Joi.ObjectSchema, property: 'body' | 'qu
 
       res.status(400).json({
         success: false,
-        error: 'Données de requête invalides',
+        error: 'DonnÃ©es de requÃªte invalides',
         details: errors,
         code: 'VALIDATION_ERROR'
       });
       return;
     }
 
-    // Remplacer les données validées
+    // Remplacer les donnÃ©es validÃ©es
     req[property] = value;
     next();
   };
@@ -183,7 +183,7 @@ export const validateFileUpload = (allowedTypes: string[], maxSize: number = 5 *
       if (!allowedTypes.includes(file.mimetype)) {
         res.status(400).json({
           success: false,
-          error: `Type de fichier non autorisé. Types acceptés: ${allowedTypes.join(', ')}`,
+          error: `Type de fichier non autorisÃ©. Types acceptÃ©s: ${allowedTypes.join(', ')}`,
           code: 'INVALID_FILE_TYPE'
         });
         return;
@@ -194,14 +194,14 @@ export const validateFileUpload = (allowedTypes: string[], maxSize: number = 5 *
   };
 };
 
-// Middleware de sanitisation des entrées
+// Middleware de sanitisation des entrÃ©es
 export const sanitizeInput = (req: Request, res: Response, next: NextFunction): void => {
-  // Fonction récursive pour nettoyer les chaînes
+  // Fonction rÃ©cursive pour nettoyer les chaÃ®nes
   const sanitizeValue = (value: any): any => {
     if (typeof value === 'string') {
-      // Supprimer les caractères de contrôle et normaliser les espaces
+      // Supprimer les caractÃ¨res de contrÃ´le et normaliser les espaces
       return value
-        .replace(/[\x00-\x1F\x7F]/g, '') // Caractères de contrôle
+        .replace(/[\x00-\x1F\x7F]/g, '') // CaractÃ¨res de contrÃ´le
         .replace(/\s+/g, ' ') // Espaces multiples
         .trim();
     }
@@ -252,7 +252,7 @@ export const createSmartRateLimit = (options: {
     const now = Date.now();
     const windowStart = now - windowMs;
 
-    // Nettoyer les anciennes entrées
+    // Nettoyer les anciennes entrÃ©es
     for (const [k, data] of requests.entries()) {
       if (data.resetTime < now) {
         requests.delete(k);
@@ -267,13 +267,13 @@ export const createSmartRateLimit = (options: {
       }
     }
 
-    // Vérifier si on peut skipper selon le succès/échec
+    // VÃ©rifier si on peut skipper selon le succÃ¨s/Ã©chec
     if (skipSuccessfulRequests || skipFailedRequests) {
       const originalJson = res.json.bind(res);
       const interceptedJson = function(data: any) {
         const isSuccess = data && data.success !== false;
         if ((skipSuccessfulRequests && isSuccess) || (skipFailedRequests && !isSuccess)) {
-          // Ne pas compter cette requête
+          // Ne pas compter cette requÃªte
           return originalJson(data);
         }
 
@@ -281,7 +281,7 @@ export const createSmartRateLimit = (options: {
           logger.warn(`Rate limit exceeded for ${key}`);
           res.status(429).json({
             success: false,
-            error: 'Trop de requêtes. Veuillez réessayer plus tard.',
+            error: 'Trop de requÃªtes. Veuillez rÃ©essayer plus tard.',
             retryAfter: Math.ceil((userRequests!.resetTime - now) / 1000),
             code: 'RATE_LIMIT_EXCEEDED'
           });
@@ -291,7 +291,7 @@ export const createSmartRateLimit = (options: {
         return originalJson(data);
       };
 
-      // Stocker la fonction interceptée pour utilisation ultérieure
+      // Stocker la fonction interceptÃ©e pour utilisation ultÃ©rieure
       (res as any)._interceptedJson = interceptedJson;
     } else {
       userRequests.count++;
@@ -299,7 +299,7 @@ export const createSmartRateLimit = (options: {
         logger.warn(`Rate limit exceeded for ${key}`);
         res.status(429).json({
           success: false,
-          error: 'Trop de requêtes. Veuillez réessayer plus tard.',
+          error: 'Trop de requÃªtes. Veuillez rÃ©essayer plus tard.',
           retryAfter: Math.ceil((userRequests.resetTime - now) / 1000),
           code: 'RATE_LIMIT_EXCEEDED'
         });

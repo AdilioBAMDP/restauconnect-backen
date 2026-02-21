@@ -1,6 +1,6 @@
-﻿/**
- * Service de facturation automatique avancé
- * Gère génération factures, relances, statistiques
+/**
+ * Service de facturation automatique avancÃ©
+ * GÃ¨re gÃ©nÃ©ration factures, relances, statistiques
  */
 
 import mongoose from 'mongoose';
@@ -41,14 +41,14 @@ interface InvoiceStats {
 
 class AutoInvoicingService {
   /**
-   * Génère automatiquement des factures pour toutes les livraisons livrées sans facture
+   * GÃ©nÃ¨re automatiquement des factures pour toutes les livraisons livrÃ©es sans facture
    */
   async generateMonthlyInvoices(transporteurId: string, month: number, year: number): Promise<any[]> {
     try {
       const startDate = new Date(year, month - 1, 1);
       const endDate = new Date(year, month, 0, 23, 59, 59);
 
-      // Récupérer toutes les livraisons livrées du mois sans facture
+      // RÃ©cupÃ©rer toutes les livraisons livrÃ©es du mois sans facture
       const deliveries = await TransporteurDelivery.find({
         transporteurId: new mongoose.Types.ObjectId(transporteurId),
         status: 'delivered',
@@ -70,14 +70,14 @@ class AutoInvoicingService {
 
       const invoices = [];
 
-      // Créer une facture par client
+      // CrÃ©er une facture par client
       for (const [clientId, clientDeliveries] of Object.entries(deliveriesByClient)) {
         if (clientId === 'unknown') continue;
 
         // Typer clientDeliveries
         const typedClientDeliveries = clientDeliveries as Array<{ _id: any }>;
 
-        // Vérifier si facture existe déjà
+        // VÃ©rifier si facture existe dÃ©jÃ 
         const existingInvoice = await TransportInvoice.findOne({
           transporteurId: new mongoose.Types.ObjectId(transporteurId),
           clientId: new mongoose.Types.ObjectId(clientId),
@@ -108,12 +108,12 @@ class AutoInvoicingService {
   }
 
   /**
-   * Crée une facture à partir de livraisons
+   * CrÃ©e une facture Ã  partir de livraisons
    */
   async createInvoiceFromDeliveries(options: InvoiceGenerationOptions): Promise<any> {
     const { transporteurId, clientId, clientName, deliveryIds, dueInDays = 30, autoSend = false } = options;
 
-    // Récupérer les livraisons
+    // RÃ©cupÃ©rer les livraisons
     const deliveries = await TransporteurDelivery.find({
       _id: { $in: deliveryIds?.map(id => new mongoose.Types.ObjectId(id)) },
       transporteurId: new mongoose.Types.ObjectId(transporteurId),
@@ -121,7 +121,7 @@ class AutoInvoicingService {
     }).lean();
 
     if (deliveries.length === 0) {
-      throw new Error('Aucune livraison éligible trouvée');
+      throw new Error('Aucune livraison Ã©ligible trouvÃ©e');
     }
 
     // Calculer items avec tarification intelligente
@@ -130,8 +130,8 @@ class AutoInvoicingService {
 
       // Tarification automatique si pas de prix
       if (basePrice === 0) {
-        const distanceRate = 1.5; // €/km
-        const timeRate = 0.5; // €/min
+        const distanceRate = 1.5; // â‚¬/km
+        const timeRate = 0.5; // â‚¬/min
         basePrice = (d.distance * distanceRate) + (d.estimatedDuration * timeRate);
       }
 
@@ -168,7 +168,7 @@ class AutoInvoicingService {
 
       return {
         deliveryId: d._id,
-        description: `Livraison ${d.pickupAddress.city} → ${d.deliveryAddress.city}`,
+        description: `Livraison ${d.pickupAddress.city} â†’ ${d.deliveryAddress.city}`,
         distance: d.distance,
         duration: d.estimatedDuration,
         basePrice: Number(basePrice.toFixed(2)),
@@ -182,13 +182,13 @@ class AutoInvoicingService {
     const taxAmount = subtotal * (taxRate / 100);
     const total = subtotal + taxAmount;
 
-    // Générer numéro facture
+    // GÃ©nÃ©rer numÃ©ro facture
     const invoiceNumber = await (TransportInvoice as any).generateInvoiceNumber(transporteurId);
 
-    // Récupérer infos transporteur
+    // RÃ©cupÃ©rer infos transporteur
     const transporteur = await Transporteur.findById(transporteurId).lean();
 
-    // Créer facture
+    // CrÃ©er facture
     const invoice = new TransportInvoice({
       transporteurId: new mongoose.Types.ObjectId(transporteurId),
       invoiceNumber,
@@ -204,12 +204,12 @@ class AutoInvoicingService {
       dueDate: new Date(Date.now() + dueInDays * 24 * 60 * 60 * 1000),
       status: 'draft',
       paymentMethod: null,
-      notes: `Facture générée automatiquement pour ${deliveries.length} livraison(s)`
+      notes: `Facture gÃ©nÃ©rÃ©e automatiquement pour ${deliveries.length} livraison(s)`
     });
 
     await invoice.save();
 
-    // Générer PDF si autoSend
+    // GÃ©nÃ©rer PDF si autoSend
     if (autoSend) {
       try {
         const pdfUrl = await generateInvoiceFromDB(invoice);
@@ -226,7 +226,7 @@ class AutoInvoicingService {
   }
 
   /**
-   * Marque les factures impayées comme overdue
+   * Marque les factures impayÃ©es comme overdue
    */
   async markOverdueInvoices(): Promise<number> {
     try {
@@ -287,7 +287,7 @@ class AutoInvoicingService {
           message: this.getReminderMessage(reminderType, invoice.invoiceNumber, invoice.total, daysOverdue)
         });
 
-        // Mettre à jour la date de dernière relance
+        // Mettre Ã  jour la date de derniÃ¨re relance
         await TransportInvoice.findByIdAndUpdate(invoice._id, {
           lastReminderDate: new Date()
         });
@@ -307,11 +307,11 @@ class AutoInvoicingService {
   private getReminderMessage(type: string, invoiceNumber: string, amount: number, daysOverdue: number): string {
     switch (type) {
       case 'gentle':
-        return `Rappel amical: La facture ${invoiceNumber} d'un montant de ${amount.toFixed(2)}€ est échue depuis ${daysOverdue} jours. Merci de régulariser votre situation.`;
+        return `Rappel amical: La facture ${invoiceNumber} d'un montant de ${amount.toFixed(2)}â‚¬ est Ã©chue depuis ${daysOverdue} jours. Merci de rÃ©gulariser votre situation.`;
       case 'firm':
-        return `Relance: La facture ${invoiceNumber} (${amount.toFixed(2)}€) est en retard de ${daysOverdue} jours. Merci de procéder au règlement dans les plus brefs délais.`;
+        return `Relance: La facture ${invoiceNumber} (${amount.toFixed(2)}â‚¬) est en retard de ${daysOverdue} jours. Merci de procÃ©der au rÃ¨glement dans les plus brefs dÃ©lais.`;
       case 'final':
-        return `DERNIÈRE RELANCE: La facture ${invoiceNumber} (${amount.toFixed(2)}€) est impayée depuis ${daysOverdue} jours. Sans règlement sous 7 jours, des pénalités de retard seront appliquées.`;
+        return `DERNIÃˆRE RELANCE: La facture ${invoiceNumber} (${amount.toFixed(2)}â‚¬) est impayÃ©e depuis ${daysOverdue} jours. Sans rÃ¨glement sous 7 jours, des pÃ©nalitÃ©s de retard seront appliquÃ©es.`;
       default:
         return `Rappel pour facture ${invoiceNumber}`;
     }
@@ -343,7 +343,7 @@ class AutoInvoicingService {
         topClients: []
       };
 
-      // Calculer délai moyen de paiement
+      // Calculer dÃ©lai moyen de paiement
       const paidInvoices = invoices.filter(i => i.status === 'paid' && i.paidDate);
       if (paidInvoices.length > 0) {
         const totalDelay = paidInvoices.reduce((sum, inv) => {
@@ -405,16 +405,16 @@ class AutoInvoicingService {
 
       // Headers
       worksheet.columns = [
-        { header: 'N° Facture', key: 'invoiceNumber', width: 20 },
-        { header: 'Date émission', key: 'issueDate', width: 15 },
-        { header: 'Date échéance', key: 'dueDate', width: 15 },
+        { header: 'NÂ° Facture', key: 'invoiceNumber', width: 20 },
+        { header: 'Date Ã©mission', key: 'issueDate', width: 15 },
+        { header: 'Date Ã©chÃ©ance', key: 'dueDate', width: 15 },
         { header: 'Client', key: 'clientName', width: 30 },
         { header: 'HT', key: 'subtotal', width: 12 },
         { header: 'TVA', key: 'taxAmount', width: 12 },
         { header: 'TTC', key: 'total', width: 12 },
         { header: 'Statut', key: 'status', width: 15 },
         { header: 'Date paiement', key: 'paidDate', width: 15 },
-        { header: 'Méthode', key: 'paymentMethod', width: 15 }
+        { header: 'MÃ©thode', key: 'paymentMethod', width: 15 }
       ];
 
       // Style header
@@ -425,7 +425,7 @@ class AutoInvoicingService {
         fgColor: { argb: 'FF4F81BD' }
       };
 
-      // Données
+      // DonnÃ©es
       invoices.forEach(invoice => {
         worksheet.addRow({
           invoiceNumber: invoice.invoiceNumber,
@@ -472,10 +472,10 @@ class AutoInvoicingService {
   private translateStatus(status: string): string {
     const translations: Record<string, string> = {
       'draft': 'Brouillon',
-      'sent': 'Envoyée',
-      'paid': 'Payée',
+      'sent': 'EnvoyÃ©e',
+      'paid': 'PayÃ©e',
       'overdue': 'En retard',
-      'cancelled': 'Annulée'
+      'cancelled': 'AnnulÃ©e'
     };
     return translations[status] || status;
   }

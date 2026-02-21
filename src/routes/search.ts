@@ -56,7 +56,7 @@ router.get('/suggestions', async (req, res: Response) => {
           id: listing._id.toString(),
           type: 'listing',
           title: listing.title,
-          subtitle: `${listing.type} • ${listing.location?.city || 'Localisation non spécifiée'}`,
+          subtitle: `${listing.type} Ã¢â‚¬Â¢ ${listing.location?.city || 'Localisation non spÃƒÂ©cifiÃƒÂ©e'}`,
           image: null
         });
       });

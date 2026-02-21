@@ -1,4 +1,12 @@
 {
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsc.autoDetect": "off",
+  "search.exclude": {
+    "**/node_modules": true
+  },
+  "files.exclude": {
+    "**/node_modules": true
+  },
+  "typescript.preferences.includePackageJsonAutoImports": "off"
 }

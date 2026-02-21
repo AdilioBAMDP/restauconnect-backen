@@ -1,4 +1,4 @@
-﻿
+
 import mongoose from 'mongoose';
 import { Router, Response } from 'express';
 import { Message, MessageConversation } from '../models/Message';
@@ -14,18 +14,18 @@ router.get('/', authenticateToken, requireAdmin, async (req: AuthRequest, res: R
     const messages = await Message.find().sort({ createdAt: -1 });
     res.json({ success: true, data: messages });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Erreur lors de la récupération des messages' });
+    res.status(500).json({ success: false, error: 'Erreur lors de la rÃ©cupÃ©ration des messages' });
   }
 });
 
-// DEBUG: Log toutes les requêtes entrantes sur /api/messages
+// DEBUG: Log toutes les requÃªtes entrantes sur /api/messages
 router.use((req, res, next) => {
   // console.log(`[API/messages] ${req.method} ${req.originalUrl} | Authorization:`, req.headers.authorization);
   next();
 });
-// ================= MODÉRATION ADMIN =================
+// ================= MODÃ‰RATION ADMIN =================
 
-// Liste des messages à modérer (flagged ou pending)
+// Liste des messages Ã  modÃ©rer (flagged ou pending)
 router.get('/moderation', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const messages = await Message.find({
@@ -38,7 +38,7 @@ router.get('/moderation', authenticateToken, requireAdmin, async (req: AuthReque
       .sort({ createdAt: -1 });
     res.json({ success: true, data: messages });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Erreur lors de la récupération des messages à modérer' });
+    res.status(500).json({ success: false, error: 'Erreur lors de la rÃ©cupÃ©ration des messages Ã  modÃ©rer' });
   }
 });
 
@@ -47,7 +47,7 @@ router.patch('/:id/approve', authenticateToken, requireAdmin, async (req: AuthRe
   try {
     const { id } = req.params;
     const message = await Message.findById(id);
-    if (!message) return res.status(404).json({ success: false, error: 'Message non trouvé' });
+    if (!message) return res.status(404).json({ success: false, error: 'Message non trouvÃ©' });
     message.moderationStatus = 'approved';
     message.flagged = false;
     message.flaggedReason = undefined;
@@ -75,10 +75,10 @@ router.patch('/:id/reject', authenticateToken, requireAdmin, async (req: AuthReq
     const { id } = req.params;
     const { reason } = req.body;
     const message = await Message.findById(id);
-    if (!message) return res.status(404).json({ success: false, error: 'Message non trouvé' });
+    if (!message) return res.status(404).json({ success: false, error: 'Message non trouvÃ©' });
     message.moderationStatus = 'rejected';
     message.flagged = true;
-    message.flaggedReason = reason || 'Rejeté par modération';
+    message.flaggedReason = reason || 'RejetÃ© par modÃ©ration';
     message.moderatedBy = new mongoose.Types.ObjectId(req.user._id);
     message.moderatedAt = new Date();
     await message.save();
@@ -102,7 +102,7 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, 
   try {
     const { id } = req.params;
     const message = await Message.findById(id);
-    if (!message) return res.status(404).json({ success: false, error: 'Message non trouvé' });
+    if (!message) return res.status(404).json({ success: false, error: 'Message non trouvÃ©' });
     await message.deleteOne();
     // Audit log
     await AuditLog.create({
@@ -112,7 +112,7 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, 
       performedBy: req.user._id,
       performedByRole: req.user.role
     });
-    res.json({ success: true, message: 'Message supprimé' });
+    res.json({ success: true, message: 'Message supprimÃ©' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Erreur lors de la suppression du message' });
   }
@@ -164,7 +164,7 @@ router.post('/conversations', authenticateToken, async (req: AuthRequest, res: R
     const { participantId, otherUserId, listingId, offerId, isPartner, partnerName, otherUserName, otherUserRole } = req.body;
     const userId = req.user!._id.toString();
     
-    // Utiliser otherUserId si présent, sinon participantId
+    // Utiliser otherUserId si prÃ©sent, sinon participantId
     const targetUserId = otherUserId || participantId;
 
     if (!targetUserId) {
@@ -196,7 +196,7 @@ router.post('/conversations', authenticateToken, async (req: AuthRequest, res: R
     } as ApiResponse);
     return;
   } catch (error: any) {
-    // console.error('❌ Error creating conversation:', error);
+    // console.error('âŒ Error creating conversation:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to create conversation',
@@ -273,7 +273,7 @@ router.post('/conversations/:id/messages', authenticateToken, async (req: AuthRe
     });
 
     await message.save();
-    await message.populate('senderId', 'name avatar role'); // OK car message est déjà le doc
+    await message.populate('senderId', 'name avatar role'); // OK car message est dÃ©jÃ  le doc
 
     // Update conversation
     await (conversation as any).updateLastMessage(content);
@@ -390,7 +390,7 @@ router.patch('/messages/:id', authenticateToken, async (req: AuthRequest, res: R
     }
 
     await (message as any).edit(content);
-    await message.populate('senderId', 'name avatar role'); // OK car message est déjà le doc
+    await message.populate('senderId', 'name avatar role'); // OK car message est dÃ©jÃ  le doc
 
     // Emit message edit through Socket.IO
     const io = req.app.get('io');

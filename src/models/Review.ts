@@ -3,7 +3,7 @@ import { Notification as INotification, Review as IReview, NotificationType } fr
 import { logger } from '../utils/logger';
 
 export interface NotificationDocument extends Omit<INotification, '_id'>, Document {}
-// Étend l'interface pour inclure les champs de modération utilisés dans le schéma et les routes
+// Ãƒâ€°tend l'interface pour inclure les champs de modÃƒÂ©ration utilisÃƒÂ©s dans le schÃƒÂ©ma et les routes
 interface ReviewModeration {
   flagged?: boolean;
   moderationStatus?: 'pending' | 'approved' | 'rejected';
@@ -100,7 +100,7 @@ const ReviewSchema = new Schema<ReviewDocument>({
   verified: { type: Boolean, default: false },
   helpful: { type: Number, default: 0 },
   response: ReviewResponseSchema,
-  // Champs de modération
+  // Champs de modÃƒÂ©ration
   flagged: { type: Boolean, default: false, index: true },
   moderationStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending', index: true },
   moderationHistory: [
@@ -257,8 +257,8 @@ ReviewSchema.pre('save', function(next) {
   next();
 });
 
-// Renommé en ReviewNotification pour éviter conflit avec notre nouveau modèle Notification.ts
-// Guard pattern pour éviter "OverwriteModelError"
+// RenommÃƒÂ© en ReviewNotification pour ÃƒÂ©viter conflit avec notre nouveau modÃƒÂ¨le Notification.ts
+// Guard pattern pour ÃƒÂ©viter "OverwriteModelError"
 export const ReviewNotification = (mongoose.models.ReviewNotification || mongoose.model<NotificationDocument>('ReviewNotification', NotificationSchema)) as mongoose.Model<NotificationDocument>;
 export const Review = (mongoose.models.Review || mongoose.model<ReviewDocument>('Review', ReviewSchema)) as mongoose.Model<ReviewDocument>;
 

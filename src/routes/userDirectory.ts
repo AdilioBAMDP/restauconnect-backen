@@ -18,10 +18,10 @@ router.get('/directory/list', authenticateToken, async (req: Request, res: Respo
       data: users
     });
   } catch (error) {
-    logger.error('Erreur lors de la récupération de l\'annuaire:', error);
+    logger.error('Erreur lors de la rÃƒÂ©cupÃƒÂ©ration de l\'annuaire:', error);
     res.status(500).json({
       success: false,
-      message: 'Erreur serveur lors de la récupération de l\'annuaire'
+      message: 'Erreur serveur lors de la rÃƒÂ©cupÃƒÂ©ration de l\'annuaire'
     });
   }
 });

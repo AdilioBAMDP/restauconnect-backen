@@ -1,4 +1,4 @@
-﻿import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 // Interface TypeScript
 export interface ITaxAlert extends Document {
@@ -13,7 +13,7 @@ export interface ITaxAlert extends Document {
   updatedAt: Date;
 }
 
-// SchÃ©ma Mongoose
+// SchÃƒÂ©ma Mongoose
 const TaxAlertSchema = new Schema<ITaxAlert>({
   clientId: {
     type: Schema.Types.ObjectId,

@@ -1,4 +1,4 @@
-﻿import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 // Interface TypeScript
 export interface IJobPosting extends Document {
@@ -22,7 +22,7 @@ export interface IJobPosting extends Document {
   updatedAt: Date;
 }
 
-// Schéma Mongoose
+// SchÃ©ma Mongoose
 const JobPostingSchema = new Schema<IJobPosting>({
   title: {
     type: String,

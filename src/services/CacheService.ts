@@ -1,4 +1,4 @@
-﻿import { createClient, RedisClientType } from 'redis';
+import { createClient, RedisClientType } from 'redis';
 import { logger } from '../utils/logger';
 
 export class CacheService {

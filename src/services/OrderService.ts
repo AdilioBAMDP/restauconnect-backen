@@ -1,11 +1,11 @@
-﻿// ✅ FIX: Utiliser méthodes standard au lieu de utility fonctions qui crash
+// âœ… FIX: Utiliser mÃ©thodes standard au lieu de utility fonctions qui crash
 import mongoose from 'mongoose';
 import { Order, OrderStatus, OrderPriority, IOrderItem, IOrderAddress } from '../models/Order';
 import { User, UserRole } from '../models/User';
 import { cacheService } from './CacheService';
 import { logger } from '../utils/logger';
 
-// Interfaces pour les paramètres des services
+// Interfaces pour les paramÃ¨tres des services
 export interface OrderFilters {
   userId?: string;
   restaurantId?: string;
@@ -50,7 +50,7 @@ export interface CreateOrderData {
 
 export class OrderService {
   /**
-   * Récupérer les commandes avec filtres et pagination
+   * RÃ©cupÃ©rer les commandes avec filtres et pagination
    */
   static async getOrders(filters: OrderFilters = {}, options: OrderOptions = {}) {
     try {
@@ -64,7 +64,7 @@ export class OrderService {
       // Validation des ObjectIds
       const validatedFilters = this.validateOrderFilters(filters);
 
-      // Construction de la requête
+      // Construction de la requÃªte
       const query = Order.find(validatedFilters)
         .populate('restaurantId', 'name email')
         .populate('supplierId', 'name email')
@@ -88,26 +88,26 @@ export class OrderService {
         }
       };
     } catch (error) {
-      logger.error('Erreur lors de la récupération des commandes:', error);
+      logger.error('Erreur lors de la rÃ©cupÃ©ration des commandes:', error);
       return {
         success: false,
-        error: 'Erreur lors de la récupération des commandes'
+        error: 'Erreur lors de la rÃ©cupÃ©ration des commandes'
       };
     }
   }
 
   /**
-   * Créer une nouvelle commande
+   * CrÃ©er une nouvelle commande
    */
   static async createOrder(orderData: CreateOrderData) {
     try {
-      // Validation des données
+      // Validation des donnÃ©es
       const validatedData = await this.validateOrderData(orderData);
 
       // Calcul des prix
       const pricing = this.calculateOrderPricing(validatedData.items, validatedData.deliveryAddress);
 
-      // Création de la commande
+      // CrÃ©ation de la commande
       const order = new Order({
         ...validatedData,
         ...pricing,
@@ -118,27 +118,27 @@ export class OrderService {
 
       await order.save();
 
-      // Peupler les données pour la réponse
+      // Peupler les donnÃ©es pour la rÃ©ponse
       await order.populate('restaurantId', 'name email');
       await order.populate('supplierId', 'name email');
 
-      logger.info(`Nouvelle commande créée: ${order._id}`);
+      logger.info(`Nouvelle commande crÃ©Ã©e: ${order._id}`);
 
       return {
         success: true,
         data: order
       };
     } catch (error) {
-      logger.error('Erreur lors de la création de la commande:', error);
+      logger.error('Erreur lors de la crÃ©ation de la commande:', error);
       return {
         success: false,
-        error: 'Erreur lors de la création de la commande'
+        error: 'Erreur lors de la crÃ©ation de la commande'
       };
     }
   }
 
   /**
-   * Mettre à jour le statut d'une commande
+   * Mettre Ã  jour le statut d'une commande
    */
   static async updateOrderStatus(orderId: string, newStatus: OrderStatus, userId?: string) {
     try {
@@ -160,12 +160,12 @@ export class OrderService {
         };
       }
 
-      // Vérification de l'existence de la commande
+      // VÃ©rification de l'existence de la commande
   const orderDoc = await Order.findById(orderId).exec();
   if (!orderDoc) {
         return {
           success: false,
-          error: 'Commande non trouvée'
+          error: 'Commande non trouvÃ©e'
         };
       }
 
@@ -174,54 +174,54 @@ export class OrderService {
       if (!isValidTransition) {
         return {
           success: false,
-          error: `Transition de statut invalide: ${orderDoc.status} → ${newStatus}`
+          error: `Transition de statut invalide: ${orderDoc.status} â†’ ${newStatus}`
         };
       }
-      // Mise à jour
+      // Mise Ã  jour
       orderDoc.status = newStatus;
       await orderDoc.save();
-      // Suppression de la création automatique de livraison ici :
-      // La livraison doit être créée explicitement après confirmation fournisseur (ex: dans /mark-ready)
+      // Suppression de la crÃ©ation automatique de livraison ici :
+      // La livraison doit Ãªtre crÃ©Ã©e explicitement aprÃ¨s confirmation fournisseur (ex: dans /mark-ready)
       
-      // 📄 GÉNÉRATION AUTOMATIQUE DE FACTURE si ready_for_pickup
+      // ðŸ“„ GÃ‰NÃ‰RATION AUTOMATIQUE DE FACTURE si ready_for_pickup
       if (newStatus === OrderStatus.READY_FOR_PICKUP) {
         try {
           const InvoiceService = require('./InvoiceService');
           const invoiceResult = await InvoiceService.generateInvoice(orderId);
           
           if (invoiceResult.success) {
-            logger.info(`✅ Facture auto-générée : ${invoiceResult.invoiceNumber}`);
+            logger.info(`âœ… Facture auto-gÃ©nÃ©rÃ©e : ${invoiceResult.invoiceNumber}`);
           } else {
-            logger.warn(`⚠️ Échec génération facture : ${invoiceResult.error}`);
+            logger.warn(`âš ï¸ Ã‰chec gÃ©nÃ©ration facture : ${invoiceResult.error}`);
           }
         } catch (invoiceError) {
-          logger.error('❌ Erreur génération facture:', invoiceError);
-          // Ne pas bloquer la commande si génération facture échoue
+          logger.error('âŒ Erreur gÃ©nÃ©ration facture:', invoiceError);
+          // Ne pas bloquer la commande si gÃ©nÃ©ration facture Ã©choue
         }
       }
       
       // Invalider le cache
       await cacheService.invalidateOrderCache(orderId);
-      logger.info(`Statut de la commande ${orderId} mis à jour: ${newStatus}`);
+      logger.info(`Statut de la commande ${orderId} mis Ã  jour: ${newStatus}`);
       return {
         success: true,
         data: orderDoc
       };
     } catch (error) {
-      logger.error('Erreur lors de la mise à jour du statut:', error);
+      logger.error('Erreur lors de la mise Ã  jour du statut:', error);
       return {
         success: false,
-        error: 'Erreur lors de la mise à jour du statut'
+        error: 'Erreur lors de la mise Ã  jour du statut'
       };
     }
   }
 
   /**
-   * Récupérer une commande par ID
+   * RÃ©cupÃ©rer une commande par ID
    */
   static async getOrderById(orderId: string) {
     try {
-      // Vérifier le cache d'abord
+      // VÃ©rifier le cache d'abord
       const cachedOrder = await cacheService.getCachedOrder(orderId);
       if (cachedOrder) {
         logger.debug(`Order ${orderId} retrieved from cache`);
@@ -240,7 +240,7 @@ export class OrderService {
       if (!order) {
         return {
           success: false,
-          error: 'Commande non trouvée'
+          error: 'Commande non trouvÃ©e'
         };
       }
 
@@ -253,10 +253,10 @@ export class OrderService {
         cached: false
       };
     } catch (error) {
-      logger.error('Erreur lors de la récupération de la commande:', error);
+      logger.error('Erreur lors de la rÃ©cupÃ©ration de la commande:', error);
       return {
         success: false,
-        error: 'Erreur lors de la récupération de la commande'
+        error: 'Erreur lors de la rÃ©cupÃ©ration de la commande'
       };
     }
   }
@@ -270,18 +270,18 @@ export class OrderService {
   if (!orderDoc) {
         return {
           success: false,
-          error: 'Commande non trouvée'
+          error: 'Commande non trouvÃ©e'
         };
       }
 
-      // Vérifier si la commande peut être annulée
+      // VÃ©rifier si la commande peut Ãªtre annulÃ©e
       if ([OrderStatus.DELIVERED, OrderStatus.CANCELLED].includes(orderDoc.status)) {
         return {
           success: false,
-          error: 'Cette commande ne peut pas être annulée'
+          error: 'Cette commande ne peut pas Ãªtre annulÃ©e'
         };
       }
-      // Mise à jour du statut
+      // Mise Ã  jour du statut
       const result = await this.updateOrderStatus(orderId, OrderStatus.CANCELLED, userId);
       if (!result.success) {
         return result;
@@ -294,7 +294,7 @@ export class OrderService {
       await orderDoc.save();
       // Invalider le cache
       await cacheService.invalidateOrderCache(orderId);
-      logger.info(`Commande ${orderId} annulée par ${userId}: ${reason}`);
+      logger.info(`Commande ${orderId} annulÃ©e par ${userId}: ${reason}`);
       return {
         success: true,
         data: orderDoc
@@ -308,7 +308,7 @@ export class OrderService {
     }
   }
 
-  // === MÉTHODES UTILITAIRES ===
+  // === MÃ‰THODES UTILITAIRES ===
 
   /**
    * Validation des filtres de commande
@@ -366,7 +366,7 @@ export class OrderService {
   }
 
   /**
-   * Validation des données de commande
+   * Validation des donnÃ©es de commande
    */
   private static async validateOrderData(orderData: CreateOrderData) {
     const { restaurantId, supplierId, items, deliveryAddress } = orderData;
@@ -414,7 +414,7 @@ export class OrderService {
     }
     const subtotal = itemsArray.reduce((sum: number, item: any) => sum + item.totalPrice, 0);
 
-    // Frais de livraison (logique simplifiée)
+    // Frais de livraison (logique simplifiÃ©e)
     const deliveryFee = subtotal > 50 ? 0 : 5.99;
 
     // Taxe (exemple: 10%)

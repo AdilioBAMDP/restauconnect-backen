@@ -1,4 +1,4 @@
-﻿import { logger } from '../utils/logger';
+import { logger } from '../utils/logger';
 
 class CompanyTransferService {
   async initiateTransfer(userId: string, amount: number) {

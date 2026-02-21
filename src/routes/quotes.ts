@@ -2,14 +2,14 @@
  * ROUTES API QUOTES - Gestion des devis
  * 
  * Endpoints :
- * - POST /api/quotes - Créer un devis
- * - GET /api/quotes - Lister mes devis (envoyés ou reçus)
- * - GET /api/quotes/:id - Détails d'un devis
+ * - POST /api/quotes - CrÃƒÂ©er un devis
+ * - GET /api/quotes - Lister mes devis (envoyÃƒÂ©s ou reÃƒÂ§us)
+ * - GET /api/quotes/:id - DÃƒÂ©tails d'un devis
  * - PATCH /api/quotes/:id - Modifier un devis (brouillon seulement)
  * - POST /api/quotes/:id/send - Envoyer un devis
  * - POST /api/quotes/:id/accept - Accepter un devis
  * - POST /api/quotes/:id/reject - Refuser un devis
- * - GET /api/quotes/:id/pdf - Télécharger le PDF
+ * - GET /api/quotes/:id/pdf - TÃƒÂ©lÃƒÂ©charger le PDF
  */
 
 import express, { Request, Response } from 'express';
@@ -25,7 +25,7 @@ router.use(authenticateToken);
 
 /**
  * POST /api/quotes
- * Créer un nouveau devis
+ * CrÃƒÂ©er un nouveau devis
  */
 router.post('/', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -56,10 +56,10 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
       });
     }
     
-    // Calculer date de validité
+    // Calculer date de validitÃƒÂ©
     const validUntil = new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000);
     
-    // Créer le devis
+    // CrÃƒÂ©er le devis
     const quote = new Quote({
       providerId: user._id,
       providerName: user.companyName || user.name || user.email,
@@ -98,17 +98,17 @@ router.post('/', async (req: Request, res: Response): Promise<any> => {
     });
     
   } catch (error: any) {
-    logger.error('Erreur création devis:', error);
+    logger.error('Erreur crÃƒÂ©ation devis:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de la création du devis'
+      error: error.message || 'Erreur lors de la crÃƒÂ©ation du devis'
     });
   }
 });
 
 /**
  * GET /api/quotes
- * Lister mes devis (envoyés ou reçus)
+ * Lister mes devis (envoyÃƒÂ©s ou reÃƒÂ§us)
  */
 router.get('/', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -123,13 +123,13 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
     
     const filter: any = {};
     
-    // Filtrer par rôle (envoyé vs reçu)
+    // Filtrer par rÃƒÂ´le (envoyÃƒÂ© vs reÃƒÂ§u)
     if (type === 'sent') {
       filter.providerId = user._id;
     } else if (type === 'received') {
       filter.clientId = user._id;
     } else {
-      // Devis envoyés OU reçus
+      // Devis envoyÃƒÂ©s OU reÃƒÂ§us
       filter.$or = [
         { providerId: user._id },
         { clientId: user._id }
@@ -170,14 +170,14 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
     logger.error('Erreur liste devis:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de la récupération des devis'
+      error: error.message || 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des devis'
     });
   }
 });
 
 /**
  * GET /api/quotes/:id
- * Détails d'un devis
+ * DÃƒÂ©tails d'un devis
  */
 router.get('/:id', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -192,18 +192,18 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
     if (!quote) {
       return res.status(404).json({
         success: false,
-        error: 'Devis non trouvé'
+        error: 'Devis non trouvÃƒÂ©'
       });
     }
     
-    // Vérifier que l'utilisateur est provider ou client
+    // VÃƒÂ©rifier que l'utilisateur est provider ou client
     if (
       quote.providerId._id.toString() !== user._id.toString() &&
       quote.clientId._id.toString() !== user._id.toString()
     ) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'avez pas accès à ce devis'
+        error: 'Vous n\'avez pas accÃƒÂ¨s ÃƒÂ  ce devis'
       });
     }
     
@@ -214,13 +214,13 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
     ) {
       await (quote as any).markAsViewed();
       
-      // Notifier le provider que le devis a été vu
+      // Notifier le provider que le devis a ÃƒÂ©tÃƒÂ© vu
       await (Notification as any).createAndSend(
         quote.providerId._id,
         (quote.providerId as any).role,
         'quote-viewed',
-        'Votre devis a été consulté',
-        `${quote.clientName} a consulté votre devis "${quote.title}"`,
+        'Votre devis a ÃƒÂ©tÃƒÂ© consultÃƒÂ©',
+        `${quote.clientName} a consultÃƒÂ© votre devis "${quote.title}"`,
         {
           priority: 'normal',
           data: { quoteId: quote._id },
@@ -236,10 +236,10 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
     });
     
   } catch (error: any) {
-    logger.error('Erreur détails devis:', error);
+    logger.error('Erreur dÃƒÂ©tails devis:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors de la récupération du devis'
+      error: error.message || 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration du devis'
     });
   }
 });
@@ -259,23 +259,23 @@ router.patch('/:id', async (req: Request, res: Response): Promise<any> => {
     if (!quote) {
       return res.status(404).json({
         success: false,
-        error: 'Devis non trouvé'
+        error: 'Devis non trouvÃƒÂ©'
       });
     }
     
-    // Vérifier propriétaire
+    // VÃƒÂ©rifier propriÃƒÂ©taire
     if (quote.providerId.toString() !== user._id.toString()) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas autorisé à modifier ce devis'
+        error: 'Vous n\'ÃƒÂªtes pas autorisÃƒÂ© ÃƒÂ  modifier ce devis'
       });
     }
     
-    // Vérifier statut (seul brouillon modifiable)
+    // VÃƒÂ©rifier statut (seul brouillon modifiable)
     if (quote.status !== 'draft') {
       return res.status(400).json({
         success: false,
-        error: 'Seul un devis en brouillon peut être modifié'
+        error: 'Seul un devis en brouillon peut ÃƒÂªtre modifiÃƒÂ©'
       });
     }
     
@@ -287,7 +287,7 @@ router.patch('/:id', async (req: Request, res: Response): Promise<any> => {
       }
     });
     
-    // Recalculer totaux si lignes modifiées
+    // Recalculer totaux si lignes modifiÃƒÂ©es
     if (updates.lines) {
       (quote as any).calculateTotals();
     }
@@ -323,15 +323,15 @@ router.post('/:id/send', async (req: Request, res: Response): Promise<any> => {
     if (!quote) {
       return res.status(404).json({
         success: false,
-        error: 'Devis non trouvé'
+        error: 'Devis non trouvÃƒÂ©'
       });
     }
     
-    // Vérifier propriétaire
+    // VÃƒÂ©rifier propriÃƒÂ©taire
     if (quote.providerId._id.toString() !== user._id.toString()) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas autorisé à envoyer ce devis'
+        error: 'Vous n\'ÃƒÂªtes pas autorisÃƒÂ© ÃƒÂ  envoyer ce devis'
       });
     }
     
@@ -343,8 +343,8 @@ router.post('/:id/send', async (req: Request, res: Response): Promise<any> => {
       quote.clientId._id,
       (quote.clientId as any).role,
       'quote-received',
-      'Nouveau devis reçu',
-      `${quote.providerName} vous a envoyé un devis pour "${quote.title}"`,
+      'Nouveau devis reÃƒÂ§u',
+      `${quote.providerName} vous a envoyÃƒÂ© un devis pour "${quote.title}"`,
       {
         priority: 'high',
         data: { quoteId: quote._id, providerId: quote.providerId },
@@ -354,11 +354,11 @@ router.post('/:id/send', async (req: Request, res: Response): Promise<any> => {
     );
     
     // TODO: Ajouter message dans conversation avec le devis
-    // TODO: Générer PDF
+    // TODO: GÃƒÂ©nÃƒÂ©rer PDF
     
     res.json({
       success: true,
-      message: 'Devis envoyé avec succès'
+      message: 'Devis envoyÃƒÂ© avec succÃƒÂ¨s'
     });
     
   } catch (error: any) {
@@ -385,11 +385,11 @@ router.post('/:id/accept', async (req: Request, res: Response): Promise<any> => 
     if (!quote) {
       return res.status(404).json({
         success: false,
-        error: 'Devis non trouvé'
+        error: 'Devis non trouvÃƒÂ©'
       });
     }
     
-    // Vérifier que c'est le client
+    // VÃƒÂ©rifier que c'est le client
     if (quote.clientId._id.toString() !== user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -405,8 +405,8 @@ router.post('/:id/accept', async (req: Request, res: Response): Promise<any> => 
       quote.providerId._id,
       (quote.providerId as any).role,
       'quote-accepted',
-      '✅ Devis accepté !',
-      `${quote.clientName} a accepté votre devis "${quote.title}" (${quote.totalTTC}€)`,
+      'Ã¢Å“â€¦ Devis acceptÃƒÂ© !',
+      `${quote.clientName} a acceptÃƒÂ© votre devis "${quote.title}" (${quote.totalTTC}Ã¢â€šÂ¬)`,
       {
         priority: 'high',
         data: { quoteId: quote._id, clientId: quote.clientId },
@@ -417,7 +417,7 @@ router.post('/:id/accept', async (req: Request, res: Response): Promise<any> => 
     
     res.json({
       success: true,
-      message: 'Devis accepté avec succès'
+      message: 'Devis acceptÃƒÂ© avec succÃƒÂ¨s'
     });
     
   } catch (error: any) {
@@ -445,11 +445,11 @@ router.post('/:id/reject', async (req: Request, res: Response): Promise<any> => 
     if (!quote) {
       return res.status(404).json({
         success: false,
-        error: 'Devis non trouvé'
+        error: 'Devis non trouvÃƒÂ©'
       });
     }
     
-    // Vérifier que c'est le client
+    // VÃƒÂ©rifier que c'est le client
     if (quote.clientId._id.toString() !== user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -465,8 +465,8 @@ router.post('/:id/reject', async (req: Request, res: Response): Promise<any> => 
       quote.providerId._id,
       (quote.providerId as any).role,
       'quote-rejected',
-      'Devis refusé',
-      `${quote.clientName} a refusé votre devis "${quote.title}"${reason ? ` - Raison: ${reason}` : ''}`,
+      'Devis refusÃƒÂ©',
+      `${quote.clientName} a refusÃƒÂ© votre devis "${quote.title}"${reason ? ` - Raison: ${reason}` : ''}`,
       {
         priority: 'normal',
         data: { quoteId: quote._id, clientId: quote.clientId, reason },
@@ -477,7 +477,7 @@ router.post('/:id/reject', async (req: Request, res: Response): Promise<any> => 
     
     res.json({
       success: true,
-      message: 'Devis refusé'
+      message: 'Devis refusÃƒÂ©'
     });
     
   } catch (error: any) {
@@ -491,7 +491,7 @@ router.post('/:id/reject', async (req: Request, res: Response): Promise<any> => 
 
 /**
  * GET /api/quotes/:id/pdf
- * Télécharger le PDF du devis
+ * TÃƒÂ©lÃƒÂ©charger le PDF du devis
  */
 router.get('/:id/pdf', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -503,37 +503,37 @@ router.get('/:id/pdf', async (req: Request, res: Response): Promise<any> => {
     if (!quote) {
       return res.status(404).json({
         success: false,
-        error: 'Devis non trouvé'
+        error: 'Devis non trouvÃƒÂ©'
       });
     }
     
-    // Vérifier accès
+    // VÃƒÂ©rifier accÃƒÂ¨s
     if (
       quote.providerId.toString() !== user._id.toString() &&
       quote.clientId.toString() !== user._id.toString()
     ) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'avez pas accès à ce devis'
+        error: 'Vous n\'avez pas accÃƒÂ¨s ÃƒÂ  ce devis'
       });
     }
     
-    // TODO: Générer PDF avec bibliothèque (pdfkit, puppeteer, etc.)
+    // TODO: GÃƒÂ©nÃƒÂ©rer PDF avec bibliothÃƒÂ¨que (pdfkit, puppeteer, etc.)
     // Pour l'instant, retourner URL si existe
     if (quote.pdfUrl) {
       res.redirect(quote.pdfUrl);
     } else {
       res.status(404).json({
         success: false,
-        error: 'PDF non disponible. Génération à implémenter.'
+        error: 'PDF non disponible. GÃƒÂ©nÃƒÂ©ration ÃƒÂ  implÃƒÂ©menter.'
       });
     }
     
   } catch (error: any) {
-    logger.error('Erreur téléchargement PDF:', error);
+    logger.error('Erreur tÃƒÂ©lÃƒÂ©chargement PDF:', error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Erreur lors du téléchargement du PDF'
+      error: error.message || 'Erreur lors du tÃƒÂ©lÃƒÂ©chargement du PDF'
     });
   }
 });

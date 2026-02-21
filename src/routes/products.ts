@@ -13,7 +13,7 @@ const router = Router();
 
 /**
  * GET /api/products
- * Récupérer tous les produits (avec filtres optionnels)
+ * RÃƒÂ©cupÃƒÂ©rer tous les produits (avec filtres optionnels)
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -76,17 +76,17 @@ router.get('/', async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    logger.error('Erreur récupération produits:', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration produits:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des produits'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des produits'
     });
   }
 });
 
 /**
  * GET /api/products/:id
- * Récupérer un produit par ID
+ * RÃƒÂ©cupÃƒÂ©rer un produit par ID
  */
 router.get('/:id', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -95,12 +95,12 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
     if (!product) {
       res.status(404).json({
         success: false,
-        error: 'Produit non trouvé'
+        error: 'Produit non trouvÃƒÂ©'
       });
       return;
     }
 
-    // Incrémenter les vues
+    // IncrÃƒÂ©menter les vues
     product.views += 1;
     await product.save();
 
@@ -109,27 +109,27 @@ router.get('/:id', async (req: Request, res: Response): Promise<void> => {
       data: product
     });
   } catch (error) {
-    logger.error('Erreur récupération produit:', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration produit:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération du produit'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration du produit'
     });
   }
 });
 
 /**
  * POST /api/products
- * Créer un nouveau produit (fournisseur seulement)
+ * CrÃƒÂ©er un nouveau produit (fournisseur seulement)
  */
 router.post('/', authenticateToken, upload.single('image'), async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const user = req.user;
 
-    // Vérifier que l'utilisateur est un fournisseur
+    // VÃƒÂ©rifier que l'utilisateur est un fournisseur
     if (!user || (user.role !== 'supplier' && user.role !== 'artisan')) {
       res.status(403).json({
         success: false,
-        error: 'Seuls les fournisseurs peuvent créer des produits'
+        error: 'Seuls les fournisseurs peuvent crÃƒÂ©er des produits'
       });
       return;
     }
@@ -140,7 +140,7 @@ router.post('/', authenticateToken, upload.single('image'), async (req: AuthRequ
       imageUrl: '/images/products/default.jpg'
     };
 
-    // Traiter l'image uploadée
+    // Traiter l'image uploadÃƒÂ©e
     if (req.file) {
       const processedPath = await ImageService.processImage(req.file.path, {
         width: 800,
@@ -157,20 +157,20 @@ router.post('/', authenticateToken, upload.single('image'), async (req: AuthRequ
     res.status(201).json({
       success: true,
       data: product,
-      message: 'Produit créé avec succès'
+      message: 'Produit crÃƒÂ©ÃƒÂ© avec succÃƒÂ¨s'
     });
   } catch (error) {
-    logger.error('Erreur création produit:', error);
+    logger.error('Erreur crÃƒÂ©ation produit:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la création du produit'
+      error: 'Erreur lors de la crÃƒÂ©ation du produit'
     });
   }
 });
 
 /**
  * PUT /api/products/:id
- * Modifier un produit (fournisseur propriétaire seulement)
+ * Modifier un produit (fournisseur propriÃƒÂ©taire seulement)
  */
 router.put('/:id', authenticateToken, upload.single('image'), async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -180,12 +180,12 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req: AuthRe
     if (!product) {
       res.status(404).json({
         success: false,
-        error: 'Produit non trouvé'
+        error: 'Produit non trouvÃƒÂ©'
       });
       return;
     }
 
-    // Vérifier que le fournisseur est propriétaire du produit
+    // VÃƒÂ©rifier que le fournisseur est propriÃƒÂ©taire du produit
     if (!user || product.supplierId.toString() !== user.userId) {
       res.status(403).json({
         success: false,
@@ -194,7 +194,7 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req: AuthRe
       return;
     }
 
-    // Traiter la nouvelle image si uploadée
+    // Traiter la nouvelle image si uploadÃƒÂ©e
     if (req.file) {
       // Supprimer l'ancienne image
       if (product.imageUrl !== '/images/products/default.jpg') {
@@ -217,7 +217,7 @@ router.put('/:id', authenticateToken, upload.single('image'), async (req: AuthRe
     res.json({
       success: true,
       data: product,
-      message: 'Produit mis à jour avec succès'
+      message: 'Produit mis ÃƒÂ  jour avec succÃƒÂ¨s'
     });
   } catch (error) {
     logger.error('Erreur modification produit:', error);
@@ -240,7 +240,7 @@ router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response)
     if (!product) {
       res.status(404).json({
         success: false,
-        error: 'Produit non trouvé'
+        error: 'Produit non trouvÃƒÂ©'
       });
       return;
     }
@@ -259,7 +259,7 @@ router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response)
 
     res.json({
       success: true,
-      message: 'Produit supprimé avec succès'
+      message: 'Produit supprimÃƒÂ© avec succÃƒÂ¨s'
     });
   } catch (error) {
     logger.error('Erreur suppression produit:', error);
@@ -272,7 +272,7 @@ router.delete('/:id', authenticateToken, async (req: AuthRequest, res: Response)
 
 /**
  * GET /api/products/supplier/:supplierId/catalog
- * Récupérer le catalogue complet d'un fournisseur
+ * RÃƒÂ©cupÃƒÂ©rer le catalogue complet d'un fournisseur
  */
 router.get('/supplier/:supplierId/catalog', async (req: Request, res: Response): Promise<void> => {
   try {
@@ -288,10 +288,10 @@ router.get('/supplier/:supplierId/catalog', async (req: Request, res: Response):
 
       supplier = await User.findById(req.params.supplierId).select('name companyName email phone location rating deliveryInfo');
     } catch (mongoError) {
-      logger.warn('MongoDB indisponible, utilisation données fictives:', mongoError);
+      logger.warn('MongoDB indisponible, utilisation donnÃƒÂ©es fictives:', mongoError);
     }
 
-    // Si pas de données MongoDB, retourner des données fictives
+    // Si pas de donnÃƒÂ©es MongoDB, retourner des donnÃƒÂ©es fictives
     if (!products || products.length === 0) {
       const supplierId = req.params.supplierId;
 
@@ -300,7 +300,7 @@ router.get('/supplier/:supplierId/catalog', async (req: Request, res: Response):
         {
           _id: 'prod-001',
           name: 'Steak de Boeuf Premium',
-          description: 'Steak de boeuf de haute qualit�, tendre et savoureux',
+          description: 'Steak de boeuf de haute qualitÃ¯Â¿Â½, tendre et savoureux',
           price: 25.99,
           category: 'Viandes',
           supplierId: supplierId,
@@ -328,7 +328,7 @@ router.get('/supplier/:supplierId/catalog', async (req: Request, res: Response):
         {
           _id: 'prod-003',
           name: 'Huile d\'Olive Extra Vierge',
-          description: 'Huile d\'olive de première qualité, idéale pour la cuisine',
+          description: 'Huile d\'olive de premiÃƒÂ¨re qualitÃƒÂ©, idÃƒÂ©ale pour la cuisine',
           price: 12.99,
           category: 'Huiles',
           supplierId: supplierId,
@@ -342,9 +342,9 @@ router.get('/supplier/:supplierId/catalog', async (req: Request, res: Response):
         {
           _id: 'prod-004',
           name: 'Tomates Bio',
-          description: 'Tomates biologiques fraîches et savoureuses',
+          description: 'Tomates biologiques fraÃƒÂ®ches et savoureuses',
           price: 3.99,
-          category: 'Légumes',
+          category: 'LÃƒÂ©gumes',
           supplierId: supplierId,
           stockQuantity: 200,
           unit: 'kg',
@@ -355,8 +355,8 @@ router.get('/supplier/:supplierId/catalog', async (req: Request, res: Response):
         },
         {
           _id: 'prod-005',
-          name: 'Fromage Comté AOP',
-          description: 'Fromage Comté de 24 mois d\'affinage',
+          name: 'Fromage ComtÃƒÂ© AOP',
+          description: 'Fromage ComtÃƒÂ© de 24 mois d\'affinage',
           price: 15.50,
           category: 'Fromages',
           supplierId: supplierId,
@@ -370,7 +370,7 @@ router.get('/supplier/:supplierId/catalog', async (req: Request, res: Response):
       ];
     }
 
-    // Si pas de fournisseur MongoDB, créer un fournisseur fictif
+    // Si pas de fournisseur MongoDB, crÃƒÂ©er un fournisseur fictif
     if (!supplier) {
       supplier = {
         _id: req.params.supplierId,
@@ -379,7 +379,7 @@ router.get('/supplier/:supplierId/catalog', async (req: Request, res: Response):
         email: 'contact@fournisseur-test.fr',
         phone: '+33123456789',
         location: {
-          address: '123 Rue de la République',
+          address: '123 Rue de la RÃƒÂ©publique',
           city: 'Paris',
           postalCode: '75001',
           country: 'France'
@@ -403,10 +403,10 @@ router.get('/supplier/:supplierId/catalog', async (req: Request, res: Response):
       }
     });
   } catch (error) {
-    logger.error('Erreur récupération catalogue:', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration catalogue:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération du catalogue'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration du catalogue'
     });
   }
 });
@@ -423,7 +423,7 @@ router.post('/:id/upload-images', authenticateToken, upload.array('images', 5), 
     if (!product) {
       res.status(404).json({
         success: false,
-        error: 'Produit non trouvé'
+        error: 'Produit non trouvÃƒÂ©'
       });
       return;
     }
@@ -455,7 +455,7 @@ router.post('/:id/upload-images', authenticateToken, upload.array('images', 5), 
     res.json({
       success: true,
       data: product,
-      message: `${imageUrls.length} image(s) ajoutée(s) avec succès`
+      message: `${imageUrls.length} image(s) ajoutÃƒÂ©e(s) avec succÃƒÂ¨s`
     });
   } catch (error) {
     logger.error('Erreur upload images:', error);
@@ -514,12 +514,12 @@ router.post('/bulk', authenticateToken, uploadFile.single('file'), async (req: A
       fs.unlinkSync(req.file.path);
       res.status(400).json({
         success: false,
-        error: 'Format de fichier non supporté. Utilisez CSV ou Excel (.xlsx)'
+        error: 'Format de fichier non supportÃƒÂ©. Utilisez CSV ou Excel (.xlsx)'
       });
       return;
     }
 
-    // Créer les produits
+    // CrÃƒÂ©er les produits
     const createdProducts = [];
     const errors = [];
 
@@ -554,7 +554,7 @@ router.post('/bulk', authenticateToken, uploadFile.single('file'), async (req: A
 
     res.json({
       success: true,
-      message: `${createdProducts.length} produits importés avec succès`,
+      message: `${createdProducts.length} produits importÃƒÂ©s avec succÃƒÂ¨s`,
       data: {
         created: createdProducts.length,
         errors: errors.length,

@@ -25,11 +25,11 @@ router.post('/register', authenticateToken, async (req: AuthRequest, res: Respon
       return;
     }
 
-    // Vérifier si le token existe déjà
+    // VÃƒÂ©rifier si le token existe dÃƒÂ©jÃƒÂ 
     let deviceToken = await DeviceToken.findOne({ token }).exec();
 
     if (deviceToken) {
-      // Mettre à jour
+      // Mettre ÃƒÂ  jour
       deviceToken.userId = userId;
       deviceToken.platform = platform;
       deviceToken.deviceInfo = deviceInfo;
@@ -37,7 +37,7 @@ router.post('/register', authenticateToken, async (req: AuthRequest, res: Respon
       deviceToken.lastUsed = new Date();
       await deviceToken.save();
     } else {
-      // Créer nouveau
+      // CrÃƒÂ©er nouveau
       deviceToken = new DeviceToken({
         userId,
         token,
@@ -50,7 +50,7 @@ router.post('/register', authenticateToken, async (req: AuthRequest, res: Respon
 
     res.json({
       success: true,
-      message: 'Token enregistré avec succès',
+      message: 'Token enregistrÃƒÂ© avec succÃƒÂ¨s',
       data: {
         tokenId: deviceToken._id,
         platform: deviceToken.platform
@@ -93,14 +93,14 @@ router.delete('/unregister', authenticateToken, async (req: AuthRequest, res: Re
     if (!result) {
       res.status(404).json({
         success: false,
-        error: 'Token non trouvé'
+        error: 'Token non trouvÃƒÂ©'
       } as ApiResponse);
       return;
     }
 
     res.json({
       success: true,
-      message: 'Token supprimé avec succès'
+      message: 'Token supprimÃƒÂ© avec succÃƒÂ¨s'
     } as ApiResponse);
     return;
   } catch (error: any) {
@@ -132,10 +132,10 @@ router.get('/tokens', authenticateToken, async (req: AuthRequest, res: Response)
     } as ApiResponse);
     return;
   } catch (error: any) {
-    logger.error('Erreur récupération tokens', error);
+    logger.error('Erreur rÃƒÂ©cupÃƒÂ©ration tokens', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des tokens'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des tokens'
     } as ApiResponse);
     return;
   }
@@ -150,13 +150,13 @@ router.post('/test', authenticateToken, async (req: AuthRequest, res: Response) 
   try {
     const userId = req.user!._id;
 
-    // Récupérer les tokens actifs de l'utilisateur
+    // RÃƒÂ©cupÃƒÂ©rer les tokens actifs de l'utilisateur
     const deviceTokens = await DeviceToken.findActiveTokens(userId);
 
     if (deviceTokens.length === 0) {
       res.status(404).json({
         success: false,
-        error: 'Aucun token enregistré pour cet utilisateur'
+        error: 'Aucun token enregistrÃƒÂ© pour cet utilisateur'
       } as ApiResponse);
       return;
     }
@@ -165,7 +165,7 @@ router.post('/test', authenticateToken, async (req: AuthRequest, res: Response) 
 
     // Envoyer notification test
     const result = await firebaseService.sendToMultiple(tokens, {
-      title: '🎉 Test Notification',
+      title: 'Ã°Å¸Å½â€° Test Notification',
       body: 'Les notifications push fonctionnent correctement !',
       data: {
         type: 'test',
@@ -175,7 +175,7 @@ router.post('/test', authenticateToken, async (req: AuthRequest, res: Response) 
 
     res.json({
       success: true,
-      message: 'Notification test envoyée',
+      message: 'Notification test envoyÃƒÂ©e',
       result: {
         sent: result.success,
         failed: result.failure,
@@ -195,16 +195,16 @@ router.post('/test', authenticateToken, async (req: AuthRequest, res: Response) 
 
 /**
  * @route   POST /api/push/send
- * @desc    Envoyer une notification personnalisée (Admin seulement)
+ * @desc    Envoyer une notification personnalisÃƒÂ©e (Admin seulement)
  * @access  Private (Admin)
  */
 router.post('/send', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
-    // Vérifier que l'utilisateur est admin
+    // VÃƒÂ©rifier que l'utilisateur est admin
     if (!['super_admin', 'community_manager'].includes(req.user!.role)) {
       res.status(403).json({
         success: false,
-        error: 'Accès refusé. Admin requis.'
+        error: 'AccÃƒÂ¨s refusÃƒÂ©. Admin requis.'
       } as ApiResponse);
       return;
     }
@@ -227,7 +227,7 @@ router.post('/send', authenticateToken, async (req: AuthRequest, res: Response) 
       return;
     }
 
-    // Récupérer tous les tokens des utilisateurs ciblés
+    // RÃƒÂ©cupÃƒÂ©rer tous les tokens des utilisateurs ciblÃƒÂ©s
     const deviceTokens = await DeviceToken.find({
       userId: { $in: userIds },
       isActive: true
@@ -236,7 +236,7 @@ router.post('/send', authenticateToken, async (req: AuthRequest, res: Response) 
     if (deviceTokens.length === 0) {
       res.status(404).json({
         success: false,
-        error: 'Aucun token trouvé pour ces utilisateurs'
+        error: 'Aucun token trouvÃƒÂ© pour ces utilisateurs'
       } as ApiResponse);
       return;
     }
@@ -253,7 +253,7 @@ router.post('/send', authenticateToken, async (req: AuthRequest, res: Response) 
 
     res.json({
       success: true,
-      message: 'Notifications envoyées',
+      message: 'Notifications envoyÃƒÂ©es',
       result: {
         sent: result.success,
         failed: result.failure,

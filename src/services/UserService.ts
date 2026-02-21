@@ -1,4 +1,4 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../models/User';
 import { logger } from '../utils/logger';
@@ -17,7 +17,7 @@ export enum UserRole {
   COMPTABLE = 'comptable'
 }
 
-// Interfaces pour les paramètres des services
+// Interfaces pour les paramÃ¨tres des services
 export interface CreateUserData {
   email: string;
   password: string;
@@ -58,7 +58,7 @@ export interface UpdateUserData {
   };
   company?: string;
   preferences?: Record<string, unknown>;
-  [key: string]: unknown; // Index signature pour permettre l'accès dynamique
+  [key: string]: unknown; // Index signature pour permettre l'accÃ¨s dynamique
 }
 
 export interface SearchUserParams {
@@ -77,25 +77,25 @@ export interface SearchUserOptions {
 
 export class UserService {
   /**
-   * Créer un nouvel utilisateur
+   * CrÃ©er un nouvel utilisateur
    */
   static async createUser(userData: CreateUserData) {
     try {
       const validatedData = await this.validateUserData(userData);
 
-      // Vérifier si l'email existe déjà
+      // VÃ©rifier si l'email existe dÃ©jÃ 
       const existingUser = await User.findOne({ email: validatedData.email.toLowerCase() });
       if (existingUser) {
         return {
           success: false,
-          error: 'Un utilisateur avec cet email existe déjà'
+          error: 'Un utilisateur avec cet email existe dÃ©jÃ '
         };
       }
 
       // Hash du mot de passe
       const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
-      // Création de l'utilisateur
+      // CrÃ©ation de l'utilisateur
       const user = new User({
         ...validatedData,
         email: validatedData.email.toLowerCase(),
@@ -110,23 +110,23 @@ export class UserService {
       // Retourner l'utilisateur sans le mot de passe
       const { password, ...userWithoutPassword } = user.toObject();
 
-      logger.info(`Nouvel utilisateur créé: ${user._id} (${user.role})`);
+      logger.info(`Nouvel utilisateur crÃ©Ã©: ${user._id} (${user.role})`);
 
       return {
         success: true,
         data: userWithoutPassword
       };
     } catch (error) {
-      logger.error('Erreur lors de la création de l\'utilisateur:', error);
+      logger.error('Erreur lors de la crÃ©ation de l\'utilisateur:', error);
       return {
         success: false,
-        error: 'Erreur lors de la création de l\'utilisateur'
+        error: 'Erreur lors de la crÃ©ation de l\'utilisateur'
       };
     }
   }
 
   /**
-   * Récupérer un utilisateur par ID
+   * RÃ©cupÃ©rer un utilisateur par ID
    */
   static async getUserById(userId: string) {
     try {
@@ -135,7 +135,7 @@ export class UserService {
       if (!user) {
         return {
           success: false,
-          error: 'Utilisateur non trouvé'
+          error: 'Utilisateur non trouvÃ©'
         };
       }
 
@@ -144,16 +144,16 @@ export class UserService {
         data: user
       };
     } catch (error) {
-      logger.error('Erreur lors de la récupération de l\'utilisateur:', error);
+      logger.error('Erreur lors de la rÃ©cupÃ©ration de l\'utilisateur:', error);
       return {
         success: false,
-        error: 'Erreur lors de la récupération de l\'utilisateur'
+        error: 'Erreur lors de la rÃ©cupÃ©ration de l\'utilisateur'
       };
     }
   }
 
   /**
-   * Récupérer les utilisateurs avec filtres
+   * RÃ©cupÃ©rer les utilisateurs avec filtres
    */
   static async getUsers(filters: UserFilters = {}, options: UserOptions = {}) {
     try {
@@ -186,16 +186,16 @@ export class UserService {
         }
       };
     } catch (error) {
-      logger.error('Erreur lors de la récupération des utilisateurs:', error);
+      logger.error('Erreur lors de la rÃ©cupÃ©ration des utilisateurs:', error);
       return {
         success: false,
-        error: 'Erreur lors de la récupération des utilisateurs'
+        error: 'Erreur lors de la rÃ©cupÃ©ration des utilisateurs'
       };
     }
   }
 
   /**
-   * Mettre à jour un utilisateur
+   * Mettre Ã  jour un utilisateur
    */
   static async updateUser(userId: string, updateData: UpdateUserData) {
     try {
@@ -213,27 +213,27 @@ export class UserService {
       if (!user) {
         return {
           success: false,
-          error: 'Utilisateur non trouvé'
+          error: 'Utilisateur non trouvÃ©'
         };
       }
 
-      logger.info(`Utilisateur mis à jour: ${userId}`);
+      logger.info(`Utilisateur mis Ã  jour: ${userId}`);
 
       return {
         success: true,
         data: user
       };
     } catch (error) {
-      logger.error('Erreur lors de la mise à jour de l\'utilisateur:', error);
+      logger.error('Erreur lors de la mise Ã  jour de l\'utilisateur:', error);
       return {
         success: false,
-        error: 'Erreur lors de la mise à jour de l\'utilisateur'
+        error: 'Erreur lors de la mise Ã  jour de l\'utilisateur'
       };
     }
   }
 
   /**
-   * Activer/Désactiver un utilisateur
+   * Activer/DÃ©sactiver un utilisateur
    */
   static async toggleUserStatus(userId: string, isActive: boolean) {
     try {
@@ -249,11 +249,11 @@ export class UserService {
       if (!user) {
         return {
           success: false,
-          error: 'Utilisateur non trouvé'
+          error: 'Utilisateur non trouvÃ©'
         };
       }
 
-      logger.info(`Utilisateur ${userId} ${isActive ? 'activé' : 'désactivé'}`);
+      logger.info(`Utilisateur ${userId} ${isActive ? 'activÃ©' : 'dÃ©sactivÃ©'}`);
 
       return {
         success: true,
@@ -277,11 +277,11 @@ export class UserService {
       if (!user) {
         return {
           success: false,
-          error: 'Utilisateur non trouvé'
+          error: 'Utilisateur non trouvÃ©'
         };
       }
 
-      // Vérifier l'ancien mot de passe
+      // VÃ©rifier l'ancien mot de passe
       const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
       if (!isCurrentPasswordValid) {
         return {
@@ -294,7 +294,7 @@ export class UserService {
       if (!this.isValidPassword(newPassword)) {
         return {
           success: false,
-          error: 'Le nouveau mot de passe ne respecte pas les critères de sécurité'
+          error: 'Le nouveau mot de passe ne respecte pas les critÃ¨res de sÃ©curitÃ©'
         };
       }
 
@@ -304,11 +304,11 @@ export class UserService {
       user.updatedAt = new Date();
       await user.save();
 
-      logger.info(`Mot de passe changé pour l'utilisateur: ${userId}`);
+      logger.info(`Mot de passe changÃ© pour l'utilisateur: ${userId}`);
 
       return {
         success: true,
-        message: 'Mot de passe changé avec succès'
+        message: 'Mot de passe changÃ© avec succÃ¨s'
       };
     } catch (error) {
       logger.error('Erreur lors du changement de mot de passe:', error);
@@ -320,7 +320,7 @@ export class UserService {
   }
 
   /**
-   * Réinitialiser le mot de passe (admin seulement)
+   * RÃ©initialiser le mot de passe (admin seulement)
    */
   static async resetPassword(userId: string, newPassword: string) {
     try {
@@ -328,7 +328,7 @@ export class UserService {
       if (!this.isValidPassword(newPassword)) {
         return {
           success: false,
-          error: 'Le mot de passe ne respecte pas les critères de sécurité'
+          error: 'Le mot de passe ne respecte pas les critÃ¨res de sÃ©curitÃ©'
         };
       }
 
@@ -345,22 +345,22 @@ export class UserService {
       if (!user) {
         return {
           success: false,
-          error: 'Utilisateur non trouvé'
+          error: 'Utilisateur non trouvÃ©'
         };
       }
 
-      logger.info(`Mot de passe réinitialisé pour l'utilisateur: ${userId}`);
+      logger.info(`Mot de passe rÃ©initialisÃ© pour l'utilisateur: ${userId}`);
 
       return {
         success: true,
         data: user,
-        message: 'Mot de passe réinitialisé avec succès'
+        message: 'Mot de passe rÃ©initialisÃ© avec succÃ¨s'
       };
     } catch (error) {
-      logger.error('Erreur lors de la réinitialisation du mot de passe:', error);
+      logger.error('Erreur lors de la rÃ©initialisation du mot de passe:', error);
       return {
         success: false,
-        error: 'Erreur lors de la réinitialisation du mot de passe'
+        error: 'Erreur lors de la rÃ©initialisation du mot de passe'
       };
     }
   }
@@ -379,7 +379,7 @@ export class UserService {
         };
       }
 
-      // Vérification du mot de passe
+      // VÃ©rification du mot de passe
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
         return {
@@ -388,18 +388,18 @@ export class UserService {
         };
       }
 
-      // Vérification du statut
+      // VÃ©rification du statut
       if (!user.isActive) {
         return {
           success: false,
-          error: 'Compte désactivé'
+          error: 'Compte dÃ©sactivÃ©'
         };
       }
 
       // Retourner l'utilisateur sans le mot de passe
       const { password: _, ...userWithoutPassword } = user.toObject();
 
-      logger.info(`Authentification réussie: ${user._id} (${user.role})`);
+      logger.info(`Authentification rÃ©ussie: ${user._id} (${user.role})`);
 
       return {
         success: true,
@@ -424,15 +424,15 @@ export class UserService {
       if (!user) {
         return {
           success: false,
-          error: 'Utilisateur non trouvé'
+          error: 'Utilisateur non trouvÃ©'
         };
       }
 
-      logger.info(`Utilisateur supprimé: ${userId}`);
+      logger.info(`Utilisateur supprimÃ©: ${userId}`);
 
       return {
         success: true,
-        message: 'Utilisateur supprimé avec succès'
+        message: 'Utilisateur supprimÃ© avec succÃ¨s'
       };
     } catch (error) {
       logger.error('Erreur lors de la suppression de l\'utilisateur:', error);
@@ -500,7 +500,7 @@ export class UserService {
   }
 
   /**
-   * Récupérer les statistiques d'un utilisateur
+   * RÃ©cupÃ©rer les statistiques d'un utilisateur
    */
   static async getUserStats(userId: string) {
     try {
@@ -508,16 +508,16 @@ export class UserService {
       if (!user) {
         return {
           success: false,
-          error: 'Utilisateur non trouvé'
+          error: 'Utilisateur non trouvÃ©'
         };
       }
 
-      // Statistiques de base (à étendre selon les besoins)
+      // Statistiques de base (Ã  Ã©tendre selon les besoins)
       const stats = {
-        totalListings: 0, // À implémenter selon le modèle métier
-        activeConversations: 0, // À implémenter selon le modèle métier
-        completedProjects: 0, // À implémenter selon le modèle métier
-        profileViews: 0, // À implémenter selon le modèle métier
+        totalListings: 0, // Ã€ implÃ©menter selon le modÃ¨le mÃ©tier
+        activeConversations: 0, // Ã€ implÃ©menter selon le modÃ¨le mÃ©tier
+        completedProjects: 0, // Ã€ implÃ©menter selon le modÃ¨le mÃ©tier
+        profileViews: 0, // Ã€ implÃ©menter selon le modÃ¨le mÃ©tier
         joinDate: user.createdAt,
         lastActive: user.lastActive,
         verificationStatus: user.verified
@@ -528,21 +528,21 @@ export class UserService {
         data: stats
       };
     } catch (error) {
-      logger.error('Erreur lors de la récupération des statistiques utilisateur:', error);
+      logger.error('Erreur lors de la rÃ©cupÃ©ration des statistiques utilisateur:', error);
       return {
         success: false,
-        error: 'Erreur lors de la récupération des statistiques utilisateur'
+        error: 'Erreur lors de la rÃ©cupÃ©ration des statistiques utilisateur'
       };
     }
   }
 
-  // === MÉTHODES UTILITAIRES ===
+  // === MÃ‰THODES UTILITAIRES ===
 
   private static async validateUserData(userData: CreateUserData) {
     const { email, password, role, name } = userData;
 
     if (!email || !password || !role || !name) {
-      throw new Error('Données utilisateur incomplètes');
+      throw new Error('DonnÃ©es utilisateur incomplÃ¨tes');
     }
 
     // Validation de l'email
@@ -553,12 +553,12 @@ export class UserService {
 
     // Validation du mot de passe
     if (!this.isValidPassword(password)) {
-      throw new Error('Le mot de passe ne respecte pas les critères de sécurité');
+      throw new Error('Le mot de passe ne respecte pas les critÃ¨res de sÃ©curitÃ©');
     }
 
-    // Validation du rôle
+    // Validation du rÃ´le
     if (!Object.values(UserRole).includes(role)) {
-      throw new Error('Rôle utilisateur invalide');
+      throw new Error('RÃ´le utilisateur invalide');
     }
 
     return userData;
@@ -599,7 +599,7 @@ export class UserService {
   }
 
   private static isValidPassword(password: string): boolean {
-    // Au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre
+    // Au moins 8 caractÃ¨res, 1 majuscule, 1 minuscule, 1 chiffre
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$/;
     return passwordRegex.test(password);
   }

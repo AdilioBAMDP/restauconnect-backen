@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
-// Interface pour une Route optimisée
+// Interface pour une Route optimisÃƒÂ©e
 export interface IRoute extends Document {
   transporteurId: mongoose.Types.ObjectId;
   name: string;
@@ -118,7 +118,7 @@ const RouteSchema = new Schema<IRoute>({
   timestamps: true
 });
 
-// Index composé pour performance
+// Index composÃƒÂ© pour performance
 RouteSchema.index({ transporteurId: 1, date: 1, status: 1 });
 
 export default mongoose.model<IRoute>('Route', RouteSchema);

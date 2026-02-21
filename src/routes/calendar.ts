@@ -13,7 +13,7 @@ router.get('/events', authenticateToken, async (req: AuthRequest, res: Response)
     const { start, end, view = 'month' } = req.query;
     const userId = req.user!._id;
 
-    // Construire la requête MongoDB
+    // Construire la requÃƒÂªte MongoDB
     const query: any = { userId };
     
     // Filter par plage de dates si fournie
@@ -23,7 +23,7 @@ router.get('/events', authenticateToken, async (req: AuthRequest, res: Response)
       query.start = { $gte: startDate, $lte: endDate };
     }
 
-    // Récupérer les événements depuis MongoDB
+    // RÃƒÂ©cupÃƒÂ©rer les ÃƒÂ©vÃƒÂ©nements depuis MongoDB
     const events = await CalendarEvent.find(query)
       .sort({ start: 1 });
 

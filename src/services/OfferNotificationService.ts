@@ -1,11 +1,11 @@
-﻿import mongoose from 'mongoose';
+import mongoose from 'mongoose';
 import Notification, { NotificationType, NotificationPriority, CreateNotificationInput } from '../models/Notification';
 import { UserRole } from '../models/User';
 import { logger } from '../utils/logger';
 
 export class OfferNotificationService {
   /**
-   * CrÃ©er et envoyer une notification Ã  un utilisateur
+   * CrÃƒÂ©er et envoyer une notification ÃƒÂ  un utilisateur
    */
   static async sendNotification(
     userId: mongoose.Types.ObjectId,
@@ -36,13 +36,13 @@ export class OfferNotificationService {
         groupKey: options.groupKey,
         expiresAt: options.expiresInDays
           ? new Date(Date.now() + options.expiresInDays * 24 * 60 * 60 * 1000)
-          : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 jours par dÃ©faut
+          : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 jours par dÃƒÂ©faut
         read: false
       });
       
       await notification.save();
 
-      logger.info(`âœ… Notification offre crÃ©Ã©e: ${notification._id} pour user ${userId}`);
+      logger.info(`Ã¢Å“â€¦ Notification offre crÃƒÂ©ÃƒÂ©e: ${notification._id} pour user ${userId}`);
 
       // TODO Phase 4: Envoyer via Socket.io
       // if (io) {
@@ -51,7 +51,7 @@ export class OfferNotificationService {
       //   await notification.save();
       // }
 
-      // TODO: Push notification navigateur (si permission accordÃ©e)
+      // TODO: Push notification navigateur (si permission accordÃƒÂ©e)
       // await this.sendPushNotification(userId, notification);
 
       // TODO: Email pour notifications urgentes/critiques (optionnel)
@@ -60,13 +60,13 @@ export class OfferNotificationService {
       // }
 
     } catch (error) {
-      logger.error('âŒ Erreur crÃ©ation notification offre:', error);
+      logger.error('Ã¢ÂÅ’ Erreur crÃƒÂ©ation notification offre:', error);
       throw error;
     }
   }
 
   /**
-   * Envoyer des notifications en masse Ã  plusieurs utilisateurs
+   * Envoyer des notifications en masse ÃƒÂ  plusieurs utilisateurs
    */
   static async sendBulkNotifications(
     userIds: mongoose.Types.ObjectId[],
@@ -82,12 +82,12 @@ export class OfferNotificationService {
     } = {}
   ): Promise<number> {
     try {
-      // RÃ©cupÃ©rer les rÃ´les des utilisateurs
+      // RÃƒÂ©cupÃƒÂ©rer les rÃƒÂ´les des utilisateurs
       const usersRaw = await mongoose.model('User').find({
         _id: { $in: userIds }
       }).select('_id role').exec();
       
-      // Créer notifications en batch
+      // CrÃ©er notifications en batch
       const notifications = (usersRaw as any[]).map((user: any) => new Notification({
         userId: user._id,
         userRole: user.role,
@@ -104,9 +104,9 @@ export class OfferNotificationService {
       }));
 
       await Notification.insertMany(notifications);
-      logger.info(`✅ ${notifications.length} notifications offres en masse créées`);
+      logger.info(`âœ… ${notifications.length} notifications offres en masse crÃ©Ã©es`);
       
-      // TODO Phase 4: Envoyer via Socket.io à tous les users
+      // TODO Phase 4: Envoyer via Socket.io Ã  tous les users
       // if (io) {
   //   userIds.forEach(userId => {
   //     io.to(userId.toString()).emit('notification', { type, title, message });
@@ -116,7 +116,7 @@ export class OfferNotificationService {
   return notifications.length;
 
     } catch (error) {
-      logger.error('âŒ Erreur notifications en masse:', error);
+      logger.error('Ã¢ÂÅ’ Erreur notifications en masse:', error);
       throw error;
     }
   }
@@ -134,14 +134,14 @@ export class OfferNotificationService {
       return typeof count === 'number' ? count : 0;
 
     } catch (error) {
-      logger.error('âŒ Erreur compteur non lues:', error);
+      logger.error('Ã¢ÂÅ’ Erreur compteur non lues:', error);
       throw error;
     }
   }
 
   /**
-   * Obtenir les notifications groupÃ©es (Ã©viter spam)
-   * Exemple: Regrouper "3 nouvelles rÃ©ponses Ã  vos offres" au lieu de 3 notifs sÃ©parÃ©es
+   * Obtenir les notifications groupÃƒÂ©es (ÃƒÂ©viter spam)
+   * Exemple: Regrouper "3 nouvelles rÃƒÂ©ponses ÃƒÂ  vos offres" au lieu de 3 notifs sÃƒÂ©parÃƒÂ©es
    */
   static async getGroupedNotifications(
     userId: mongoose.Types.ObjectId,
@@ -162,7 +162,7 @@ export class OfferNotificationService {
         filter.read = false;
       }
 
-      // AgrÃ©gation pour regrouper par groupKey
+      // AgrÃƒÂ©gation pour regrouper par groupKey
       const grouped = await Notification.aggregate([
         { $match: filter },
         {
@@ -184,7 +184,7 @@ export class OfferNotificationService {
       return (grouped && (grouped as any).length > 0) ? grouped : [];
 
     } catch (error) {
-      logger.error('âŒ Erreur notifications groupÃ©es:', error);
+      logger.error('Ã¢Å’ Erreur notifications groupÃƒÂ©es:', error);
       throw error;
     }
   }
@@ -210,11 +210,11 @@ export class OfferNotificationService {
           }
         }
       ).exec();
-      logger.info(`✅ ${result?.modifiedCount || 0} notifications du groupe "${groupKey}" marquées lues`);
+      logger.info(`âœ… ${result?.modifiedCount || 0} notifications du groupe "${groupKey}" marquÃ©es lues`);
       return result?.modifiedCount || 0;
 
     } catch (error) {
-      logger.error('âŒ Erreur marquage groupe lu:', error);
+      logger.error('Ã¢ÂÅ’ Erreur marquage groupe lu:', error);
       throw error;
     }
   }
@@ -232,58 +232,58 @@ export class OfferNotificationService {
         archived: true
       }).exec();
       
-      logger.info(`🗑️ ${result?.deletedCount || 0} anciennes notifications offres supprimées`);
+      logger.info(`ðŸ—‘ï¸ ${result?.deletedCount || 0} anciennes notifications offres supprimÃ©es`);
       return result?.deletedCount || 0;
 
     } catch (error) {
-      logger.error('âŒ Erreur nettoyage notifications:', error);
+      logger.error('Ã¢ÂÅ’ Erreur nettoyage notifications:', error);
       throw error;
     }
   }
 
   /**
    * Envoyer une notification push navigateur (Web Push API)
-   * TODO: Ã€ implÃ©menter avec service worker
+   * TODO: Ãƒâ‚¬ implÃƒÂ©menter avec service worker
    */
   static async sendPushNotification(
     userId: mongoose.Types.ObjectId,
     notification: any
   ): Promise<boolean> {
     try {
-      // TODO: ImplÃ©menter avec Web Push API
-      // 1. RÃ©cupÃ©rer subscription de l'utilisateur depuis DB
+      // TODO: ImplÃƒÂ©menter avec Web Push API
+      // 1. RÃƒÂ©cupÃƒÂ©rer subscription de l'utilisateur depuis DB
       // 2. Envoyer push notification via webpush library
       // 3. Marquer notification.sentViaPush = true
 
-      logger.info('âš ï¸ Push notifications Ã  implÃ©menter (Phase 4+)');
+      logger.info('Ã¢Å¡Â Ã¯Â¸Â Push notifications ÃƒÂ  implÃƒÂ©menter (Phase 4+)');
       return false;
 
     } catch (error) {
-      logger.error('âŒ Erreur push notification:', error);
+      logger.error('Ã¢ÂÅ’ Erreur push notification:', error);
       return false;
     }
   }
 
   /**
    * Envoyer une notification par email (pour urgences critiques)
-   * TODO: Ã€ implÃ©menter avec Nodemailer
+   * TODO: Ãƒâ‚¬ implÃƒÂ©menter avec Nodemailer
    */
   static async sendEmailNotification(
     userId: mongoose.Types.ObjectId,
     notification: any
   ): Promise<boolean> {
     try {
-      // TODO: ImplÃ©menter avec Nodemailer
-      // 1. RÃ©cupÃ©rer email de l'utilisateur
-      // 2. CrÃ©er template HTML
+      // TODO: ImplÃƒÂ©menter avec Nodemailer
+      // 1. RÃƒÂ©cupÃƒÂ©rer email de l'utilisateur
+      // 2. CrÃƒÂ©er template HTML
       // 3. Envoyer via SMTP
       // 4. Marquer notification.sentViaEmail = true
 
-      logger.info('âš ï¸ Email notifications Ã  implÃ©menter (Phase 4+)');
+      logger.info('Ã¢Å¡Â Ã¯Â¸Â Email notifications ÃƒÂ  implÃƒÂ©menter (Phase 4+)');
       return false;
 
     } catch (error) {
-      logger.error('âŒ Erreur email notification:', error);
+      logger.error('Ã¢ÂÅ’ Erreur email notification:', error);
       return false;
     }
   }
@@ -353,7 +353,7 @@ export class OfferNotificationService {
       };
 
     } catch (error) {
-      logger.error('âŒ Erreur stats notifications:', error);
+      logger.error('Ã¢ÂÅ’ Erreur stats notifications:', error);
       throw error;
     }
   }
@@ -375,11 +375,11 @@ export class OfferNotificationService {
           $set: { archived: true }
         }
       ).exec();
-      logger.info(`📦 ${result?.modifiedCount || 0} notifications offres archivées`);
+      logger.info(`ðŸ“¦ ${result?.modifiedCount || 0} notifications offres archivÃ©es`);
       return result?.modifiedCount || 0;
 
     } catch (error) {
-      logger.error('âŒ Erreur archivage notifications:', error);
+      logger.error('Ã¢ÂÅ’ Erreur archivage notifications:', error);
       throw error;
     }
   }

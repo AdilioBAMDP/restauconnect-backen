@@ -1,4 +1,4 @@
-﻿import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from 'mongoose';
 
 // Interface TypeScript
 export interface IInvestment extends Document {
@@ -13,7 +13,7 @@ export interface IInvestment extends Document {
   updatedAt: Date;
 }
 
-// Schéma Mongoose
+// SchÃ©ma Mongoose
 const InvestmentSchema = new Schema<IInvestment>({
   investorId: {
     type: Schema.Types.ObjectId,

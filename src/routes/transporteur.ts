@@ -32,12 +32,12 @@ router.post('/users', authenticateToken, requireTransporteurPermission(TRANSPORT
     
     const existingUser = await TransporteurUser.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ error: 'Cet email est déjà utilisé' });
+      return res.status(400).json({ error: 'Cet email est dÃƒÂ©jÃƒÂ  utilisÃƒÂ©' });
     }
 
     const newUser = new TransporteurUser({ transporteurId, email, password, firstName, lastName, role, phone, permissions: [] });
     await newUser.save();
-    res.status(201).json({ success: true, message: 'Utilisateur créé', data: { ...newUser.toObject(), password: undefined } });
+    res.status(201).json({ success: true, message: 'Utilisateur crÃƒÂ©ÃƒÂ©', data: { ...newUser.toObject(), password: undefined } });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -48,8 +48,8 @@ router.put('/users/:id/permissions', authenticateToken, requireTransporteurPermi
     const { id } = req.params;
     const { permissions } = req.body;
     const user = await TransporteurUser.findByIdAndUpdate(id, { permissions }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
-    res.json({ success: true, message: 'Permissions mises à jour', data: user });
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvÃƒÂ©' });
+    res.json({ success: true, message: 'Permissions mises ÃƒÂ  jour', data: user });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -72,7 +72,7 @@ router.post('/fleet', authenticateToken, requireTransporteurPermission(TRANSPORT
     const transporteurId = req.user.transporteurId || req.user.userId || req.user._id;
     const newVehicle = new Vehicule({ transporteurId, ...req.body });
     await newVehicle.save();
-    res.status(201).json({ success: true, message: 'Véhicule ajouté', data: newVehicle });
+    res.status(201).json({ success: true, message: 'VÃƒÂ©hicule ajoutÃƒÂ©', data: newVehicle });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -82,8 +82,8 @@ router.put('/fleet/:id', authenticateToken, requireTransporteurPermission(TRANSP
   try {
     const { id } = req.params;
     const vehicle = await Vehicule.findByIdAndUpdate(id, req.body, { new: true });
-    if (!vehicle) return res.status(404).json({ error: 'Véhicule non trouvé' });
-    res.json({ success: true, message: 'Véhicule mis à jour', data: vehicle });
+    if (!vehicle) return res.status(404).json({ error: 'VÃƒÂ©hicule non trouvÃƒÂ©' });
+    res.json({ success: true, message: 'VÃƒÂ©hicule mis ÃƒÂ  jour', data: vehicle });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -123,7 +123,7 @@ router.post('/drivers', authenticateToken, requireTransporteurPermission(TRANSPO
     const transporteurId = req.user.transporteurId || req.user.userId || req.user._id;
     const newDriver = new DriverEmployee({ transporteurId, ...req.body });
     await newDriver.save();
-    res.status(201).json({ success: true, message: 'Chauffeur ajouté', data: newDriver });
+    res.status(201).json({ success: true, message: 'Chauffeur ajoutÃƒÂ©', data: newDriver });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -164,7 +164,7 @@ router.post('/documents', authenticateToken, requireTransporteurPermission(TRANS
     newDocument.qrCode = updatedQR;
     await newDocument.save();
     
-    res.status(201).json({ success: true, message: 'Document créé', data: newDocument });
+    res.status(201).json({ success: true, message: 'Document crÃƒÂ©ÃƒÂ©', data: newDocument });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -193,7 +193,7 @@ router.get('/documents/:id', authenticateToken, requireTransporteurPermission(TR
   try {
     const { id } = req.params;
     const document = await TransportDocument.findById(id).populate('driverId').populate('vehicleId').lean();
-    if (!document) return res.status(404).json({ error: 'Document non trouvé' });
+    if (!document) return res.status(404).json({ error: 'Document non trouvÃƒÂ©' });
     res.json({ success: true, data: document });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
@@ -205,13 +205,13 @@ router.put('/documents/:id/sign', authenticateToken, requireTransporteurPermissi
     const { id } = req.params;
     const { signatureType, name, signature } = req.body;
     const document = await TransportDocument.findById(id);
-    if (!document) return res.status(404).json({ error: 'Document non trouvé' });
+    if (!document) return res.status(404).json({ error: 'Document non trouvÃƒÂ©' });
     
     if (!document.signatures) document.signatures = {} as any;
     (document.signatures as any)[signatureType] = { name, signature, date: new Date() };
     await document.save();
     
-    res.json({ success: true, message: 'Document signé', data: document });
+    res.json({ success: true, message: 'Document signÃƒÂ©', data: document });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -222,11 +222,11 @@ router.post('/documents/:id/checkpoint', authenticateToken, requireTransporteurP
     const { id } = req.params;
     const { location, notes } = req.body;
     const document = await TransportDocument.findById(id);
-    if (!document) return res.status(404).json({ error: 'Document non trouvé' });
+    if (!document) return res.status(404).json({ error: 'Document non trouvÃƒÂ©' });
     
     document.checkpoints.push({ location, timestamp: new Date(), notes });
     await document.save();
-    res.json({ success: true, message: 'Point de contrôle ajouté', data: document });
+    res.json({ success: true, message: 'Point de contrÃƒÂ´le ajoutÃƒÂ©', data: document });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -259,7 +259,7 @@ router.post('/deliveries', authenticateToken, requireTransporteurPermission(TRAN
     const transporteurId = req.user.transporteurId || req.user.userId || req.user._id;
     const newDelivery = new TransporteurDelivery({ transporteurId, ...req.body });
     await newDelivery.save();
-    res.status(201).json({ success: true, message: 'Livraison créée', data: newDelivery });
+    res.status(201).json({ success: true, message: 'Livraison crÃƒÂ©ÃƒÂ©e', data: newDelivery });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -270,10 +270,10 @@ router.put('/deliveries/:id/assign', authenticateToken, requireTransporteurPermi
     const { id } = req.params;
     const { driverId, vehicleId } = req.body;
     const delivery = await TransporteurDelivery.findByIdAndUpdate(id, { assignedDriverId: driverId, assignedVehicleId: vehicleId, status: 'assigned' }, { new: true });
-    if (!delivery) return res.status(404).json({ error: 'Livraison non trouvée' });
+    if (!delivery) return res.status(404).json({ error: 'Livraison non trouvÃƒÂ©e' });
     
     await transporteurService.notifyDriverAssignment(driverId, id);
-    res.json({ success: true, message: 'Livraison assignée', data: delivery });
+    res.json({ success: true, message: 'Livraison assignÃƒÂ©e', data: delivery });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -284,7 +284,7 @@ router.put('/deliveries/:id/status', authenticateToken, requireTransporteurPermi
     const { id } = req.params;
     const { status, location } = req.body;
     const delivery = await TransporteurDelivery.findById(id);
-    if (!delivery) return res.status(404).json({ error: 'Livraison non trouvée' });
+    if (!delivery) return res.status(404).json({ error: 'Livraison non trouvÃƒÂ©e' });
     
     delivery.status = status;
     if (location) delivery.trackingHistory.push({ location, timestamp: new Date(), event: `Statut: ${status}` });
@@ -292,7 +292,7 @@ router.put('/deliveries/:id/status', authenticateToken, requireTransporteurPermi
     if (status === 'delivered') delivery.actualDelivery = new Date();
     await delivery.save();
     
-    res.json({ success: true, message: 'Statut mis à jour', data: delivery });
+    res.json({ success: true, message: 'Statut mis ÃƒÂ  jour', data: delivery });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -321,7 +321,7 @@ router.post('/maintenance', authenticateToken, requireTransporteurPermission(TRA
     const newMaintenance = new MaintenanceRecord({ transporteurId, ...req.body });
     await newMaintenance.save();
     await transporteurService.notifyMaintenanceAlert(req.body.vehicleId, req.body.type);
-    res.status(201).json({ success: true, message: 'Maintenance planifiée', data: newMaintenance });
+    res.status(201).json({ success: true, message: 'Maintenance planifiÃƒÂ©e', data: newMaintenance });
   } catch (error: any) {
     res.status(500).json({ error: 'Erreur serveur', details: error.message });
   }
@@ -372,7 +372,7 @@ router.get('/analytics/overview', authenticateToken, requireTransporteurPermissi
 router.get('/marketplace', authenticateToken, requireTransporteurPermission(TRANSPORTEUR_PERMISSIONS.VIEW_MARKETPLACE), async (req: AuthRequest, res: Response) => {
   try {
     const offers = [
-      { id: '1', companyName: 'Restaurant Le Gourmet', type: 'Livraison régulière', description: 'Livraisons quotidiennes produits frais', frequency: 'Quotidien', estimatedRevenue: 5000, startDate: new Date() }
+      { id: '1', companyName: 'Restaurant Le Gourmet', type: 'Livraison rÃƒÂ©guliÃƒÂ¨re', description: 'Livraisons quotidiennes produits frais', frequency: 'Quotidien', estimatedRevenue: 5000, startDate: new Date() }
     ];
     res.json({ success: true, data: offers });
   } catch (error: any) {
@@ -383,7 +383,7 @@ router.get('/marketplace', authenticateToken, requireTransporteurPermission(TRAN
 router.get('/info', authenticateToken, requireTransporteurRole, async (req: AuthRequest, res: Response) => {
   try {
     const info = {
-      news: [{ title: 'Nouvelle réglementation transport 2025', date: new Date(), category: 'Réglementation' }],
+      news: [{ title: 'Nouvelle rÃƒÂ©glementation transport 2025', date: new Date(), category: 'RÃƒÂ©glementation' }],
       fuelPrices: { diesel: 1.65, essence: 1.85, lastUpdate: new Date() }
     };
     res.json({ success: true, data: info });

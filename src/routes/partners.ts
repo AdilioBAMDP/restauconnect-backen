@@ -2,16 +2,16 @@
  * ROUTES API PARTNERS - Gestion des partenaires
  * 
  * Endpoints :
- * - POST /api/partners - Créer un partenaire
+ * - POST /api/partners - CrÃƒÂ©er un partenaire
  * - GET /api/partners - Lister les partenaires (avec filtres et exclusion)
  * - GET /api/partners/search - Rechercher des partenaires
- * - GET /api/partners/stats - Statistiques par rôle
- * - GET /api/partners/by-role/:role - Partenaires d'un rôle spécifique
- * - GET /api/partners/:id - Détails d'un partenaire
+ * - GET /api/partners/stats - Statistiques par rÃƒÂ´le
+ * - GET /api/partners/by-role/:role - Partenaires d'un rÃƒÂ´le spÃƒÂ©cifique
+ * - GET /api/partners/:id - DÃƒÂ©tails d'un partenaire
  * - PATCH /api/partners/:id - Modifier un partenaire
  * - DELETE /api/partners/:id - Supprimer un partenaire
- * - POST /api/partners/:id/view - Incrémenter les vues
- * - POST /api/partners/:id/contact - Incrémenter les demandes de contact
+ * - POST /api/partners/:id/view - IncrÃƒÂ©menter les vues
+ * - POST /api/partners/:id/contact - IncrÃƒÂ©menter les demandes de contact
  */
 
 import express, { Request, Response } from 'express';
@@ -49,22 +49,22 @@ const router = express.Router();
 
 // Validation middleware
 const validatePartner = [
-  body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Le nom doit contenir entre 2 et 100 caractères'),
-  body('role').isIn(['restaurant', 'fournisseur', 'supplier', 'artisan', 'transporteur', 'carrier', 'livreur', 'driver', 'community_manager', 'banquier', 'banker', 'comptable', 'accountant', 'investisseur', 'investor', 'auditeur', 'auditor', 'candidat']).withMessage('Rôle invalide'),
-  body('specialty').trim().isLength({ min: 2, max: 200 }).withMessage('La spécialité doit contenir entre 2 et 200 caractères'),
+  body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Le nom doit contenir entre 2 et 100 caractÃƒÂ¨res'),
+  body('role').isIn(['restaurant', 'fournisseur', 'supplier', 'artisan', 'transporteur', 'carrier', 'livreur', 'driver', 'community_manager', 'banquier', 'banker', 'comptable', 'accountant', 'investisseur', 'investor', 'auditeur', 'auditor', 'candidat']).withMessage('RÃƒÂ´le invalide'),
+  body('specialty').trim().isLength({ min: 2, max: 200 }).withMessage('La spÃƒÂ©cialitÃƒÂ© doit contenir entre 2 et 200 caractÃƒÂ¨res'),
   body('location').trim().notEmpty().withMessage('La localisation est requise'),
-  body('description').trim().isLength({ min: 10, max: 1000 }).withMessage('La description doit contenir entre 10 et 1000 caractères'),
-  body('rating').optional().isFloat({ min: 0, max: 5 }).withMessage('La note doit être entre 0 et 5'),
+  body('description').trim().isLength({ min: 10, max: 1000 }).withMessage('La description doit contenir entre 10 et 1000 caractÃƒÂ¨res'),
+  body('rating').optional().isFloat({ min: 0, max: 5 }).withMessage('La note doit ÃƒÂªtre entre 0 et 5'),
   body('email').optional().isEmail().withMessage('Email invalide'),
 ];
 
 /**
  * POST /api/partners
- * Créer un nouveau partenaire
+ * CrÃƒÂ©er un nouveau partenaire
  */
 router.post('/', authenticateToken, validatePartner, async (req: Request, res: Response): Promise<any> => {
   try {
-    // Vérifier les erreurs de validation
+    // VÃƒÂ©rifier les erreurs de validation
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -76,7 +76,7 @@ router.post('/', authenticateToken, validatePartner, async (req: Request, res: R
 
     const user = (req as any).user;
     
-    // Créer le partenaire
+    // CrÃƒÂ©er le partenaire
     const partner = new Partner({
       ...req.body,
       userId: user.userId,
@@ -87,7 +87,7 @@ router.post('/', authenticateToken, validatePartner, async (req: Request, res: R
 
     await partner.save();
 
-    // Émettre un événement Socket.io (si disponible)
+    // Ãƒâ€°mettre un ÃƒÂ©vÃƒÂ©nement Socket.io (si disponible)
     const io = (req.app as any).get('io');
     if (io) {
       io.emit('partner:created', {
@@ -100,15 +100,15 @@ router.post('/', authenticateToken, validatePartner, async (req: Request, res: R
 
     return res.status(201).json({
       success: true,
-      message: 'Partenaire créé avec succès',
+      message: 'Partenaire crÃƒÂ©ÃƒÂ© avec succÃƒÂ¨s',
       data: partner
     });
 
   } catch (error: any) {
-    logger.error('Erreur lors de la création du partenaire:', error);
+    logger.error('Erreur lors de la crÃƒÂ©ation du partenaire:', error);
     return res.status(500).json({
       success: false,
-      message: 'Erreur serveur lors de la création du partenaire',
+      message: 'Erreur serveur lors de la crÃƒÂ©ation du partenaire',
       error: error.message
     });
   }
@@ -118,13 +118,13 @@ router.post('/', authenticateToken, validatePartner, async (req: Request, res: R
  * GET /api/partners
  * Lister les partenaires avec filtres et exclusion
  * Query params:
- * - excludeRole: Rôle à exclure (ex: "restaurant")
- * - role: Filtrer par rôle spécifique
+ * - excludeRole: RÃƒÂ´le ÃƒÂ  exclure (ex: "restaurant")
+ * - role: Filtrer par rÃƒÂ´le spÃƒÂ©cifique
  * - location: Filtrer par localisation
- * - verified: Filtrer les vérifiés (true/false)
- * - ecoFriendly: Filtrer les éco-responsables (true/false)
+ * - verified: Filtrer les vÃƒÂ©rifiÃƒÂ©s (true/false)
+ * - ecoFriendly: Filtrer les ÃƒÂ©co-responsables (true/false)
  * - sortBy: Tri (rating, reviews, name)
- * - limit: Nombre max de résultats
+ * - limit: Nombre max de rÃƒÂ©sultats
  */
 router.get('/', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -141,12 +141,12 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
     // Construction de la query
     const query: any = { isActive: true };
 
-    // Exclusion de rôle (logique principale)
+    // Exclusion de rÃƒÂ´le (logique principale)
     if (excludeRole) {
       query.role = { $ne: excludeRole };
     }
 
-    // Filtre par rôle spécifique
+    // Filtre par rÃƒÂ´le spÃƒÂ©cifique
     if (role) {
       query.role = role;
     }
@@ -156,12 +156,12 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
       query.location = { $regex: location as string, $options: 'i' };
     }
 
-    // Filtre vérifié
+    // Filtre vÃƒÂ©rifiÃƒÂ©
     if (verified !== undefined) {
       query.verified = verified === 'true';
     }
 
-    // Filtre éco-responsable
+    // Filtre ÃƒÂ©co-responsable
     if (ecoFriendly !== undefined) {
       query.ecoFriendly = ecoFriendly === 'true';
     }
@@ -194,10 +194,10 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
     });
 
   } catch (error: any) {
-    logger.error('Erreur lors de la récupération des partenaires:', error);
+    logger.error('Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des partenaires:', error);
     return res.status(500).json({
       success: false,
-      message: 'Erreur serveur lors de la récupération des partenaires',
+      message: 'Erreur serveur lors de la rÃƒÂ©cupÃƒÂ©ration des partenaires',
       error: error.message
     });
   }
@@ -208,7 +208,7 @@ router.get('/', async (req: Request, res: Response): Promise<any> => {
  * Rechercher des partenaires
  * Query params:
  * - q: Terme de recherche
- * - role: Filtrer par rôle
+ * - role: Filtrer par rÃƒÂ´le
  * - location: Filtrer par localisation
  * - sortBy: Tri (rating, reviews, name)
  */
@@ -241,7 +241,7 @@ router.get('/search', async (req: Request, res: Response): Promise<any> => {
 
 /**
  * GET /api/partners/stats
- * Obtenir les statistiques par rôle
+ * Obtenir les statistiques par rÃƒÂ´le
  */
 router.get('/stats', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -253,10 +253,10 @@ router.get('/stats', async (req: Request, res: Response): Promise<any> => {
     });
 
   } catch (error: any) {
-    logger.error('Erreur lors de la récupération des statistiques:', error);
+    logger.error('Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des statistiques:', error);
     return res.status(500).json({
       success: false,
-      message: 'Erreur serveur lors de la récupération des statistiques',
+      message: 'Erreur serveur lors de la rÃƒÂ©cupÃƒÂ©ration des statistiques',
       error: error.message
     });
   }
@@ -264,7 +264,7 @@ router.get('/stats', async (req: Request, res: Response): Promise<any> => {
 
 /**
  * GET /api/partners/by-role/:role
- * Obtenir les partenaires d'un rôle spécifique
+ * Obtenir les partenaires d'un rÃƒÂ´le spÃƒÂ©cifique
  */
 router.get('/by-role/:role', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -276,11 +276,11 @@ router.get('/by-role/:role', async (req: Request, res: Response): Promise<any> =
     if (!validRoles.includes(role)) {
       return res.status(400).json({
         success: false,
-        message: 'Rôle invalide'
+        message: 'RÃƒÂ´le invalide'
       });
     }
 
-    // ✅ Chercher dans le modèle User (pas Partner) car les fournisseurs sont des utilisateurs
+    // Ã¢Å“â€¦ Chercher dans le modÃƒÂ¨le User (pas Partner) car les fournisseurs sont des utilisateurs
     const partners = await User.find({
       role,
       $or: [
@@ -300,7 +300,7 @@ router.get('/by-role/:role', async (req: Request, res: Response): Promise<any> =
     });
 
   } catch (error: any) {
-    logger.error('Erreur lors de la récupération des partenaires par rôle:', error);
+    logger.error('Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des partenaires par rÃƒÂ´le:', error);
     return res.status(500).json({
       success: false,
       message: 'Erreur serveur',
@@ -311,7 +311,7 @@ router.get('/by-role/:role', async (req: Request, res: Response): Promise<any> =
 
 /**
  * GET /api/partners/:id
- * Obtenir les détails d'un partenaire
+ * Obtenir les dÃƒÂ©tails d'un partenaire
  */
 router.get('/:id', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -325,7 +325,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
     if (!partner) {
       return res.status(404).json({
         success: false,
-        message: 'Partenaire non trouvé'
+        message: 'Partenaire non trouvÃƒÂ©'
       });
     }
 
@@ -335,7 +335,7 @@ router.get('/:id', async (req: Request, res: Response): Promise<any> => {
     });
 
   } catch (error: any) {
-    logger.error('Erreur lors de la récupération du partenaire:', error);
+    logger.error('Erreur lors de la rÃƒÂ©cupÃƒÂ©ration du partenaire:', error);
     return res.status(500).json({
       success: false,
       message: 'Erreur serveur',
@@ -359,15 +359,15 @@ router.patch('/:id', authenticateToken, async (req: Request, res: Response): Pro
     if (!partner) {
       return res.status(404).json({
         success: false,
-        message: 'Partenaire non trouvé'
+        message: 'Partenaire non trouvÃƒÂ©'
       });
     }
 
-    // Vérifier que l'utilisateur est propriétaire ou admin
+    // VÃƒÂ©rifier que l'utilisateur est propriÃƒÂ©taire ou admin
     if (partner.userId?.toString() !== user.userId && user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Non autorisé à modifier ce partenaire'
+        message: 'Non autorisÃƒÂ© ÃƒÂ  modifier ce partenaire'
       });
     }
 
@@ -375,11 +375,11 @@ router.patch('/:id', authenticateToken, async (req: Request, res: Response): Pro
     const nonEditableFields = ['userId', 'profileViews', 'contactRequests', 'createdAt'];
     arrayForEach(nonEditableFields, (field: string) => delete req.body[field]);
 
-    // Mettre � jour
+    // Mettre Ã¯Â¿Â½ jour
     objectAssign(partner, req.body);
     await partner.save();
 
-    // Émettre un événement Socket.io
+    // Ãƒâ€°mettre un ÃƒÂ©vÃƒÂ©nement Socket.io
     const io = (req.app as any).get('io');
     if (io) {
       io.emit('partner:updated', {
@@ -391,12 +391,12 @@ router.patch('/:id', authenticateToken, async (req: Request, res: Response): Pro
 
     return res.status(200).json({
       success: true,
-      message: 'Partenaire mis à jour avec succès',
+      message: 'Partenaire mis ÃƒÂ  jour avec succÃƒÂ¨s',
       data: partner
     });
 
   } catch (error: any) {
-    logger.error('Erreur lors de la mise à jour du partenaire:', error);
+    logger.error('Erreur lors de la mise ÃƒÂ  jour du partenaire:', error);
     return res.status(500).json({
       success: false,
       message: 'Erreur serveur',
@@ -407,7 +407,7 @@ router.patch('/:id', authenticateToken, async (req: Request, res: Response): Pro
 
 /**
  * DELETE /api/partners/:id
- * Supprimer (désactiver) un partenaire
+ * Supprimer (dÃƒÂ©sactiver) un partenaire
  */
 router.delete('/:id', authenticateToken, async (req: Request, res: Response): Promise<any> => {
   try {
@@ -419,25 +419,25 @@ router.delete('/:id', authenticateToken, async (req: Request, res: Response): Pr
     if (!partner) {
       return res.status(404).json({
         success: false,
-        message: 'Partenaire non trouvé'
+        message: 'Partenaire non trouvÃƒÂ©'
       });
     }
 
-    // Vérifier les droits
+    // VÃƒÂ©rifier les droits
     if (partner.userId?.toString() !== user.userId && user.role !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Non autorisé à supprimer ce partenaire'
+        message: 'Non autorisÃƒÂ© ÃƒÂ  supprimer ce partenaire'
       });
     }
 
-    // Soft delete (désactivation)
+    // Soft delete (dÃƒÂ©sactivation)
     partner.isActive = false;
     await partner.save();
 
     return res.status(200).json({
       success: true,
-      message: 'Partenaire supprimé avec succès'
+      message: 'Partenaire supprimÃƒÂ© avec succÃƒÂ¨s'
     });
 
   } catch (error: any) {
@@ -452,7 +452,7 @@ router.delete('/:id', authenticateToken, async (req: Request, res: Response): Pr
 
 /**
  * POST /api/partners/:id/view
- * Incrémenter les vues du profil
+ * IncrÃƒÂ©menter les vues du profil
  */
 router.post('/:id/view', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -463,7 +463,7 @@ router.post('/:id/view', async (req: Request, res: Response): Promise<any> => {
     if (!partner) {
       return res.status(404).json({
         success: false,
-        message: 'Partenaire non trouvé'
+        message: 'Partenaire non trouvÃƒÂ©'
       });
     }
 
@@ -471,12 +471,12 @@ router.post('/:id/view', async (req: Request, res: Response): Promise<any> => {
 
     return res.status(200).json({
       success: true,
-      message: 'Vue enregistrée',
+      message: 'Vue enregistrÃƒÂ©e',
       profileViews: partner.profileViews
     });
 
   } catch (error: any) {
-    logger.error('Erreur lors de l\'incrémentation des vues:', error);
+    logger.error('Erreur lors de l\'incrÃƒÂ©mentation des vues:', error);
     return res.status(500).json({
       success: false,
       message: 'Erreur serveur',
@@ -487,7 +487,7 @@ router.post('/:id/view', async (req: Request, res: Response): Promise<any> => {
 
 /**
  * POST /api/partners/:id/contact
- * Incrémenter les demandes de contact
+ * IncrÃƒÂ©menter les demandes de contact
  */
 router.post('/:id/contact', async (req: Request, res: Response): Promise<any> => {
   try {
@@ -498,7 +498,7 @@ router.post('/:id/contact', async (req: Request, res: Response): Promise<any> =>
     if (!partner) {
       return res.status(404).json({
         success: false,
-        message: 'Partenaire non trouvé'
+        message: 'Partenaire non trouvÃƒÂ©'
       });
     }
 
@@ -506,12 +506,12 @@ router.post('/:id/contact', async (req: Request, res: Response): Promise<any> =>
 
     return res.status(200).json({
       success: true,
-      message: 'Demande de contact enregistrée',
+      message: 'Demande de contact enregistrÃƒÂ©e',
       contactRequests: partner.contactRequests
     });
 
   } catch (error: any) {
-    logger.error('Erreur lors de l\'incrémentation des contacts:', error);
+    logger.error('Erreur lors de l\'incrÃƒÂ©mentation des contacts:', error);
     return res.status(500).json({
       success: false,
       message: 'Erreur serveur',

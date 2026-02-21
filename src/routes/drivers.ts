@@ -44,7 +44,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
         pages: Math.ceil(total / Number(limit)),
         totalPages: Math.ceil(total / Number(limit))
       },
-      message: 'Liste des livreurs récupérée'
+      message: 'Liste des livreurs rÃƒÂ©cupÃƒÂ©rÃƒÂ©e'
     } as ApiResponse);
     return;
 
@@ -52,7 +52,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response): Prom
     logger.error('Erreur liste drivers:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des livreurs'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des livreurs'
     } as ApiResponse);
     return;
   }
@@ -72,7 +72,7 @@ router.get('/available', authenticateToken, async (req: AuthRequest, res: Respon
     res.json({
       success: true,
       data: drivers,
-      message: 'Livreurs disponibles récupérés'
+      message: 'Livreurs disponibles rÃƒÂ©cupÃƒÂ©rÃƒÂ©s'
     } as ApiResponse);
     return;
 
@@ -80,13 +80,13 @@ router.get('/available', authenticateToken, async (req: AuthRequest, res: Respon
     logger.error('Erreur livreurs disponibles:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des livreurs disponibles'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des livreurs disponibles'
     } as ApiResponse);
     return;
   }
 });
 
-// GET /api/drivers/:id - Détails d'un livreur
+// GET /api/drivers/:id - DÃƒÂ©tails d'un livreur
 router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -99,7 +99,7 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response): P
     if (!driver) {
       res.status(404).json({
         success: false,
-        error: 'Livreur non trouvé'
+        error: 'Livreur non trouvÃƒÂ©'
       } as ApiResponse);
       return;
     }
@@ -107,15 +107,15 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response): P
     res.json({
       success: true,
       data: driver,
-      message: 'Détails du livreur récupérés'
+      message: 'DÃƒÂ©tails du livreur rÃƒÂ©cupÃƒÂ©rÃƒÂ©s'
     } as ApiResponse);
     return;
 
   } catch (error) {
-    logger.error('Erreur détails driver:', error);
+    logger.error('Erreur dÃƒÂ©tails driver:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération du livreur'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration du livreur'
     } as ApiResponse);
     return;
   }
@@ -130,7 +130,7 @@ router.get('/:id/stats', authenticateToken, async (req: AuthRequest, res: Respon
     if (!driver) {
       res.status(404).json({
         success: false,
-        error: 'Livreur non trouvé'
+        error: 'Livreur non trouvÃƒÂ©'
       } as ApiResponse);
       return;
     }
@@ -143,7 +143,7 @@ router.get('/:id/stats', authenticateToken, async (req: AuthRequest, res: Respon
         status: driver.status,
         availability: driver.isAvailable
       },
-      message: 'Statistiques du livreur récupérées'
+      message: 'Statistiques du livreur rÃƒÂ©cupÃƒÂ©rÃƒÂ©es'
     } as ApiResponse);
     return;
 
@@ -151,7 +151,7 @@ router.get('/:id/stats', authenticateToken, async (req: AuthRequest, res: Respon
     logger.error('Erreur stats driver:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la récupération des statistiques'
+      error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des statistiques'
     } as ApiResponse);
     return;
   }

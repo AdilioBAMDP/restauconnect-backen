@@ -7,9 +7,9 @@ import { authenticateToken, requireAdmin, AuthRequest } from '../middleware/auth
 import { ApiResponse } from '../types';
 
 const router = Router();
-// ================= MODÉRATION ADMIN =================
+// ================= MODÃƒâ€°RATION ADMIN =================
 
-// Liste des avis à modérer (flagged ou pending)
+// Liste des avis ÃƒÂ  modÃƒÂ©rer (flagged ou pending)
 router.get('/moderation', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const reviews = await Review.find({
@@ -20,7 +20,7 @@ router.get('/moderation', authenticateToken, requireAdmin, async (req: AuthReque
     }).sort({ createdAt: -1 });
     res.json({ success: true, data: reviews });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Erreur lors de la récupération des avis à modérer' });
+    res.status(500).json({ success: false, error: 'Erreur lors de la rÃƒÂ©cupÃƒÂ©ration des avis ÃƒÂ  modÃƒÂ©rer' });
   }
 });
 
@@ -29,7 +29,7 @@ router.patch('/:id/approve', authenticateToken, requireAdmin, async (req: AuthRe
   try {
     const { id } = req.params;
     const review = await Review.findById(id);
-    if (!review) return res.status(404).json({ success: false, error: 'Avis non trouvé' });
+    if (!review) return res.status(404).json({ success: false, error: 'Avis non trouvÃƒÂ©' });
     review.moderationStatus = 'approved';
     review.flagged = false;
     review.moderatedBy = new mongoose.Types.ObjectId(req.user!._id);
@@ -58,10 +58,10 @@ router.patch('/:id/reject', authenticateToken, requireAdmin, async (req: AuthReq
     const { id } = req.params;
     const { reason } = req.body;
     const review = await Review.findById(id);
-    if (!review) return res.status(404).json({ success: false, error: 'Avis non trouvé' });
+    if (!review) return res.status(404).json({ success: false, error: 'Avis non trouvÃƒÂ©' });
     review.moderationStatus = 'rejected';
     review.flagged = true;
-    review.moderationComment = reason || 'Rejeté par modération';
+    review.moderationComment = reason || 'RejetÃƒÂ© par modÃƒÂ©ration';
     review.moderatedBy = new mongoose.Types.ObjectId(req.user!._id);
     review.moderatedAt = new Date();
     review.moderationHistory = review.moderationHistory || [];
@@ -87,7 +87,7 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, 
   try {
     const { id } = req.params;
     const review = await Review.findById(id);
-    if (!review) return res.status(404).json({ success: false, error: 'Avis non trouvé' });
+    if (!review) return res.status(404).json({ success: false, error: 'Avis non trouvÃƒÂ©' });
     await review.deleteOne();
     // Audit log
     await AuditLog.create({
@@ -97,7 +97,7 @@ router.delete('/:id', authenticateToken, requireAdmin, async (req: AuthRequest, 
       performedBy: req.user._id,
       performedByRole: req.user.role
     });
-    res.json({ success: true, message: 'Avis supprimé' });
+    res.json({ success: true, message: 'Avis supprimÃƒÂ©' });
   } catch (error) {
     res.status(500).json({ success: false, error: 'Erreur lors de la suppression de l\'avis' });
   }

@@ -1,4 +1,4 @@
-﻿// Utilitaires pour contourner les problèmes de typage
+// Utilitaires pour contourner les problÃ¨mes de typage
 // Alias natifs JS pour forcer la reconnaissance des valeurs
 const ArrayObj = (globalThis as any).Array || [];
 const StringObj = String;
@@ -38,7 +38,7 @@ export interface IMessage {
   type: MessageType;
   content: string; // Texte ou URL du fichier
   
-  // Fichiers attachés (images, documents, archives)
+  // Fichiers attachÃ©s (images, documents, archives)
   attachments?: Array<{
     url: string;
     filename: string;
@@ -56,14 +56,14 @@ export interface IMessage {
     status: 'pending' | 'accepted' | 'rejected';
   };
   
-  // Métadonnées
+  // MÃ©tadonnÃ©es
   readBy: Array<string>; // Changed from ObjectId array
   createdAt: Date;
   updatedAt?: Date;
   deletedAt?: Date; // Soft delete
 }
 
-// Interface principale du modèle Conversation
+// Interface principale du modÃ¨le Conversation
 export interface IConversation extends Document {
   // Participants (toujours 2 personnes)
   participants: IConversationParticipant[];
@@ -85,7 +85,7 @@ export interface IConversation extends Document {
     createdAt: Date;
   };
   
-  // Métadonnées
+  // MÃ©tadonnÃ©es
   unreadCount: {
     [userId: string]: number; // Nombre de messages non lus par participant
   };
@@ -93,14 +93,14 @@ export interface IConversation extends Document {
   createdAt: Date;
   updatedAt: Date;
 
-  // ✅ Méthodes d'instance (Phase 4)
+  // âœ… MÃ©thodes d'instance (Phase 4)
   addMessage(senderId: string, content: string, type?: MessageType): Promise<void>;
   markAsRead(userId: string): Promise<void>;
   isParticipant(userId: string): boolean;
   getOtherParticipant(userId: string): IConversationParticipant | undefined;
 }
 
-// Sous-schéma pour les messages
+// Sous-schÃ©ma pour les messages
 const MessageSchema = new Schema({
   senderId: {
     type: String, // Changed from ObjectId to String
@@ -127,7 +127,7 @@ const MessageSchema = new Schema({
     maxlength: 5000
   },
   
-  // Fichiers attachés
+  // Fichiers attachÃ©s
   attachments: [{
   url: { type: Schema.Types.String, required: true },
   filename: { type: Schema.Types.String, required: true },
@@ -167,7 +167,7 @@ const MessageSchema = new Schema({
   deletedAt: Schema.Types.Date
 }, { _id: true });
 
-// Schéma principal Conversation
+// SchÃ©ma principal Conversation
 const ConversationSchema: Schema = new Schema(
   {
     participants: [{
@@ -224,7 +224,7 @@ const ConversationSchema: Schema = new Schema(
   }
 );
 
-// Index composés pour optimiser les requêtes
+// Index composÃ©s pour optimiser les requÃªtes
 ConversationSchema.index({ 'participants.userId': 1, status: 1 });
 ConversationSchema.index({ 'participants.userId': 1, 'lastMessage.createdAt': -1 });
 
@@ -237,7 +237,7 @@ ConversationSchema.pre('save', function(this: IConversation, next) {
   }
 });
 
-// Méthode pour ajouter un message
+// MÃ©thode pour ajouter un message
 ConversationSchema.methods.addMessage = function(
   senderId: string, // Changed from ObjectId
   senderName: string,
@@ -264,16 +264,16 @@ ConversationSchema.methods.addMessage = function(
     type,
     content,
     quoteId,
-    attachments, // Ajouter les fichiers attachés
+    attachments, // Ajouter les fichiers attachÃ©s
     readBy: [senderId], // Le sender a automatiquement lu son message
     createdAt: new DateObj()
   };
   
   this.messages.push(newMessage);
   
-  // Mettre à jour lastMessage
+  // Mettre Ã  jour lastMessage
   const preview = attachments && ArrayObj.isArray(attachments) && getLength(attachments) > 0 
-    ? `📎 ${getLength(attachments)} fichier(s)${content ? ': ' + (typeof content === 'string' ? getSubstring(content, 0, 50) : '') : ''}`
+    ? `ðŸ“Ž ${getLength(attachments)} fichier(s)${content ? ': ' + (typeof content === 'string' ? getSubstring(content, 0, 50) : '') : ''}`
     : (typeof content === 'string' ? getSubstring(content, 0, 100) : '');
     
   this.lastMessage = {
@@ -282,9 +282,9 @@ ConversationSchema.methods.addMessage = function(
   createdAt: new DateObj()
   };
   
-  // Incrémenter unreadCount pour l'autre participant
+  // IncrÃ©menter unreadCount pour l'autre participant
   this.participants.forEach((participant: IConversationParticipant) => {
-    // ✅ FIX: Convertir en string pour comparaison correcte ObjectId vs String
+    // âœ… FIX: Convertir en string pour comparaison correcte ObjectId vs String
     if (participant.userId.toString() !== senderId.toString()) {
       const participantIdStr = participant.userId.toString();
       const count = this.unreadCount.get(participantIdStr) || 0;
@@ -295,9 +295,9 @@ ConversationSchema.methods.addMessage = function(
   return this.save();
 };
 
-// Méthode pour marquer les messages comme lus
+// MÃ©thode pour marquer les messages comme lus
 ConversationSchema.methods.markAsRead = function(userId: string) { // Changed from ObjectId
-  // ✅ FIX: Convertir en string pour comparaison correcte
+  // âœ… FIX: Convertir en string pour comparaison correcte
   const userIdStr = userId.toString();
   
   // Marquer tous les messages non lus comme lus
@@ -308,10 +308,10 @@ ConversationSchema.methods.markAsRead = function(userId: string) { // Changed fr
     }
   });
   
-  // Réinitialiser le compteur de non lus
+  // RÃ©initialiser le compteur de non lus
   this.unreadCount.set(userIdStr, 0);
   
-  // Mettre à jour lastReadAt
+  // Mettre Ã  jour lastReadAt
   const participant = this.participants.find((p: IConversationParticipant) => p.userId.toString() === userIdStr);
   if (participant) {
     participant.lastReadAt = new DateObj();
@@ -320,12 +320,12 @@ ConversationSchema.methods.markAsRead = function(userId: string) { // Changed fr
   return this.save();
 };
 
-// Méthode pour vérifier si un utilisateur est participant
+// MÃ©thode pour vÃ©rifier si un utilisateur est participant
 ConversationSchema.methods.isParticipant = function(userId: string): boolean { // Changed from ObjectId
-  // ✅ FIX: Convertir en string pour comparer ObjectId vs String
+  // âœ… FIX: Convertir en string pour comparer ObjectId vs String
   const userIdStr = userId?.toString();
   
-  /* console.log('🔍 isParticipant - Comparaison:', {
+  /* console.log('ðŸ” isParticipant - Comparaison:', {
     searchingFor: userIdStr,
     searchingForType: typeof userIdStr,
     participants: this.participants.map((p: IConversationParticipant) => ({
@@ -337,20 +337,20 @@ ConversationSchema.methods.isParticipant = function(userId: string): boolean { /
   }); */
   
   const result = this.participants.some((p: IConversationParticipant) => p.userId?.toString() === userIdStr);
-  // console.log('🔍 isParticipant - Résultat:', result);
+  // console.log('ðŸ” isParticipant - RÃ©sultat:', result);
   return result;
 };
 
-// Méthode pour obtenir l'autre participant
+// MÃ©thode pour obtenir l'autre participant
 ConversationSchema.methods.getOtherParticipant = function(userId: string): IConversationParticipant | undefined { // Changed from ObjectId
   return this.participants.find((p: IConversationParticipant) => p.userId !== userId); // Removed .toString()
 };
 
-// Méthode statique pour trouver ou créer une conversation
+// MÃ©thode statique pour trouver ou crÃ©er une conversation
 ConversationSchema.statics.findOrCreate = async function(...args: any[]): Promise<IConversation> {
   const [user1Id, user1Name, user1Role, user2Id, user2Name, user2Role, offerId, offerTitle] = args as [string, string, string, string, string, string, string?, string?];
   
-  /* console.log('🔧 findOrCreate REÇU:', {
+  /* console.log('ðŸ”§ findOrCreate REÃ‡U:', {
     user1Id, user1Name, user1Role,
     user2Id, user2Name, user2Role
   }); */
@@ -366,7 +366,7 @@ ConversationSchema.statics.findOrCreate = async function(...args: any[]): Promis
     status: { $ne: 'blocked' }
   });
   
-  // Si pas trouvée, créer nouvelle conversation
+  // Si pas trouvÃ©e, crÃ©er nouvelle conversation
   if (!conversation) {
     const participant1 = {
       userId: user1Id,
@@ -379,7 +379,7 @@ ConversationSchema.statics.findOrCreate = async function(...args: any[]): Promis
       userRole: validRoles.includes(user2Role as UserRole) ? user2Role as UserRole : 'restaurant'
     };
     
-    // console.log('🔧 Création conversation avec participants:', { participant1, participant2 });
+    // console.log('ðŸ”§ CrÃ©ation conversation avec participants:', { participant1, participant2 });
     
     conversation = await this.create({
       participants: [participant1, participant2],
@@ -389,12 +389,12 @@ ConversationSchema.statics.findOrCreate = async function(...args: any[]): Promis
       unreadCount: {}
     });
     
-    // console.log('✅ Conversation créée:', conversation._id, 'participants:', conversation.participants);
+    // console.log('âœ… Conversation crÃ©Ã©e:', conversation._id, 'participants:', conversation.participants);
   }
   
   return conversation;
 };
 
-// Guard pattern pour éviter "OverwriteModelError"
+// Guard pattern pour Ã©viter "OverwriteModelError"
 const ConversationModel = (mongoose.models.Conversation || mongoose.model<IConversation>('Conversation', ConversationSchema)) as mongoose.Model<IConversation>;
 export default ConversationModel;

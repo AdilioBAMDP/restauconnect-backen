@@ -1,4 +1,4 @@
-﻿import express from 'express';
+import express from 'express';
 import cors from 'cors';
 import { logger } from './utils/logger';
 
@@ -25,9 +25,9 @@ app.get('/api/auth/test', (req, res) => {
   });
 });
 
-// Démarrage du serveur
+// DÃ©marrage du serveur
 app.listen(PORT, () => {
-  logger.info(`🚀 Serveur minimal démarré sur le port ${PORT}`);
-  logger.info(`🔗 URL: http://localhost:${PORT}`);
-  logger.info(`📋 Health check: http://localhost:${PORT}/health`);
+  logger.info(`ðŸš€ Serveur minimal dÃ©marrÃ© sur le port ${PORT}`);
+  logger.info(`ðŸ”— URL: http://localhost:${PORT}`);
+  logger.info(`ðŸ“‹ Health check: http://localhost:${PORT}/health`);
 });

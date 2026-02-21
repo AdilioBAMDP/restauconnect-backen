@@ -1,13 +1,13 @@
-﻿import express, { Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import { User } from '../models/User';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
-// Middleware pour v�rifier r�le auditeur
+// Middleware pour vï¿½rifier rï¿½le auditeur
 const requireAuditeurRole = (req: any, res: Response, next: Function) => {
   if (req.user?.role !== 'auditeur' && req.user?.role !== 'super_admin') {
-    res.status(403).json({ error: 'Acc�s r�serv� aux auditeurs' });
+    res.status(403).json({ error: 'Accï¿½s rï¿½servï¿½ aux auditeurs' });
     return;
   }
   next();
@@ -15,14 +15,14 @@ const requireAuditeurRole = (req: any, res: Response, next: Function) => {
 
 /**
  * GET /api/auditeur/audits
- * Liste des audits assign�s ou disponibles
+ * Liste des audits assignï¿½s ou disponibles
  */
 router.get('/audits', authenticateToken, requireAuditeurRole, async (req: any, res: Response) => {
   try {
     const auditeurId = req.user._id;
     const { status, type, priority, page = 1, limit = 20 } = req.query;
 
-    // Simulation des donn�es d'audit
+    // Simulation des donnï¿½es d'audit
     const auditsData = {
       audits: [
         {
@@ -49,7 +49,7 @@ router.get('/audits', authenticateToken, requireAuditeurRole, async (req: any, r
             critical: 1
           },
           lastActivity: new Date('2024-10-23T16:30:00Z'),
-          notes: 'Probl�me identifi� avec la cha�ne du froid au niveau du stockage des produits laitiers.'
+          notes: 'Problï¿½me identifiï¿½ avec la chaï¿½ne du froid au niveau du stockage des produits laitiers.'
         },
         {
           id: 'AUD002',
@@ -57,11 +57,11 @@ router.get('/audits', authenticateToken, requireAuditeurRole, async (req: any, r
           type: 'ISO22000',
           client: {
             name: 'Boulangerie Moderne',
-            address: '42 Avenue des Champs-�lys�es, 75008 Paris',
+            address: '42 Avenue des Champs-ï¿½lysï¿½es, 75008 Paris',
             contact: 'direction@boulangerie-moderne.fr',
             phone: '+33 1 45 62 34 56'
           },
-          status: 'Planifi�',
+          status: 'Planifiï¿½',
           priority: 'Normale',
           assignedDate: new Date('2024-10-22T00:00:00Z'),
           dueDate: new Date('2024-11-15T00:00:00Z'),
@@ -75,7 +75,7 @@ router.get('/audits', authenticateToken, requireAuditeurRole, async (req: any, r
             critical: 0
           },
           lastActivity: new Date('2024-10-22T10:00:00Z'),
-          notes: 'Premier audit pour cette certification. Pr�paration des documents n�cessaire.'
+          notes: 'Premier audit pour cette certification. Prï¿½paration des documents nï¿½cessaire.'
         },
         {
           id: 'AUD003',
@@ -87,7 +87,7 @@ router.get('/audits', authenticateToken, requireAuditeurRole, async (req: any, r
             contact: 'qualite@traiteur-excellence.com',
             phone: '+33 1 42 77 88 99'
           },
-          status: 'Termin�',
+          status: 'Terminï¿½',
           priority: 'Normale',
           assignedDate: new Date('2024-10-10T00:00:00Z'),
           completedDate: new Date('2024-10-18T00:00:00Z'),
@@ -101,7 +101,7 @@ router.get('/audits', authenticateToken, requireAuditeurRole, async (req: any, r
             critical: 0
           },
           lastActivity: new Date('2024-10-18T17:15:00Z'),
-          notes: 'Toutes les non-conformit�s pr�c�dentes ont �t� corrig�es. Certification maintenue.',
+          notes: 'Toutes les non-conformitï¿½s prï¿½cï¿½dentes ont ï¿½tï¿½ corrigï¿½es. Certification maintenue.',
           finalScore: 98,
           recommendation: 'Maintien de la certification'
         }
@@ -131,7 +131,7 @@ router.get('/audits', authenticateToken, requireAuditeurRole, async (req: any, r
   } catch (error: any) {
     // console.error('Error fetching audits:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des audits',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des audits',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -139,14 +139,14 @@ router.get('/audits', authenticateToken, requireAuditeurRole, async (req: any, r
 
 /**
  * GET /api/auditeur/audits/:id
- * D�tails d'un audit sp�cifique
+ * Dï¿½tails d'un audit spï¿½cifique
  */
 router.get('/audits/:id', authenticateToken, requireAuditeurRole, async (req: any, res: Response) => {
   try {
     const { id } = req.params;
     const auditeurId = req.user._id;
 
-    // Simulation des d�tails d'audit
+    // Simulation des dï¿½tails d'audit
     const auditDetails = {
       id: id,
       title: 'Audit HACCP - Restaurant Le Petit Gourmet',
@@ -169,24 +169,24 @@ router.get('/audits/:id', authenticateToken, requireAuditeurRole, async (req: an
       sections: [
         {
           id: 'SEC001',
-          title: 'R�ception et stockage',
-          status: 'Termin�',
+          title: 'Rï¿½ception et stockage',
+          status: 'Terminï¿½',
           items: [
-            { id: 'ITEM001', description: 'Contr�le temp�rature r�ception', status: 'Conforme', score: 10 },
-            { id: 'ITEM002', description: 'S�paration produits crus/cuits', status: 'Non-conforme', score: 0, correctionRequired: true },
-            { id: 'ITEM003', description: '�tiquetage dates de p�remption', status: 'Conforme', score: 10 }
+            { id: 'ITEM001', description: 'Contrï¿½le tempï¿½rature rï¿½ception', status: 'Conforme', score: 10 },
+            { id: 'ITEM002', description: 'Sï¿½paration produits crus/cuits', status: 'Non-conforme', score: 0, correctionRequired: true },
+            { id: 'ITEM003', description: 'ï¿½tiquetage dates de pï¿½remption', status: 'Conforme', score: 10 }
           ],
           score: 20,
           maxScore: 30
         },
         {
           id: 'SEC002',
-          title: 'Pr�paration et cuisson',
+          title: 'Prï¿½paration et cuisson',
           status: 'En cours',
           items: [
-            { id: 'ITEM004', description: 'Respect des temp�ratures de cuisson', status: 'En attente', score: null },
-            { id: 'ITEM005', description: 'Hygi�ne du personnel', status: 'Conforme', score: 15 },
-            { id: 'ITEM006', description: 'Nettoyage des �quipements', status: 'En attente', score: null }
+            { id: 'ITEM004', description: 'Respect des tempï¿½ratures de cuisson', status: 'En attente', score: null },
+            { id: 'ITEM005', description: 'Hygiï¿½ne du personnel', status: 'Conforme', score: 15 },
+            { id: 'ITEM006', description: 'Nettoyage des ï¿½quipements', status: 'En attente', score: null }
           ],
           score: 15,
           maxScore: 45
@@ -194,10 +194,10 @@ router.get('/audits/:id', authenticateToken, requireAuditeurRole, async (req: an
         {
           id: 'SEC003',
           title: 'Service et distribution',
-          status: 'Non commenc�',
+          status: 'Non commencï¿½',
           items: [
-            { id: 'ITEM007', description: 'Maintien temp�rature service', status: 'En attente', score: null },
-            { id: 'ITEM008', description: 'Hygi�ne du service', status: 'En attente', score: null }
+            { id: 'ITEM007', description: 'Maintien tempï¿½rature service', status: 'En attente', score: null },
+            { id: 'ITEM008', description: 'Hygiï¿½ne du service', status: 'En attente', score: null }
           ],
           score: 0,
           maxScore: 20
@@ -206,8 +206,8 @@ router.get('/audits/:id', authenticateToken, requireAuditeurRole, async (req: an
       nonConformities: [
         {
           id: 'NC001',
-          section: 'R�ception et stockage',
-          description: 'S�paration insuffisante entre produits crus et cuits dans la chambre froide',
+          section: 'Rï¿½ception et stockage',
+          description: 'Sï¿½paration insuffisante entre produits crus et cuits dans la chambre froide',
           severity: 'Majeure',
           correctionRequired: true,
           dueDate: new Date('2024-10-27T00:00:00Z'),
@@ -216,14 +216,14 @@ router.get('/audits/:id', authenticateToken, requireAuditeurRole, async (req: an
         }
       ],
       photos: [
-        { id: 'PH001', section: 'R�ception', description: 'Zone de stockage', url: 'storage_area.jpg' },
-        { id: 'PH002', section: 'Cuisine', description: 'S�paration cru/cuit', url: 'separation_issue.jpg' }
+        { id: 'PH001', section: 'Rï¿½ception', description: 'Zone de stockage', url: 'storage_area.jpg' },
+        { id: 'PH002', section: 'Cuisine', description: 'Sï¿½paration cru/cuit', url: 'separation_issue.jpg' }
       ],
-      notes: 'Probl�me identifi� avec la cha�ne du froid au niveau du stockage des produits laitiers. Action corrective demand�e avant la prochaine visite.',
+      notes: 'Problï¿½me identifiï¿½ avec la chaï¿½ne du froid au niveau du stockage des produits laitiers. Action corrective demandï¿½e avant la prochaine visite.',
       history: [
-        { date: new Date('2024-10-20T00:00:00Z'), action: 'Audit assign�', user: 'Syst�me' },
-        { date: new Date('2024-10-23T14:00:00Z'), action: 'D�but de l\'audit sur site', user: 'Auditeur Martin' },
-        { date: new Date('2024-10-23T16:30:00Z'), action: 'Non-conformit� NC001 identifi�e', user: 'Auditeur Martin' }
+        { date: new Date('2024-10-20T00:00:00Z'), action: 'Audit assignï¿½', user: 'Systï¿½me' },
+        { date: new Date('2024-10-23T14:00:00Z'), action: 'Dï¿½but de l\'audit sur site', user: 'Auditeur Martin' },
+        { date: new Date('2024-10-23T16:30:00Z'), action: 'Non-conformitï¿½ NC001 identifiï¿½e', user: 'Auditeur Martin' }
       ]
     };
 
@@ -234,7 +234,7 @@ router.get('/audits/:id', authenticateToken, requireAuditeurRole, async (req: an
   } catch (error: any) {
     // console.error('Error fetching audit details:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des d�tails de l\'audit',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des dï¿½tails de l\'audit',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -242,7 +242,7 @@ router.get('/audits/:id', authenticateToken, requireAuditeurRole, async (req: an
 
 /**
  * POST /api/auditeur/audits/:id/checklist
- * Mettre � jour un �l�ment de la checklist
+ * Mettre ï¿½ jour un ï¿½lï¿½ment de la checklist
  */
 router.post('/audits/:id/checklist', authenticateToken, requireAuditeurRole, async (req: any, res: Response) => {
   try {
@@ -256,7 +256,7 @@ router.post('/audits/:id/checklist', authenticateToken, requireAuditeurRole, asy
       return;
     }
 
-    // Dans un vrai syst�me, on mettrait � jour la base de donn�es
+    // Dans un vrai systï¿½me, on mettrait ï¿½ jour la base de donnï¿½es
     const updatedItem = {
       itemId,
       status,
@@ -270,13 +270,13 @@ router.post('/audits/:id/checklist', authenticateToken, requireAuditeurRole, asy
 
     res.json({
       success: true,
-      message: '�l�ment de checklist mis � jour avec succ�s',
+      message: 'ï¿½lï¿½ment de checklist mis ï¿½ jour avec succï¿½s',
       item: updatedItem
     });
   } catch (error: any) {
     // console.error('Error updating checklist item:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la mise � jour de la checklist',
+      error: 'Erreur lors de la mise ï¿½ jour de la checklist',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -284,7 +284,7 @@ router.post('/audits/:id/checklist', authenticateToken, requireAuditeurRole, asy
 
 /**
  * POST /api/auditeur/audits/:id/non-conformity
- * Cr�er une non-conformit�
+ * Crï¿½er une non-conformitï¿½
  */
 router.post('/audits/:id/non-conformity', authenticateToken, requireAuditeurRole, async (req: any, res: Response) => {
   try {
@@ -301,17 +301,17 @@ router.post('/audits/:id/non-conformity', authenticateToken, requireAuditeurRole
 
     // Validation
     if (!section || !description || !severity) {
-      res.status(400).json({ error: 'Section, description et s�v�rit� sont requis' });
+      res.status(400).json({ error: 'Section, description et sï¿½vï¿½ritï¿½ sont requis' });
       return;
     }
 
     const validSeverities = ['Mineure', 'Majeure', 'Critique'];
     if (!validSeverities.includes(severity)) {
-      res.status(400).json({ error: 'S�v�rit� invalide' });
+      res.status(400).json({ error: 'Sï¿½vï¿½ritï¿½ invalide' });
       return;
     }
 
-    // G�n�rer un ID unique pour la non-conformit�
+    // Gï¿½nï¿½rer un ID unique pour la non-conformitï¿½
     const nonConformityId = `NC${Date.now().toString().slice(-6)}`;
 
     const nonConformity = {
@@ -331,13 +331,13 @@ router.post('/audits/:id/non-conformity', authenticateToken, requireAuditeurRole
 
     res.status(201).json({
       success: true,
-      message: 'Non-conformit� cr��e avec succ�s',
+      message: 'Non-conformitï¿½ crï¿½ï¿½e avec succï¿½s',
       nonConformity
     });
   } catch (error: any) {
     // console.error('Error creating non-conformity:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la cr�ation de la non-conformit�',
+      error: 'Erreur lors de la crï¿½ation de la non-conformitï¿½',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -345,7 +345,7 @@ router.post('/audits/:id/non-conformity', authenticateToken, requireAuditeurRole
 
 /**
  * GET /api/auditeur/templates
- * Mod�les d'audit disponibles
+ * Modï¿½les d'audit disponibles
  */
 router.get('/templates', authenticateToken, requireAuditeurRole, async (req: any, res: Response) => {
   try {
@@ -357,11 +357,11 @@ router.get('/templates', authenticateToken, requireAuditeurRole, async (req: any
         description: 'Audit complet selon les principes HACCP pour restaurants',
         estimatedDuration: '4-6 heures',
         sections: [
-          { name: 'R�ception et stockage', itemsCount: 15 },
-          { name: 'Pr�paration et cuisson', itemsCount: 20 },
+          { name: 'Rï¿½ception et stockage', itemsCount: 15 },
+          { name: 'Prï¿½paration et cuisson', itemsCount: 20 },
           { name: 'Service et distribution', itemsCount: 10 },
-          { name: 'Hygi�ne du personnel', itemsCount: 12 },
-          { name: 'Nettoyage et d�sinfection', itemsCount: 18 }
+          { name: 'Hygiï¿½ne du personnel', itemsCount: 12 },
+          { name: 'Nettoyage et dï¿½sinfection', itemsCount: 18 }
         ],
         totalItems: 75,
         version: '2.1',
@@ -371,14 +371,14 @@ router.get('/templates', authenticateToken, requireAuditeurRole, async (req: any
         id: 'TMPL002',
         name: 'Certification ISO 22000',
         type: 'ISO22000',
-        description: 'Audit de certification ISO 22000 - Syst�mes de management de la s�curit� alimentaire',
+        description: 'Audit de certification ISO 22000 - Systï¿½mes de management de la sï¿½curitï¿½ alimentaire',
         estimatedDuration: '6-8 heures',
         sections: [
-          { name: 'Syst�me de management', itemsCount: 25 },
-          { name: 'Responsabilit� de la direction', itemsCount: 15 },
+          { name: 'Systï¿½me de management', itemsCount: 25 },
+          { name: 'Responsabilitï¿½ de la direction', itemsCount: 15 },
           { name: 'Gestion des ressources', itemsCount: 20 },
-          { name: 'Planification et r�alisation', itemsCount: 30 },
-          { name: 'Validation et am�lioration', itemsCount: 18 }
+          { name: 'Planification et rï¿½alisation', itemsCount: 30 },
+          { name: 'Validation et amï¿½lioration', itemsCount: 18 }
         ],
         totalItems: 108,
         version: '1.5',
@@ -388,10 +388,10 @@ router.get('/templates', authenticateToken, requireAuditeurRole, async (req: any
         id: 'TMPL003',
         name: 'Audit de Suivi Rapide',
         type: 'Suivi',
-        description: 'Audit de suivi pour v�rifier la correction des non-conformit�s',
+        description: 'Audit de suivi pour vï¿½rifier la correction des non-conformitï¿½s',
         estimatedDuration: '2-3 heures',
         sections: [
-          { name: 'V�rification corrections', itemsCount: 10 },
+          { name: 'Vï¿½rification corrections', itemsCount: 10 },
           { name: 'Points critiques', itemsCount: 8 },
           { name: 'Documentation', itemsCount: 5 }
         ],
@@ -408,7 +408,7 @@ router.get('/templates', authenticateToken, requireAuditeurRole, async (req: any
   } catch (error: any) {
     // console.error('Error fetching templates:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des mod�les',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des modï¿½les',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -432,13 +432,13 @@ router.post('/audits/:id/finalize', authenticateToken, requireAuditeurRole, asyn
 
     // Validation
     if (finalScore < 0 || finalScore > 100) {
-      res.status(400).json({ error: 'Le score final doit �tre entre 0 et 100' });
+      res.status(400).json({ error: 'Le score final doit ï¿½tre entre 0 et 100' });
       return;
     }
 
     const finalizedAudit = {
       auditId: id,
-      status: 'Termin�',
+      status: 'Terminï¿½',
       finalScore,
       recommendation,
       executiveSummary,
@@ -453,7 +453,7 @@ router.post('/audits/:id/finalize', authenticateToken, requireAuditeurRole, asyn
 
     res.json({
       success: true,
-      message: 'Audit finalis� avec succ�s',
+      message: 'Audit finalisï¿½ avec succï¿½s',
       audit: finalizedAudit
     });
   } catch (error: any) {
@@ -492,7 +492,7 @@ router.get('/statistics', authenticateToken, requireAuditeurRole, async (req: an
       ],
       monthlyActivity: [
         { month: 'Janvier', audits: 8, score: 94.5 },
-        { month: 'F�vrier', audits: 7, score: 95.1 },
+        { month: 'Fï¿½vrier', audits: 7, score: 95.1 },
         { month: 'Mars', audits: 9, score: 94.8 },
         { month: 'Avril', audits: 6, score: 93.9 },
         { month: 'Mai', audits: 8, score: 95.5 },
@@ -503,11 +503,11 @@ router.get('/statistics', authenticateToken, requireAuditeurRole, async (req: an
         resolved: 142,
         pending: 14,
         byCategory: [
-          { category: 'Hygi�ne', count: 45 },
+          { category: 'Hygiï¿½ne', count: 45 },
           { category: 'Stockage', count: 38 },
           { category: 'Documentation', count: 32 },
           { category: 'Formation', count: 25 },
-          { category: '�quipements', count: 16 }
+          { category: 'ï¿½quipements', count: 16 }
         ]
       },
       clientSatisfaction: {
@@ -522,7 +522,7 @@ router.get('/statistics', authenticateToken, requireAuditeurRole, async (req: an
         }
       },
       certifications: [
-        { name: 'Auditeur HACCP Certifi�', validUntil: new Date('2025-08-15') },
+        { name: 'Auditeur HACCP Certifiï¿½', validUntil: new Date('2025-08-15') },
         { name: 'Auditeur ISO 22000 Lead', validUntil: new Date('2025-12-20') },
         { name: 'Formation Continue 2024', validUntil: new Date('2024-12-31') }
       ]
@@ -535,7 +535,7 @@ router.get('/statistics', authenticateToken, requireAuditeurRole, async (req: an
   } catch (error: any) {
     // console.error('Error fetching statistics:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des statistiques',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des statistiques',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
@@ -543,7 +543,7 @@ router.get('/statistics', authenticateToken, requireAuditeurRole, async (req: an
 
 /**
  * GET /api/auditeur/reports
- * Rapports d'audit g�n�r�s
+ * Rapports d'audit gï¿½nï¿½rï¿½s
  */
 router.get('/reports', authenticateToken, requireAuditeurRole, async (req: any, res: Response) => {
   try {
@@ -558,7 +558,7 @@ router.get('/reports', authenticateToken, requireAuditeurRole, async (req: any, 
         type: 'HACCP',
         client: 'Restaurant Le Petit Gourmet',
         generatedDate: new Date('2024-10-18T00:00:00Z'),
-        status: 'Finalis�',
+        status: 'Finalisï¿½',
         score: 87.5,
         pages: 15,
         format: 'PDF',
@@ -598,7 +598,7 @@ router.get('/reports', authenticateToken, requireAuditeurRole, async (req: any, 
   } catch (error: any) {
     // console.error('Error fetching reports:', error);
     res.status(500).json({ 
-      error: 'Erreur lors de la r�cup�ration des rapports',
+      error: 'Erreur lors de la rï¿½cupï¿½ration des rapports',
       details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
