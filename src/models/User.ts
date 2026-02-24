@@ -49,7 +49,10 @@ export interface UserDocument extends Omit<IUser, '_id'>, Document {
   stripeDetailsSubmitted?: boolean;
   stripeChargesEnabled?: boolean;
   stripePayoutsEnabled?: boolean;
-  // MÃ¯Â¿Â½thodes d'instance
+  // Réinitialisation mot de passe
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
+  // Méthodes d'instance
   getDisplayName(): string;
   isVerifiedWith(targetUser: UserDocument): boolean;
 }
