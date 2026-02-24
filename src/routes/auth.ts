@@ -4,7 +4,9 @@ import { logger } from '../utils/logger';
 import { ApiResponse } from '../types';
 import { AuthService } from '../services/AuthService';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { User } from '../models/User';
+import { sendPasswordResetEmail } from '../services/emailService';
 
 const router = express.Router();
 
@@ -228,5 +230,119 @@ router.put('/change-password', authenticateToken, async (req: AuthRequest, res: 
     return;
   }
 });
+// POST /api/auth/forgot-password - Demande de réinitialisation de mot de passe
+router.post('/forgot-password', async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
 
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email requis'
+      } as ApiResponse);
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() })
+      .select('+resetPasswordToken +resetPasswordExpires')
+      .exec();
+
+    // Toujours répondre 200 même si l'email n'existe pas (sécurité anti-enumeration)
+    if (!user) {
+      logger.info(`Forgot password: email non trouvé ${email} (réponse 200 pour sécurité)`);
+      return res.json({
+        success: true,
+        message: 'Si cet email existe, un lien de réinitialisation a été envoyé.'
+      } as ApiResponse);
+    }
+
+    // Générer un token sécurisé
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+
+    // Sauvegarder le token hashé + expiration 1h
+    (user as any).resetPasswordToken = hashedToken;
+    (user as any).resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 heure
+    await user.save();
+
+    // Envoyer l'email avec le token brut
+    await sendPasswordResetEmail(user.email, rawToken);
+
+    logger.info(`Email de réinitialisation envoyé à: ${user.email}`);
+
+    return res.json({
+      success: true,
+      message: 'Si cet email existe, un lien de réinitialisation a été envoyé.'
+    } as ApiResponse);
+
+  } catch (error) {
+    logger.error('Erreur forgot-password:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la demande de réinitialisation'
+    } as ApiResponse);
+  }
+});
+
+// POST /api/auth/reset-password - Réinitialiser le mot de passe via token
+router.post('/reset-password', async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token et nouveau mot de passe requis'
+      } as ApiResponse);
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le mot de passe doit contenir au moins 6 caractères'
+      } as ApiResponse);
+    }
+
+    // Hasher le token reçu pour comparer avec celui en base
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: new Date() } // Token non expiré
+    } as any)
+      .select('+resetPasswordToken +resetPasswordExpires')
+      .exec();
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token invalide ou expiré. Veuillez refaire une demande de réinitialisation.'
+      } as ApiResponse);
+    }
+
+    // Hasher le nouveau mot de passe
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Mettre à jour le mot de passe + supprimer le token
+    await User.findByIdAndUpdate(user._id, {
+      password: hashedPassword,
+      resetPasswordToken: undefined,
+      resetPasswordExpires: undefined,
+      updatedAt: new Date()
+    } as any);
+
+    logger.info(`Mot de passe réinitialisé pour: ${user.email}`);
+
+    return res.json({
+      success: true,
+      message: 'Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter.'
+    } as ApiResponse);
+
+  } catch (error) {
+    logger.error('Erreur reset-password:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la réinitialisation du mot de passe'
+    } as ApiResponse);
+  }
+});
 export default router;

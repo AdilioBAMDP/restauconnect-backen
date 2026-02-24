@@ -246,6 +246,15 @@ const UserSchema = new Schema<UserDocument>({
   stripePayoutsEnabled: { 
     type: Boolean, 
     default: false 
+  },
+  // Réinitialisation mot de passe
+  resetPasswordToken: {
+    type: String,
+    select: false
+  },
+  resetPasswordExpires: {
+    type: Date,
+    select: false
   }
 }, {
   timestamps: true,
