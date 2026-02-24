@@ -657,7 +657,11 @@ router.put('/approve-registration/:id', authenticateToken, requireAdmin, async (
     try {
       await sendApprovalWithCredentialsEmail(
         userDoc.email,
-        userDoc.username || userDoc.email.split('@')[0],
+        (userDoc as any).name
+          || ((userDoc as any).firstName
+              ? `${(userDoc as any).firstName} ${(userDoc as any).lastName || ''}`.trim()
+              : null)
+          || userDoc.email.split('@')[0],
         userDoc.email,
         temporaryPassword,
         userDoc.role
@@ -718,6 +722,7 @@ router.post('/approve-registration', authenticateToken, requireAdmin, async (req
       {
         status: 'approved',
         isActive: true,
+        verified: true,
         password: hashedPassword,
         'metadata.approvalDate': new Date(),
         'metadata.approvedBy': req.user?.userId,
@@ -737,7 +742,11 @@ router.post('/approve-registration', authenticateToken, requireAdmin, async (req
     try {
       await sendApprovalWithCredentialsEmail(
         userDoc.email,
-        userDoc.username || userDoc.email.split('@')[0],
+        (userDoc as any).name
+          || ((userDoc as any).firstName
+              ? `${(userDoc as any).firstName} ${(userDoc as any).lastName || ''}`.trim()
+              : null)
+          || userDoc.email.split('@')[0],
         userDoc.email,
         temporaryPassword,
         userDoc.role
