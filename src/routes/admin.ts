@@ -1244,6 +1244,61 @@ router.get('/moderation/reviews', authenticateToken, requireAdmin, async (req: A
 // ðŸ“‹ APPLICATIONS/CANDIDATURES - Endpoints stubs
 // ==========================================
 
+// ==========================================
+// GET /api/admin/registrations - Demandes d'inscription (User model, filtrables)
+// ==========================================
+router.get('/registrations', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { status, role, page = 1, limit = 50 } = req.query;
+
+    // Exclure les admins / super-admins
+    const filter: Record<string, unknown> = { role: { $nin: ['admin', 'super_admin'] } };
+    if (status && status !== '') filter.status = status;
+    if (role && role !== '') filter.role = role;
+
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const users = await User.find(filter)
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(Number(limit))
+      .exec();
+
+    const total = await User.countDocuments(filter);
+
+    // Mapper User -> shape Application pour le frontend
+    const applications = users.map((u: any) => ({
+      _id: u._id.toString(),
+      firstName: u.firstName || (u.name ? u.name.split(' ')[0] : '') || '',
+      lastName: u.lastName || (u.name ? u.name.split(' ').slice(1).join(' ') : '') || '',
+      email: u.email || '',
+      phone: u.phone || u.phoneNumber || '',
+      role: u.role || 'candidat',
+      company: u.businessName || u.restaurantName || u.companyName || u.supplierName || '',
+      message: u.motivationMessage || u.description || u.registrationNotes || '',
+      status: u.status || 'pending',
+      reviewedAt: u.updatedAt ? u.updatedAt.toISOString() : undefined,
+      createdAt: u.createdAt ? u.createdAt.toISOString() : new Date().toISOString(),
+      updatedAt: u.updatedAt ? u.updatedAt.toISOString() : new Date().toISOString(),
+    }));
+
+    res.json({
+      success: true,
+      applications,
+      total,
+      page: Number(page),
+      limit: Number(limit),
+    });
+  } catch (error) {
+    logger.error('Erreur recuperation registrations:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erreur lors de la recuperation des demandes d\'inscription',
+    } as ApiResponse);
+  }
+});
+
 router.get('/applications', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const JobApplication = mongoose.model('JobApplication');
