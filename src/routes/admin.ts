@@ -14,6 +14,8 @@ import { ApiResponse } from '../types';
 import { sendApprovalWithCredentialsEmail } from '../services/emailService';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const TransactionModel = require('../models/Transaction');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const PlatformWalletModel = require('../models/PlatformWallet');
 
 // console.log('ðŸ”¥ CHARGEMENT DU MODULE ADMIN.TS');
 // console.log('ðŸ” User model imported:', typeof User, User);
@@ -973,43 +975,57 @@ router.get('/top-commission-generators', authenticateToken, requireAdmin, async 
 router.get('/platform-wallet', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const Transaction = TransactionModel;
+    const PlatformWallet = PlatformWalletModel;
 
-    const allTx = await Transaction.find().lean();
+    // 1. Essayer le document PlatformWallet dédié (singleton)
+    const pw = await PlatformWallet.findOne().lean() as any;
 
-    const totalCommissions = allTx.reduce((sum: number, tx: any) => sum + (tx.commission || 0), 0);
-    const balance = allTx
-      .filter((tx: any) => tx.status === 'completed')
-      .reduce((sum: number, tx: any) => sum + (tx.commission || 0), 0);
+    // 2. Calculer depuis Transaction (toujours, pour avoir les chiffres à jour)
+    const allTx = await Transaction.find().lean() as any[];
+    const completedTx = allTx.filter((tx: any) => tx.status === 'completed');
 
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-
     const monthlyTx = allTx.filter((tx: any) => new Date(tx.createdAt) >= startOfMonth);
-    const monthlyCommissions = monthlyTx.reduce((sum: number, tx: any) => sum + (tx.commission || 0), 0);
+    const monthlyCompleted = monthlyTx.filter((tx: any) => tx.status === 'completed');
 
-    const lastTx = allTx.sort((a: any, b: any) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+    // Volume = sum(amount), Commissions = sum(commission)
+    const totalVolume = allTx.reduce((s: number, tx: any) => s + (tx.amount || 0), 0);
+    const totalCommissions = allTx.reduce((s: number, tx: any) => s + (tx.commission || 0), 0);
+    const completedVolume = completedTx.reduce((s: number, tx: any) => s + (tx.amount || 0), 0);
+    const completedCommissions = completedTx.reduce((s: number, tx: any) => s + (tx.commission || 0), 0);
+    const monthlyVolume = monthlyTx.reduce((s: number, tx: any) => s + (tx.amount || 0), 0);
+    const monthlyCommissions = monthlyTx.reduce((s: number, tx: any) => s + (tx.commission || 0), 0);
+    const monthlyCompletedVolume = monthlyCompleted.reduce((s: number, tx: any) => s + (tx.amount || 0), 0);
+
+    // Utiliser PlatformWallet si il a des valeurs, sinon fallback sur Transaction
+    const useWallet = pw && (pw.totalCommissionsCollected > 0 || pw.balance > 0);
 
     res.json({
       success: true,
       data: {
-        balance,
-        pendingBalance: totalCommissions - balance,
-        totalCommissionsCollected: totalCommissions,
-        monthlyRevenue: monthlyCommissions,
+        // Commissions (peut être 0 en test)
+        balance: useWallet ? pw.balance : completedCommissions,
+        totalCommissionsCollected: useWallet ? pw.totalCommissionsCollected : totalCommissions,
+        monthlyRevenue: useWallet ? (pw.monthlyStats?.slice(-1)[0]?.totalCommissions || 0) : monthlyCommissions,
+        // Volume brut des transactions (toujours rempli même en test)
+        totalVolume,
+        completedVolume,
+        monthlyVolume,
+        monthlyCompletedVolume,
+        // Compteurs
         totalTransactions: allTx.length,
         monthlyTransactions: monthlyTx.length,
-        paidTransactions: allTx.filter((tx: any) => tx.status === 'completed').length,
-        lastTransaction: lastTx?.createdAt || new Date().toISOString()
+        paidTransactions: completedTx.length,
       }
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur rÃ©cupÃ©ration wallet:', error);
+    logger.error('Erreur récupération wallet:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la rÃ©cupÃ©ration du portefeuille'
+      error: 'Erreur lors de la récupération du portefeuille'
     } as ApiResponse);
   }
 });
