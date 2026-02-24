@@ -174,10 +174,10 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"]
     }
   },
-  crossOriginEmbedderPolicy: !isProduction, // DÃ©sactiver en production si problÃ¨mes
+  crossOriginEmbedderPolicy: !isProduction, // Désactiver en production si problèmes
   crossOriginResourcePolicy: { policy: "cross-origin" } // Nécessaire pour Railway → Vercel (cross-site)
 }));
-app.use(securityHeaders);
+// Note: securityHeaders (second helmet instance) supprimé - il écrasait crossOriginResourcePolicy avec 'same-origin'
 app.options('*', cors(corsOptions)); // Préflight OPTIONS
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
