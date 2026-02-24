@@ -175,9 +175,10 @@ app.use(helmet({
     }
   },
   crossOriginEmbedderPolicy: !isProduction, // DÃ©sactiver en production si problÃ¨mes
-  crossOriginResourcePolicy: { policy: isProduction ? "same-site" : "cross-origin" }
+  crossOriginResourcePolicy: { policy: "cross-origin" } // Nécessaire pour Railway → Vercel (cross-site)
 }));
 app.use(securityHeaders);
+app.options('*', cors(corsOptions)); // Préflight OPTIONS
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
