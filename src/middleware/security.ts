@@ -70,7 +70,8 @@ export const securityHeaders = helmet({
       frameSrc: ["'none'"]
     }
   },
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: false // Requis pour Railway → Vercel (cross-site)
 });
 
 // Request logging middleware

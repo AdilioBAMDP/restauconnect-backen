@@ -21,7 +21,9 @@ import {
 
 
 const app = express();
-// CORS doit Ãªtre appliquÃ© tout de suite aprÃ¨s la crÃ©ation de l'app
+// CORS doit être appliqué tout de suite après la création de l'app
+// Gérer les requêtes preflight OPTIONS en premier
+app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 // Parse JSON bodies
 app.use(express.json());
@@ -174,8 +176,8 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"]
     }
   },
-  crossOriginEmbedderPolicy: !isProduction, // DÃ©sactiver en production si problÃ¨mes
-  crossOriginResourcePolicy: { policy: isProduction ? "same-site" : "cross-origin" }
+  crossOriginEmbedderPolicy: false, // Désactivé pour compatibilité cross-origin
+  crossOriginResourcePolicy: { policy: "cross-origin" } // Requis pour Railway → Vercel
 }));
 app.use(securityHeaders);
 app.use(cors(corsOptions));
