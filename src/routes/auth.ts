@@ -322,12 +322,16 @@ router.post('/reset-password', async (req: Request, res: Response) => {
     // Hasher le nouveau mot de passe
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
-    // Mettre à jour le mot de passe + supprimer le token
+    // Mettre à jour le mot de passe + supprimer le token avec $unset
     await User.findByIdAndUpdate(user._id, {
-      password: hashedPassword,
-      resetPasswordToken: undefined,
-      resetPasswordExpires: undefined,
-      updatedAt: new Date()
+      $set: {
+        password: hashedPassword,
+        updatedAt: new Date()
+      },
+      $unset: {
+        resetPasswordToken: '',
+        resetPasswordExpires: ''
+      }
     } as any);
 
     logger.info(`Mot de passe réinitialisé pour: ${user.email}`);
