@@ -12,6 +12,8 @@ import { requirePermission, rolePermissions } from '../middleware/rbac';
 import { logger } from '../utils/logger';
 import { ApiResponse } from '../types';
 import { sendApprovalWithCredentialsEmail } from '../services/emailService';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const TransactionModel = require('../models/Transaction');
 
 // console.log('ðŸ”¥ CHARGEMENT DU MODULE ADMIN.TS');
 // console.log('ðŸ” User model imported:', typeof User, User);
@@ -508,57 +510,62 @@ router.patch('/users/:id/toggle-status', authenticateToken, requireAdmin, async 
 // GET /api/admin/transactions - Liste des transactions
 router.get('/transactions', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
-    // RÃ©cupÃ©rer les commandes qui contiennent les infos de paiement
-    const Order = mongoose.model('Order');
-    const User = mongoose.model('User');
-    
-    const orders = await Order.find()
-      .populate('restaurantId', 'businessName email')
-      .populate('supplierId', 'businessName email')
-      // Ne pas populer deliveryId car peut contenir une string non-ObjectId
+    const Transaction = TransactionModel;
+
+    const { status, type, page = 1, limit = 100 } = req.query;
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const filter: Record<string, unknown> = {};
+    if (status && status !== '') filter.status = status;
+    if (type && type !== '') filter.type = type;
+
+    const txDocs = await Transaction.find(filter)
       .sort({ createdAt: -1 })
-      .limit(100)
+      .skip(skip)
+      .limit(Number(limit))
       .lean();
 
-    // Transformer les Orders en format Transaction pour l'admin
-    const transactions = orders.map((order: any) => {
-      try {
-        return {
-          id: order._id,
-          orderNumber: order.orderNumber,
-          from: {
-            name: order?.restaurantId?.businessName || 'Restaurant inconnu',
-            email: order?.restaurantId?.email || 'N/A'
-          },
-          to: {
-            name: order?.supplierId?.businessName || 'Fournisseur inconnu',
-            email: order?.supplierId?.email || 'N/A'
-          },
-          amount: order?.pricing?.total || 0,
-          commission: order?.pricing?.platformFee || 0,
-          status: order?.payment?.status || order?.status,
-          type: 'order',
-          paymentMethod: order?.payment?.method || 'N/A',
-          transactionId: order?.payment?.transactionId || order?.orderNumber,
-          date: order?.createdAt || order?.payment?.paidAt
-        };
-      } catch (err) {
-        logger.error('Erreur mapping transaction:', err, order);
-        return null;
-      }
-    }).filter(Boolean);
+    const total = await Transaction.countDocuments(filter);
+
+    // Mapper vers le shape attendu par AdminTransactions.tsx
+    const transactions = txDocs.map((tx: any) => ({
+      id: tx._id.toString(),
+      transactionId: tx.transactionId,
+      description: tx.description || '',
+      type: tx.type || 'service_payment',
+      from: {
+        name: tx.from?.accountDetails?.companyName
+          || (tx.from?.accountDetails?.firstName
+              ? `${tx.from.accountDetails.firstName} ${tx.from.accountDetails.lastName || ''}`.trim()
+              : 'Expéditeur inconnu'),
+        email: tx.from?.accountDetails?.email || 'N/A'
+      },
+      to: {
+        name: tx.to?.accountDetails?.companyName
+          || (tx.to?.accountDetails?.firstName
+              ? `${tx.to.accountDetails.firstName} ${tx.to.accountDetails.lastName || ''}`.trim()
+              : 'Destinataire inconnu'),
+        email: tx.to?.accountDetails?.email || 'N/A'
+      },
+      amount: tx.amount || 0,
+      commission: tx.commission || 0,
+      status: tx.status || 'pending',
+      paymentMethod: tx.paymentMethod || 'N/A',
+      date: tx.createdAt || tx.processedAt
+    }));
 
     res.json({
       success: true,
       data: transactions,
+      total,
       count: transactions.length
     } as ApiResponse);
 
   } catch (error) {
-    logger.error('Erreur rÃ©cupÃ©ration transactions:', error);
+    logger.error('Erreur récupération transactions:', error);
     res.status(500).json({
       success: false,
-      error: 'Erreur lors de la rÃ©cupÃ©ration des transactions',
+      error: 'Erreur lors de la récupération des transactions',
       details: error instanceof Error ? error.message : error
     } as ApiResponse);
   }
@@ -965,49 +972,37 @@ router.get('/top-commission-generators', authenticateToken, requireAdmin, async 
 // GET /api/admin/platform-wallet - Portefeuille plateforme
 router.get('/platform-wallet', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
-    const Order = mongoose.model('Order');
-    
-    // Calculer les vraies commissions depuis TOUS les orders (pas seulement paid)
-    const orders = await Order.find().lean();
-    const totalCommissions = orders.reduce((sum: number, order: any) => 
-      sum + (order.pricing?.platformFee || 0), 0
-    );
-    
-    // Commissions du mois en cours
+    const Transaction = TransactionModel;
+
+    const allTx = await Transaction.find().lean();
+
+    const totalCommissions = allTx.reduce((sum: number, tx: any) => sum + (tx.commission || 0), 0);
+    const balance = allTx
+      .filter((tx: any) => tx.status === 'completed')
+      .reduce((sum: number, tx: any) => sum + (tx.commission || 0), 0);
+
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
-    
-    const monthlyOrders = await Order.find({ 
-      'createdAt': { $gte: startOfMonth }
-    }).lean();
-    
-    const monthlyCommissions = monthlyOrders.reduce((sum: number, order: any) => 
-      sum + (order.pricing?.platformFee || 0), 0
-    );
-    
-    // Orders avec paiement confirmÃ©
-    const paidOrders = orders.filter((o: any) => o.payment?.status === 'paid' || o.status === 'completed');
-    const paidCommissions = paidOrders.reduce((sum: number, order: any) => 
-      sum + (order.pricing?.platformFee || 0), 0
-    );
-    
-    const lastOrder = await Order.findOne().sort({ createdAt: -1 }).lean();
 
-    const walletData = {
-      balance: paidCommissions, // Seulement les commissions payÃ©es
-      pendingBalance: totalCommissions - paidCommissions, // Commissions en attente
-      totalCommissionsCollected: totalCommissions, // Toutes les commissions
-      monthlyRevenue: monthlyCommissions,
-      totalTransactions: orders.length,
-      monthlyTransactions: monthlyOrders.length,
-      paidTransactions: paidOrders.length,
-      lastTransaction: lastOrder?.createdAt || new Date().toISOString()
-    };
+    const monthlyTx = allTx.filter((tx: any) => new Date(tx.createdAt) >= startOfMonth);
+    const monthlyCommissions = monthlyTx.reduce((sum: number, tx: any) => sum + (tx.commission || 0), 0);
+
+    const lastTx = allTx.sort((a: any, b: any) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
 
     res.json({
       success: true,
-      data: walletData
+      data: {
+        balance,
+        pendingBalance: totalCommissions - balance,
+        totalCommissionsCollected: totalCommissions,
+        monthlyRevenue: monthlyCommissions,
+        totalTransactions: allTx.length,
+        monthlyTransactions: monthlyTx.length,
+        paidTransactions: allTx.filter((tx: any) => tx.status === 'completed').length,
+        lastTransaction: lastTx?.createdAt || new Date().toISOString()
+      }
     } as ApiResponse);
 
   } catch (error) {
