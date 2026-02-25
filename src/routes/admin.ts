@@ -1278,24 +1278,30 @@ router.get('/registrations', authenticateToken, requireAdmin, async (req: AuthRe
 
     const total = await User.countDocuments(filter);
 
-    // Mapper User -> shape Application pour le frontend
-    const applications = users.map((u: any) => ({
-      _id: u._id.toString(),
-      firstName: u.firstName || (u.name ? u.name.split(' ')[0] : '') || '',
-      lastName: u.lastName || (u.name ? u.name.split(' ').slice(1).join(' ') : '') || '',
-      email: u.email || '',
-      phone: u.phone || u.phoneNumber || '',
-      role: u.role || 'candidat',
-      company: u.businessName || u.restaurantName || u.companyName || u.supplierName || '',
-      message: u.motivationMessage || u.description || u.registrationNotes || '',
-      status: u.status || 'pending',
-      reviewedAt: u.updatedAt ? u.updatedAt.toISOString() : undefined,
-      createdAt: u.createdAt ? u.createdAt.toISOString() : new Date().toISOString(),
-      updatedAt: u.updatedAt ? u.updatedAt.toISOString() : new Date().toISOString(),
-    }));
+    const applications = users.map((u: any) => {
+      const firstName = u.firstName || (u.name ? u.name.split(' ')[0] : '') || '';
+      const lastName = u.lastName || (u.name ? u.name.split(' ').slice(1).join(' ') : '') || '';
+      return {
+        _id: u._id.toString(),
+        id: u._id.toString(),
+        firstName,
+        lastName,
+        name: u.name || `${firstName} ${lastName}`.trim() || u.email,
+        email: u.email || '',
+        phone: u.phone || u.phoneNumber || '',
+        role: u.role || 'candidat',
+        company: u.businessName || u.restaurantName || u.companyName || u.supplierName || '',
+        message: u.motivationMessage || u.description || u.registrationNotes || '',
+        status: u.status || 'pending',
+        reviewedAt: u.updatedAt ? u.updatedAt.toISOString() : undefined,
+        createdAt: u.createdAt ? u.createdAt.toISOString() : new Date().toISOString(),
+        updatedAt: u.updatedAt ? u.updatedAt.toISOString() : new Date().toISOString(),
+      };
+    });
 
     res.json({
       success: true,
+      data: applications,
       applications,
       total,
       page: Number(page),
