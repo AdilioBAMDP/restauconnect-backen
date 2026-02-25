@@ -21,7 +21,8 @@ import {
 
 
 const app = express();
-// CORS doit Ãªtre appliquÃ© tout de suite aprÃ¨s la crÃ©ation de l'app
+// CORS doit être appliqué tout de suite après la création de l'app
+app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 // Parse JSON bodies
 app.use(express.json());

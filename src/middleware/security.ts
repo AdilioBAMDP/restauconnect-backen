@@ -70,7 +70,8 @@ export const securityHeaders = helmet({
       frameSrc: ["'none'"]
     }
   },
-  crossOriginEmbedderPolicy: false
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" }
 });
 
 // Request logging middleware
