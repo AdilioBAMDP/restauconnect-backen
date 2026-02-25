@@ -23,6 +23,7 @@
     "declarationMap": false,
     "sourceMap": true,
     "removeComments": true,
+    "allowJs": true,
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
